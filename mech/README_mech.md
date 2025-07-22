@@ -1,8 +1,6 @@
 ### Mechanical Design Approach
 
-
-
-1. #### Basic Mechanical Choices
+#### 1/. Basic Mechanical Choices
 
 ###### **1.1 Wheel Choice**
 
