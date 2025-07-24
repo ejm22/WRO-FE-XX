@@ -1,4 +1,4 @@
-# We run this server to have access to the logs live from localhost, even when the rasberry pi isn't
+# We run this server to have access to the logs live from the Raspberry Pi ip, even when it isn't
 # connected to a monitor, for debugging purposes.
 
 from flask import Flask
