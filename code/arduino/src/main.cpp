@@ -9,16 +9,16 @@
 #include <FlexyStepper.h>
 #include <Servo.h>
 
-const int dirPin = 2;       // Pin for stepper motor direction
-const int stepPin = 9;      // Pin for stepper motor control
-const int enablePin = 10;   // Pin for enabling/disabling the stepper motor
-const int anglePin = 11;    // Pin for servo control
-const int voltagePin = A5;  // Pin for battery voltage measurement
+const int DIR_PIN = 2;       // Pin for stepper motor direction
+const int STEP_PIN = 9;      // Pin for stepper motor control
+const int ENABLE_PIN = 10;   // Pin for enabling/disabling the stepper motor
+const int ANGLE_PIN = 11;    // Pin for servo control
+const int VOLTAGE_PIN = A5;  // Pin for battery voltage measurement
 
-const int angleMin = 48;    // Minimum angle for the servo
-const int angleMax = 138;   // Maximum angle for the servo
-const int speedMin = 300;   // Maximum negative speed for the stepper
-const int speedMax = 6000;  // Maximum speed for the stepper
+const int ANGLE_MIN = 48;    // Minimum angle for the servo
+const int ANGLE_MAX = 138;   // Maximum angle for the servo
+const int SPEED_MIN = 300;   // Maximum negative speed for the stepper
+const int SPEED_MAX = 6000;  // Maximum speed for the stepper
 
 // Voltage divider for battery voltage measurement
 const int R1 = 20000;       // Resistor R1 in ohms
@@ -39,21 +39,21 @@ void decryptOrder();
 
 void setup() {
     Serial.begin(115200);
-    servo.attach(anglePin);
+    servo.attach(ANGLE_PIN);
 
-    stepper.connectToPins(stepPin, dirPin);
+    stepper.connectToPins(STEP_PIN, DIR_PIN);
     stepper.setCurrentPositionInSteps(0);
     stepper.setTargetPositionInSteps(0);
     stepper.setAccelerationInStepsPerSecondPerSecond(4000);
     stepper.setSpeedInStepsPerSecond(speed);
-    pinMode(enablePin, OUTPUT);
-    digitalWrite(enablePin, LOW);
+    pinMode(ENABLE_PIN, OUTPUT);
+    digitalWrite(ENABLE_PIN, LOW);
 }
 
 void loop() {
     if (speed == 0 && abs(stepper.getCurrentVelocityInStepsPerSecond()) < 100) {
-      digitalWrite(enablePin, HIGH); // Disable stepper when speed is 0
-    } else digitalWrite(enablePin, LOW); // Enable stepper when speed is not 0
+      digitalWrite(ENABLE_PIN, HIGH); // Disable stepper when speed is 0
+    } else digitalWrite(ENABLE_PIN, LOW); // Enable stepper when speed is not 0
     stepper.processMovement();
     processSerial();
 }
@@ -81,13 +81,13 @@ void decryptOrder() {
     int commaIndex = inputString.indexOf(',');
     if (commaIndex > 0) {
         angle = inputString.substring(0, commaIndex).toInt();
-        if (angle < angleMin || angle > angleMax) {
+        if (angle < ANGLE_MIN || angle > ANGLE_MAX) {
             Serial.println("Angle must be between 48 and 138.");
             inputString = ""; // clear the string for the next command
             return;
         }
             speed = inputString.substring(commaIndex + 1).toInt();
-            if (abs(speed) > speedMax) {
+            if (abs(speed) > SPEED_MAX) {
                 Serial.println("Absolute speed must be between 300 and 6000.");
                 inputString = ""; // clear the string for the next command
                 return;
