@@ -23,15 +23,37 @@ class ImageUtils:
 
     @staticmethod
     def find_black_from_bottom(img, col_range):
-        y_vals = []
-        for x in col_range:
-            for y in reversed(range(ImageUtils.PIC_WIDTH)):
+            y_vals = []
+            for x in col_range:
+                for y in reversed(range(ImageUtils.PIC_HEIGHT)):
+                    if img[y,x] == 0:
+                        y_vals.append(y)
+                        break
+                else:
+                    y_vals.append(0)
+            return y_vals
+    
+    def find_black_from_middle_left(img, row_range):
+        x_vals = []
+        for y in row_range:
+            for x in reversed(range(ImageUtils.PIC_WIDTH // 2)):
                 if img[y,x] == 0:
-                    y_vals.append(y)
+                    x_vals.append(x)
                     break
             else:
-                y_vals.append(0)
-        return y_vals
+                x_vals.append(0)
+        return x_vals
+    
+    def find_black_from_middle_right(img, row_range):
+        x_vals = []
+        for y in row_range:
+            for x in range(ImageUtils.PIC_WIDTH // 2):
+                if img[y,x] == 0:
+                    x_vals.append(x)
+                    break
+            else:
+                x_vals.append(0)
+        return x_vals
 
     @staticmethod
     def crop_image(img, x_start, x_end, y_start, y_end):
@@ -76,6 +98,7 @@ class ImageUtils:
     
     @staticmethod
     def find_angle_from_img(img, nbr_cols = 10):
+        bottom_rows = range(ImageUtils.PIC_HEIGHT - 10, ImageUtils.PIC_HEIGHT)
         left_cols = range(0, nbr_cols)
         right_cols = range(ImageUtils.PIC_WIDTH - nbr_cols, ImageUtils.PIC_WIDTH)
 
@@ -85,5 +108,23 @@ class ImageUtils:
         avg_left_y = np.mean(left_y_vals)
         avg_right_y = np.mean(right_y_vals)
 
+        if avg_left_y > 350:
+            left_y_vals = ImageUtils.find_black_from_middle_left(img, bottom_rows)
+            print(left_y_vals)
+            new_avg_left_y = np.mean(left_y_vals)
+            if new_avg_left_y > 10:
+                avg_left_y = avg_left_y + new_avg_left_y // 4
+        
+        if avg_right_y > 350:
+            right_y_vals = ImageUtils.find_black_from_middle_right(img, bottom_rows)
+            print(right_y_vals)
+            new_avg_right_y = np.mean(right_y_vals)
+            if new_avg_right_y < 630:
+                avg_right_y = avg_right_y + (640 - new_avg_right_y) // 4
+
         angle = 88 - (int((avg_left_y - avg_right_y) / 7))
+        if angle < 48:
+            angle = 49
+        elif angle > 138:
+            angle = 137
         return angle
