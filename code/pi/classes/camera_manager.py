@@ -1,0 +1,48 @@
+from picamera2 import Picamera2
+import time
+from utils.image_utils import ImageUtils
+import cv2
+
+class CameraManager:
+
+    def __init__(self):
+        self.picam2 = Picamera2()
+        self.current_image = None
+
+        self.configure_camera()
+
+    def configure_camera(self):
+        sensor_mode = self.picam2.sensor_modes[1]
+        sensor_width, sensor_height = sensor_mode["size"]
+        config = (self.picam2.create_still_configuration(
+        raw={"size":(sensor_width,sensor_height)},
+        main={"format":'RGB888',"size": (ImageUtils.PIC_WIDTH, ImageUtils.PIC_HEIGHT)}))
+        self.picam2.configure(config)
+
+    def start_camera(self):
+        self.picam2.start()
+        time.sleep(2)
+
+    def capture_image(self):
+        self.current_image = self.picam2.capture_array()
+
+    def transform_image(self):
+        if self.current_image is not None:
+            img = ImageUtils.crop_image(self.current_image, 0, ImageUtils.PIC_WIDTH, 0, ImageUtils.PIC_HEIGHT)
+            cv2.imshow("Captured Image", img)
+            input("Press Enter to continue...")
+            img = ImageUtils.bgr_to_hsv(img)
+            cv2.imshow("HSV Image", img)
+            input("Press Enter to continue...")
+            img = ImageUtils.remove_color(img, 'blue')
+            cv2.imshow("No Blue", img)
+            input("Press Enter to continue...")
+            img = ImageUtils.color_to_grayscale(img)
+            cv2.imshow("Grayscale Image", img)
+            input("Press Enter to continue...")
+            img = ImageUtils.blur_image(img)
+            img = ImageUtils.make_binary(img)
+            img = ImageUtils.clean_binary(img)
+            img = ImageUtils.visualize_contour(img)
+
+            return img
