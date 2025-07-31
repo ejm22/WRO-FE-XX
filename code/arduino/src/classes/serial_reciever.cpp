@@ -6,18 +6,18 @@ SerialReceiver::SerialReceiver(Servo &servoRef, FlexyStepper &stepperRef, int &a
 }
 
 void SerialReceiver::processSerial() {
-    if (Serial.available()) {
+    while (Serial.available()) {
         char inChar = (char)Serial.read();
-        switch(inChar) {
+        switch (inChar) {
             case 'v':
             case 'V':
                 VoltageUtils::showVoltage();
                 break;
-            
-            case '.': // End of command
+
+            case '.':
                 decryptMovementOrder();
                 break;
-            
+
             default:
                 inputString += inChar;
                 break;

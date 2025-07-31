@@ -41,8 +41,6 @@ void setup() {
     stepper.setSpeedInStepsPerSecond(speed);
     pinMode(ENABLE_PIN, OUTPUT);
     digitalWrite(ENABLE_PIN, LOW);
-
-    SerialReceiver serialReceiver(servo, stepper, angle, speed, targetPosition);
 }
 
 void loop() {
