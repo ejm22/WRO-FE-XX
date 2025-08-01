@@ -15,6 +15,7 @@ const int DIR_PIN = 2;       // Pin for stepper motor direction
 const int STEP_PIN = 9;      // Pin for stepper motor control
 const int ENABLE_PIN = 10;   // Pin for enabling/disabling the stepper motor
 const int ANGLE_PIN = 11;    // Pin for servo control
+const int ACCELERATION = 2000; // Acceleration for the stepper motor
 
 // Voltage divider for battery voltage measurement
 const int R1 = 20000;       // Resistor R1 in ohms
@@ -37,7 +38,7 @@ void setup() {
     stepper.connectToPins(STEP_PIN, DIR_PIN);
     stepper.setCurrentPositionInSteps(0);
     stepper.setTargetPositionInSteps(0);
-    stepper.setAccelerationInStepsPerSecondPerSecond(4000);
+    stepper.setAccelerationInStepsPerSecondPerSecond(ACCELERATION);
     stepper.setSpeedInStepsPerSecond(speed);
     pinMode(ENABLE_PIN, OUTPUT);
     digitalWrite(ENABLE_PIN, LOW);
