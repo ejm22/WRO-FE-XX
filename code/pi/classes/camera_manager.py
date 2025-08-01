@@ -24,25 +24,26 @@ class CameraManager:
         time.sleep(2)
 
     def capture_image(self):
+        if self.current_image is not None:
+            del self.current_image
         self.current_image = self.picam2.capture_array()
+        #cv2.imshow("Color", self.current_image)
+
 
     def transform_image(self):
         if self.current_image is not None:
             img = ImageUtils.crop_image(self.current_image, 0, ImageUtils.PIC_WIDTH, 0, ImageUtils.PIC_HEIGHT)
-            cv2.imshow("Captured Image", img)
-            input("Press Enter to continue...")
-            img = ImageUtils.bgr_to_hsv(img)
-            cv2.imshow("HSV Image", img)
-            input("Press Enter to continue...")
+            #cv2.imshow("Captured Image", img)
+            #input("Press Enter to continue...")
             img = ImageUtils.remove_color(img, 'blue')
-            cv2.imshow("No Blue", img)
-            input("Press Enter to continue...")
+            #cv2.imshow("No Blue", img)
+            #input("Press Enter to continue...")
             img = ImageUtils.color_to_grayscale(img)
-            cv2.imshow("Grayscale Image", img)
-            input("Press Enter to continue...")
+            #cv2.imshow("Grayscale Image", img)
+            #input("Press Enter to continue...")
             img = ImageUtils.blur_image(img)
             img = ImageUtils.make_binary(img)
             img = ImageUtils.clean_binary(img)
-            img = ImageUtils.visualize_contour(img)
+            #img = ImageUtils.visualize_contour(img)
 
             return img
