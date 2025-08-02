@@ -13,6 +13,7 @@ MATRIX_SIZE = 5                 # size of the kernel for morphological operation
 
 COLOR_RANGES = {
     'blue': (np.array([100, 100, 50]), np.array([130, 255, 255])),
+    'blue_orange': (np.array([0,100, 50]), np.array([179, 255, 255])),
     # Add other colors if needed, next is orange
 }
 
@@ -65,17 +66,10 @@ class ImageUtils:
         cnt = ImageUtils.find_contour(binary_img)
         epsilon = 0.01*cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, epsilon, True)
-        cv2.drawContours(target_img, [approx], -1, (255, 255, 0), 2)
-        for i in range(len(approx)):
-            pt1 = approx[i][0]
-            pt2 = approx[(i+1) % len(approx)][0]
-            dx = pt2[0] - pt1[0]
-            dy = pt2[1] - pt1[1]
-            angle = np.degrees(np.arctan2(dy,dx))
-            if abs(angle) > 175:
-                print(f"Line from {pt1} to {pt2} -> angle : {angle:.2f} degrees")
-
-        return target_img
+        mask = np.zeros_like(binary_img)
+        cv2.fillPoly(mask, [approx], (255, 255, 255))
+        target_img = cv2.bitwise_and(binary_img, mask)        
+        return target_img, approx
     
     @staticmethod
     def get_top_line_coords(binary_img):
@@ -89,5 +83,21 @@ class ImageUtils:
             dy = pt2[1] - pt1[1]
             angle = np.degrees(np.arctan2(dy,dx))
             if abs(angle) > 175:
+                return [pt1.tolist(), pt2.tolist()]
+        return None
+
+    @staticmethod
+    def get_corner_line_coords(binary_img):
+        cnt = ImageUtils.find_contour(binary_img)
+        epsilon = 0.01*cv2.arcLength(cnt, True)
+        approx = cv2.approxPolyDP(cnt, epsilon, True)
+        for i in range(len(approx)):
+            pt1 = approx[i][0]
+            pt2 = approx[(i+1) % len(approx)][0]
+            dx = pt2[0] - pt1[0]
+            dy = pt2[1] - pt1[1]
+            angle = np.degrees(np.arctan2(dy,dx))
+            #print("Angle corner = ", angle)
+            if (angle > 50) & (angle < 85):
                 return [pt1.tolist(), pt2.tolist()]
         return None

@@ -14,6 +14,7 @@ class CameraManager:
         self.blurred_image = None
         self.binary_image = None
         self.clean_image = None
+        self.soundproof_image = None
 
         self.configure_camera()
 
@@ -41,7 +42,7 @@ class CameraManager:
             self.cropped_image = ImageUtils.crop_image(self.current_image.copy(), 0, ImageUtils.PIC_WIDTH, 0, ImageUtils.PIC_HEIGHT)
             #cv2.imshow("Captured Image", img)
             #input("Press Enter to continue...")
-            self.colormask_image = ImageUtils.remove_color(self.cropped_image.copy(), 'blue')
+            self.colormask_image = ImageUtils.remove_color(self.cropped_image.copy(), 'blue_orange')
             #cv2.imshow("No Blue", img)
             #input("Press Enter to continue...")
             img = ImageUtils.color_to_grayscale(self.colormask_image.copy())
@@ -50,6 +51,7 @@ class CameraManager:
             img = ImageUtils.blur_image(img.copy())
             img = ImageUtils.make_binary(img.copy())
             img = ImageUtils.clean_binary(img.copy())
+            self.soundproof_image,_ = ImageUtils.draw_polygon(img.copy(), img.copy())
             #img = ImageUtils.visualize_contour(img)
             
-            return img
+            return self.soundproof_image, self.colormask_image
