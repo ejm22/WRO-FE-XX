@@ -46,6 +46,11 @@ void SerialReceiver::decryptMovementOrder() {
         } else {
             stepper.setTargetPositionInSteps(targetPosition);
         }
+        if (speed == 0) {
+            stepper.setAccelerationInStepsPerSecondPerSecond(4000); // Stop the stepper if speed is 0
+        } else {
+            stepper.setAccelerationInStepsPerSecondPerSecond(2000); // Set acceleration for the stepper
+        }
 
         servo.write(angle);
         stepper.setSpeedInStepsPerSecond(speed);
