@@ -6,6 +6,7 @@ from utils.image_utils import ImageUtils
 from classes.image_algoriths import ImageAlgorithms
 
 arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
+speed = 5500
 
 if __name__ == "__main__":
     time.sleep(1)
@@ -25,11 +26,12 @@ if __name__ == "__main__":
         img, colormask_img = camera_manager.transform_image()
         #contour_img,_ = ImageUtils.draw_polygon(img, camera_manager.colormask_image.copy())
         #cv2.imshow("Polygon Image", contour_img)
+        cv2.imshow("Cropped", camera_manager.cropped_image)
         cv2.imshow("HSV", colormask_img)
         cv2.imshow("New Image", img)
 
         if arduino.out_waiting == 0:
-            command = f"{ImageAlgorithms.calculate_angle(img)},5500.".encode()
+            command = f"{ImageAlgorithms.calculate_angle(img)},{speed}.".encode()
             arduino.write(command)
             arduino.flush()
             # print(f"Sent command: {command.decode().strip()}")
@@ -41,7 +43,10 @@ if __name__ == "__main__":
         time.sleep(0.01)
         key = cv2.waitKey(1)  # Let OpenCV update the window
         if key == 27:  # Escape key to quit
-            break
+            if (speed != 0):
+                speed = 0
+            else:
+                break
         i = i+1
         print("index : ", i)
     cv2.destroyAllWindows()
