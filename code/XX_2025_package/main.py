@@ -1,9 +1,9 @@
 import cv2
 import serial
 import time
-from classes.camera_manager import CameraManager
-from utils.image_utils import ImageUtils
-from classes.image_algoriths import ImageAlgorithms
+from XX_2025_package.classes.camera_manager import CameraManager
+from XX_2025_package.utils.image_utils import ImageUtils
+from XX_2025_package.classes.image_algoriths import ImageAlgorithms
 
 arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
 speed = 5500
@@ -19,19 +19,24 @@ if __name__ == "__main__":
     if line:
         print(line)
     i=0
+    camera_manager.capture_image()
+    camera_manager.transform_image()
+    dir = ImageAlgorithms.get_direction(camera_manager)
+    print("Direction : ", dir)
+    #start_time = time.time()
     while True:
+        #elapsed_time = time.time() - start_time
+        #ImageAlgorithms.get_threshold(elapsed_time)
         #line = arduino.readline()
         arduino.flushInput()                # Flushes Arduino's Input since it's not necessary anymore
         camera_manager.capture_image()
-        img, colormask_img = camera_manager.transform_image()
-        #contour_img,_ = ImageUtils.draw_polygon(img, camera_manager.colormask_image.copy())
-        #cv2.imshow("Polygon Image", contour_img)
+        camera_manager.transform_image()
         cv2.imshow("Cropped", camera_manager.cropped_image)
-        cv2.imshow("HSV", colormask_img)
-        cv2.imshow("New Image", img)
+        #cv2.imshow("HSV", colormask_img)
+        cv2.imshow("New Image", camera_manager.polygon_image)
 
         if arduino.out_waiting == 0:
-            command = f"{ImageAlgorithms.calculate_angle(img)},{speed}.".encode()
+            command = f"{ImageAlgorithms.calculate_angle(camera_manager.polygon_image)},{speed}.".encode()
             arduino.write(command)
             arduino.flush()
             # print(f"Sent command: {command.decode().strip()}")
@@ -39,7 +44,6 @@ if __name__ == "__main__":
         else:
             print("Arduino is busy, skipping command.")
         #arduino.write(f"{ImageUtils.find_angle_from_img(img)},3000.".encode())
-        del img  # Free memory
         time.sleep(0.01)
         key = cv2.waitKey(1)  # Let OpenCV update the window
         if key == 27:  # Escape key to quit

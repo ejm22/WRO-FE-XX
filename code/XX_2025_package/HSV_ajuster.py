@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from classes.camera_manager import CameraManager
+from XX_2025_package.classes.camera_manager import CameraManager
 
 class HSVRangeHighlighter:
     def __init__(self, window_name="HSV Range Highlighter"):
@@ -50,13 +50,13 @@ if __name__ == "__main__":
 
     camera_manager = CameraManager()
     camera_manager.start_camera()
-    camera_manager.capture_image()
-    img, colormask_img = camera_manager.transform_image()
-
+    camera_manager.capture_image() 
+    camera_manager.transform_image()
+    
     #image = cv2.imread("img/Image_1.jpg")
     #if image is None:
     #    raise ValueError("Image not found. Check the path.")
 
-    hsv = cv2.cvtColor(camera_manager.current_image, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(camera_manager.raw_image, cv2.COLOR_BGR2HSV)
     highlighter = HSVRangeHighlighter()
-    highlighter.adjust_hsv(hsv, camera_manager.current_image)
+    highlighter.adjust_hsv(hsv, camera_manager.raw_image)

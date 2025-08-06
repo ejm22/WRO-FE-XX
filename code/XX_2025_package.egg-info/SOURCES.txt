@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+XX_2025_package/HSV_ajuster.py
+XX_2025_package/battery.py
+XX_2025_package/main.py
+XX_2025_package.egg-info/PKG-INFO
+XX_2025_package.egg-info/SOURCES.txt
+XX_2025_package.egg-info/dependency_links.txt
+XX_2025_package.egg-info/requires.txt
+XX_2025_package.egg-info/top_level.txt

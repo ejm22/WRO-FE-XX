@@ -1,14 +1,20 @@
-from utils.image_utils import ImageUtils
+from XX_2025_package.utils.image_utils import ImageUtils
 import numpy as np
 
 MIDDLE_X = 320
 THRESHOLD_Y_HEIGHT = 145
 old_diff = 0
+direction = 1
+threshold = 400
 
 class ImageAlgorithms:
+    @classmethod
+    def get_direction(cls, camera_object):
+        cls.direction = -1 if camera_object.length_blue > camera_object.length_orange else 1
 
-    def get_direction():
-        return -1
+    @classmethod
+    def get_threshold(cls, elapsed):
+        cls.threshold = 250 if elapsed < 2.25 else 400
 
     def find_black_from_bottom(img, col_range):
         y_vals = []
@@ -22,15 +28,15 @@ class ImageAlgorithms:
         return y_vals
 
     def find_black_sides(img, rotation, row_range):
-        end_index = 0 if rotation == -1 else ImageUtils.PIC_WIDTH
+        end_index = 0 if rotation == -1 else ImageUtils.PIC_WIDTH - 1
         x_vals = []
         for y in row_range:
             for x in range(ImageUtils.PIC_WIDTH // 2, end_index, rotation):
-                if img[y,x] == 0:
+                if img[y,x] == 0:       
                     x_vals.append(x)
                     break
             else:
-                x_vals.append(0)
+                x_vals.append(end_index)
         return x_vals
     
     def find_angle_from_img(img, nbr_cols = 10):
@@ -47,27 +53,25 @@ class ImageAlgorithms:
         #print(angle)
         return angle
     
+    @staticmethod
     def find_angle_from_img2(img, nbr_cols = 10):
         global old_diff
-        direction = ImageAlgorithms.get_direction()
-        cols = range(0, nbr_cols) if direction == -1 else range(ImageUtils.PIC_WIDTH - nbr_cols, ImageUtils.PIC_WIDTH)
+        dir = ImageAlgorithms.direction
+        cols = range(0, nbr_cols) if dir == -1 else range(ImageUtils.PIC_WIDTH - nbr_cols, ImageUtils.PIC_WIDTH)
         rows = range(ImageUtils.PIC_HEIGHT - 3*nbr_cols, ImageUtils.PIC_HEIGHT - 2*nbr_cols)
 
         y_vals = ImageAlgorithms.find_black_from_bottom(img, cols)
-        x_vals = ImageAlgorithms.find_black_sides(img, direction, rows)
+        x_vals = ImageAlgorithms.find_black_sides(img, dir, rows)
 
         avg_y = np.mean(y_vals)
         avg_x = np.mean(x_vals)
         
-        #Impose a min value
-        #avg_left_y = max (160, avg_left_y)
+        if dir == 1 : avg_x = 640 - avg_x
         print("avg_y : ", avg_y)
         print("avg_x : ", avg_x)
-        #angle = 88 - (int((avg_left_y - avg_right_y) * 0.14))
-        diff = avg_y + avg_x - 400
+        diff = avg_y + avg_x - ImageAlgorithms.threshold
         differential_adjust = (diff - old_diff) * 0.25
-        angle =  88 - int((diff) * 0.2) - differential_adjust
-        #angle =  88 - int(((avg_y) - 300) * 0.2)
+        angle =  88 + dir * (int((diff) * 0.2) + differential_adjust)
         old_diff = diff
         print("angle : ",angle)
         return angle
@@ -98,27 +102,17 @@ class ImageAlgorithms:
         x1 = corner_line_coords[1][0]
 
         avg_y = (y0 + y1) / 2
-        #print("avg_y = ", avg_y)
         if avg_y > 205:
             avg_x = (x0 + x1) / 2
-            coeff = (avg_x - 110) * 0.2
-        
-            #print(-coeff)
+            coeff = (avg_x - 110) * 0.2        
             return -coeff
         else:
             return 0
 
     @staticmethod
     def calculate_angle(img):
-        #coords = ImageUtils.get_top_line_coords(img)
-        #angle = ImageAlgorithms.find_angle_from_img(img) + ImageAlgorithms.get_top_line_coeff(coords)
-        #coords = ImageUtils.get_corner_line_coords(img)
-        angle1 = ImageAlgorithms.find_angle_from_img2(img) 
-        #angle2 = ImageAlgorithms.get_corner_line_coeff(coords)
-        angle = angle1 #+ angle2
-        #print(f"angle1 = {angle1}")#, angle2 = {angle2}")
-        #print(f"angle: {angle}")
-
+        angle1 = ImageAlgorithms.find_angle_from_img2(img)
+        angle = angle1
         if angle < 48:
             angle = 49
         elif angle > 128:
