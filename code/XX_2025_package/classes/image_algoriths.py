@@ -5,16 +5,18 @@ MIDDLE_X = 320
 THRESHOLD_Y_HEIGHT = 145
 old_diff = 0
 direction = 1
-threshold = 400
+#threshold = 400
 
 class ImageAlgorithms:
     @classmethod
     def get_direction(cls, camera_object):
         cls.direction = -1 if camera_object.length_blue > camera_object.length_orange else 1
+        
 
     @classmethod
     def get_threshold(cls, elapsed):
-        cls.threshold = 250 if elapsed < 2.25 else 400
+        #cls.threshold = 250 if elapsed < 2.25 else 400
+        cls.threshold = 400
 
     def find_black_from_bottom(img, col_range):
         y_vals = []
@@ -69,7 +71,7 @@ class ImageAlgorithms:
         if dir == 1 : avg_x = 640 - avg_x
         print("avg_y : ", avg_y)
         print("avg_x : ", avg_x)
-        diff = avg_y + avg_x - ImageAlgorithms.threshold
+        diff = avg_y + avg_x - 400 #ImageAlgorithms.threshold
         differential_adjust = (diff - old_diff) * 0.25
         angle =  88 + dir * (int((diff) * 0.2) + differential_adjust)
         old_diff = diff

@@ -101,10 +101,10 @@ def update_vehicle_position(arduino, x, y, alpha_deg, mm_per_step, old_direction
     arc_length = receive_data(arduino) * mm_per_step
 
     # Calculate the rotation radius based on the previous direction
-    radius = calculate_radius(88-old_direction_deg)
 
     # Calculate the position and orientation
     x, y, alpha_deg = move_along_arc(x, y, alpha_deg, radius, arc_length)
+    radius = calculate_radius(88-old_direction_deg)
 
     return x, y, alpha_deg
 

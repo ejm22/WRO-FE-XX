@@ -36,7 +36,8 @@ if __name__ == "__main__":
         cv2.imshow("New Image", camera_manager.polygon_image)
 
         if arduino.out_waiting == 0:
-            command = f"{ImageAlgorithms.calculate_angle(camera_manager.polygon_image)},{speed}.".encode()
+            angle = ImageAlgorithms.calculate_angle(camera_manager.polygon_image)
+            command = f"{angle},{speed}.".encode()
             arduino.write(command)
             arduino.flush()
             # print(f"Sent command: {command.decode().strip()}")
