@@ -23,18 +23,12 @@ if __name__ == "__main__":
     camera_manager.transform_image()
     dir = ImageAlgorithms.get_direction(camera_manager)
     print("Direction : ", dir)
-    #start_time = time.time()
     while True:
-        #elapsed_time = time.time() - start_time
-        #ImageAlgorithms.get_threshold(elapsed_time)
-        #line = arduino.readline()
         arduino.flushInput()                # Flushes Arduino's Input since it's not necessary anymore
         camera_manager.capture_image()
         camera_manager.transform_image()
         cv2.imshow("Cropped", camera_manager.cropped_image)
-        #cv2.imshow("HSV", colormask_img)
         cv2.imshow("New Image", camera_manager.polygon_image)
-
         if arduino.out_waiting == 0:
             angle = ImageAlgorithms.calculate_angle(camera_manager.polygon_image)
             command = f"{angle},{speed}.".encode()
@@ -44,7 +38,6 @@ if __name__ == "__main__":
 
         else:
             print("Arduino is busy, skipping command.")
-        #arduino.write(f"{ImageUtils.find_angle_from_img(img)},3000.".encode())
         time.sleep(0.01)
         key = cv2.waitKey(1)  # Let OpenCV update the window
         if key == 27:  # Escape key to quit

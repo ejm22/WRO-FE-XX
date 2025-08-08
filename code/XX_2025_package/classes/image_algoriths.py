@@ -1,8 +1,11 @@
 from XX_2025_package.utils.image_utils import ImageUtils
 import numpy as np
+import math
 
 MIDDLE_X = 320
-THRESHOLD_Y_HEIGHT = 145
+#THRESHOLD_Y_HEIGHT = 145
+LEFT_OBSTACLE_X_THRESHOLD = 80
+RIGHT_OBSTACLE_X_THRESHOLD = ImageUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
 old_diff = 0
 direction = 1
 #threshold = 400
@@ -12,7 +15,6 @@ class ImageAlgorithms:
     def get_direction(cls, camera_object):
         cls.direction = -1 if camera_object.length_blue > camera_object.length_orange else 1
         
-
     @classmethod
     def get_threshold(cls, elapsed):
         #cls.threshold = 250 if elapsed < 2.25 else 400
@@ -41,22 +43,8 @@ class ImageAlgorithms:
                 x_vals.append(end_index)
         return x_vals
     
-    def find_angle_from_img(img, nbr_cols = 10):
-        left_cols = range(0, nbr_cols)
-        right_cols = range(ImageUtils.PIC_WIDTH - nbr_cols, ImageUtils.PIC_WIDTH)
-
-        left_y_vals = ImageAlgorithms.find_black_from_bottom(img, left_cols)
-        right_y_vals = ImageAlgorithms.find_black_from_bottom(img, right_cols)
-
-        avg_left_y = np.mean(left_y_vals)
-        avg_right_y = np.mean(right_y_vals)
-
-        angle = 88 - (int((avg_left_y - avg_right_y) * 0.14))
-        #print(angle)
-        return angle
-    
     @staticmethod
-    def find_angle_from_img2(img, nbr_cols = 10):
+    def find_angle_from_img(img, nbr_cols = 10):
         global old_diff
         dir = ImageAlgorithms.direction
         cols = range(0, nbr_cols) if dir == -1 else range(ImageUtils.PIC_WIDTH - nbr_cols, ImageUtils.PIC_WIDTH)
@@ -71,49 +59,16 @@ class ImageAlgorithms:
         if dir == 1 : avg_x = 640 - avg_x
         print("avg_y : ", avg_y)
         print("avg_x : ", avg_x)
-        diff = avg_y + avg_x - 400 #ImageAlgorithms.threshold
+        diff = avg_y + avg_x - (ImageUtils.PIC_HEIGHT + 40) #ImageAlgorithms.threshold
         differential_adjust = (diff - old_diff) * 0.25
         angle =  88 + dir * (int((diff) * 0.2) + differential_adjust)
         old_diff = diff
         print("angle : ",angle)
         return angle
-    
-    def get_top_line_coeff(top_line_coords):
-        if top_line_coords is None : return 0
-
-        y0 = top_line_coords[0][1]
-        y1 = top_line_coords[1][1]
-        x0 = top_line_coords[0][0]
-        x1 = top_line_coords[1][0]
-
-        avg_y = (y0 + y1) / 2
-        if avg_y < THRESHOLD_Y_HEIGHT : return 0
-
-        avg_x = (x0 + x1) / 2
-        coeff = (avg_x - MIDDLE_X) * 0.2
-        
-        #print(-coeff)
-        return -coeff
-    
-    def get_corner_line_coeff(corner_line_coords):
-        if corner_line_coords is None : return 0
-
-        y0 = corner_line_coords[0][1]
-        y1 = corner_line_coords[1][1]
-        x0 = corner_line_coords[0][0]
-        x1 = corner_line_coords[1][0]
-
-        avg_y = (y0 + y1) / 2
-        if avg_y > 205:
-            avg_x = (x0 + x1) / 2
-            coeff = (avg_x - 110) * 0.2        
-            return -coeff
-        else:
-            return 0
 
     @staticmethod
     def calculate_angle(img):
-        angle1 = ImageAlgorithms.find_angle_from_img2(img)
+        angle1 = ImageAlgorithms.find_angle_from_img(img)
         angle = angle1
         if angle < 48:
             angle = 49
@@ -121,3 +76,27 @@ class ImageAlgorithms:
             angle = 127
 
         return int(angle)
+    
+    @staticmethod
+    def find_obstacle_angle(obstacle_img, hsv_img, target_img):
+        v1, v2, rect = ImageUtils.find_rect(obstacle_img)
+        if rect is None:
+            return 0, None
+        x_center = rect[0][0]
+        y_center = rect[0][1]
+
+        left = ImageUtils.is_rect_green(hsv_img, rect)
+
+        if left:
+            ImageUtils.draw_line(target_img, (x_center, y_center), (LEFT_OBSTACLE_X_THRESHOLD, ImageUtils.PIC_HEIGHT))
+            rad_angle = math.atan2(y_center - ImageUtils.PIC_HEIGHT, x_center - LEFT_OBSTACLE_X_THRESHOLD)
+        else:
+            ImageUtils.draw_line(target_img, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageUtils.PIC_HEIGHT))
+            rad_angle = math.atan2(y_center - ImageUtils.PIC_HEIGHT, x_center - RIGHT_OBSTACLE_X_THRESHOLD)
+
+        angle = 90 + math.degrees(rad_angle)
+        return angle, target_img
+
+
+
+
