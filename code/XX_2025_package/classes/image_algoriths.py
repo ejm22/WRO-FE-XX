@@ -85,14 +85,14 @@ class ImageAlgorithms:
         x_center = rect[0][0]
         y_center = rect[0][1]
 
-        left = ImageUtils.is_rect_green(hsv_img, rect)
+        right = ImageUtils.is_rect_green(hsv_img, rect)
 
-        if left:
-            ImageUtils.draw_line(target_img, (x_center, y_center), (LEFT_OBSTACLE_X_THRESHOLD, ImageUtils.PIC_HEIGHT))
-            rad_angle = math.atan2(y_center - ImageUtils.PIC_HEIGHT, x_center - LEFT_OBSTACLE_X_THRESHOLD)
-        else:
+        if right:
             ImageUtils.draw_line(target_img, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageUtils.PIC_HEIGHT))
             rad_angle = math.atan2(y_center - ImageUtils.PIC_HEIGHT, x_center - RIGHT_OBSTACLE_X_THRESHOLD)
+        else:
+            ImageUtils.draw_line(target_img, (x_center, y_center), (LEFT_OBSTACLE_X_THRESHOLD, ImageUtils.PIC_HEIGHT))
+            rad_angle = math.atan2(y_center - ImageUtils.PIC_HEIGHT, x_center - LEFT_OBSTACLE_X_THRESHOLD)
 
         angle = 90 + math.degrees(rad_angle)
         return angle, target_img
