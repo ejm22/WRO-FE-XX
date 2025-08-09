@@ -9,6 +9,8 @@ THRESHOLD = 100                 # threshold value for binary image
 WHITE_VALUE = 255               # to set white color in binary image
 WHITE_COLOR = (255, 255, 255)   # BGR white color for OpenCV
 MATRIX_SIZE = 5                 # size of the kernel for morphological operations
+MIN_WIDTH = 5
+MIN_HEIGHT = 5
 
 COLOR_RANGES = {
     # this is hsv
@@ -43,9 +45,9 @@ class ImageUtils:
     def calculate_color_mask(hsv_img, color):
         lower = COLOR_RANGES[color][0].copy()
         upper = COLOR_RANGES[color][1].copy()
-        print("lower,upper = ",lower, upper)
+        #print("lower,upper = ",lower, upper)
         if upper[0] > 179:
-            print("Lol")
+            #print("Lol")
             extra = upper[0] -179
             upper[0] = 179
             mask1 = cv2.inRange(hsv_img, lower, upper)
@@ -95,17 +97,22 @@ class ImageUtils:
         return cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
     
     @staticmethod
-    def find_contour(img):
+    def find_contour(img, white = 0):
         contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if not contours:
             return None
         else:
+            if white != 0:
+                target_pt = (ImageUtils.PIC_WIDTH / 2, ImageUtils.PIC_HEIGHT - 10)
+                contours = [cnt for cnt in contours if cv2.pointPolygonTest(cnt, target_pt, False) >= 0]
+            if not contours:
+                return
             biggest_contour = max(contours, key=cv2.contourArea)
         return biggest_contour
     
     @staticmethod
     def draw_polygon(binary_img, target_img):
-        cnt = ImageUtils.find_contour(binary_img)
+        cnt = ImageUtils.find_contour(binary_img, 1)
         if cnt is None: return target_img, None
         epsilon = 0.01*cv2.arcLength(cnt, True)
         polygon = cv2.approxPolyDP(cnt, epsilon, True)
@@ -114,14 +121,36 @@ class ImageUtils:
         target_img = cv2.bitwise_and(binary_img, mask)        
         return target_img, polygon
     
-    def find_rect(img):
+    def find_rect(img, color_img = None):
         cnt = ImageUtils.find_contour(img)
         if cnt is None:
             return img, 360, None
         rect = cv2.minAreaRect(cnt)
+        (w, h) = rect[1]
+        if w < MIN_WIDTH or h < MIN_HEIGHT:
+            return img, 360, None
         max_width_height = max(rect[1][0], rect[1][1])
         box = cv2.boxPoints(rect)
         box = np.intp(box)
+        if color_img is not None:
+            print("Dedans")
+            x_coords = [pt[0] for pt in box]
+            min_x = max(min(x_coords), 0)
+            max_x = min(max(x_coords), img.shape[1] - 1)
+            bottom_y = max(pt[1] for pt in box) # this finds the lowest point of the rect
+            line_y = bottom_y + 2
+            if line_y < img.shape[0]:
+                white_line = color_img[int(line_y), int(min_x):int(max_x) + 1]    # creates line
+                white_count = np.count_nonzero(white_line > 100)   # amount of white pixels
+                total_count = white_line.size                       # amount of total pixels
+                ratio = white_count / total_count
+                print("White ratio : ", ratio)
+                
+                # Require at least 50% white pixels
+                if ratio < 0.5:
+                    print("Not enough white below")
+                    return img, 360, None
+
         img_with_box = cv2.cvtColor(img.copy(), cv2.COLOR_GRAY2BGR)
         cv2.drawContours(img_with_box, [box], 0, (0, 255, 0), 2)
         return img_with_box, max_width_height, rect

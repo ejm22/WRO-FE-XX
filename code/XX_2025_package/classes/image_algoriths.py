@@ -4,13 +4,16 @@ import math
 
 MIDDLE_X = 320
 #THRESHOLD_Y_HEIGHT = 145
-LEFT_OBSTACLE_X_THRESHOLD = 80
+LEFT_OBSTACLE_X_THRESHOLD = 40
 RIGHT_OBSTACLE_X_THRESHOLD = ImageUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
 old_diff = 0
+old_angle = 0
+old_is_green = 0
 direction = 1
 #threshold = 400
 
 class ImageAlgorithms:
+    direction = -1
     @classmethod
     def get_direction(cls, camera_object):
         cls.direction = -1 if camera_object.length_blue > camera_object.length_orange else 1
@@ -57,17 +60,17 @@ class ImageAlgorithms:
         avg_x = np.mean(x_vals)
         
         if dir == 1 : avg_x = 640 - avg_x
-        print("avg_y : ", avg_y)
-        print("avg_x : ", avg_x)
-        diff = avg_y + avg_x - (ImageUtils.PIC_HEIGHT + 40) #ImageAlgorithms.threshold
+        #print("avg_y : ", avg_y)
+        #print("avg_x : ", avg_x)
+        diff = avg_y + avg_x - (ImageUtils.PIC_HEIGHT + 0) #ImageAlgorithms.threshold
         differential_adjust = (diff - old_diff) * 0.25
         angle =  88 + dir * (int((diff) * 0.2) + differential_adjust)
         old_diff = diff
-        print("angle : ",angle)
+        #print("angle : ",angle)
         return angle
 
     @staticmethod
-    def calculate_angle(img):
+    def calculate_servo_angle_walls(img):
         angle1 = ImageAlgorithms.find_angle_from_img(img)
         angle = angle1
         if angle < 48:
@@ -78,16 +81,24 @@ class ImageAlgorithms:
         return int(angle)
     
     @staticmethod
-    def find_obstacle_angle(obstacle_img, hsv_img, target_img):
-        v1, v2, rect = ImageUtils.find_rect(obstacle_img)
+    def find_obstacle_angle(obstacle_img, hsv_img, target_img, gray):
+        global old_angle
+        global old_is_green
+        v1, v2, rect = ImageUtils.find_rect(obstacle_img, gray)
         if rect is None:
-            return 0, None
-        x_center = rect[0][0]
+            return None, None, None
+        x_center = rect[0][0] # + min(rect[1][0], rect[1][1])/2
         y_center = rect[0][1]
 
-        right = ImageUtils.is_rect_green(hsv_img, rect)
+        if y_center > ImageUtils.PIC_HEIGHT - 60:
+            if y_center > ImageUtils.PIC_HEIGHT - 30:
+                return None, None, None
+            else:
+                return old_angle, None, old_is_green
 
-        if right:
+        is_green = ImageUtils.is_rect_green(hsv_img, rect)
+
+        if is_green:
             ImageUtils.draw_line(target_img, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageUtils.PIC_HEIGHT))
             rad_angle = math.atan2(y_center - ImageUtils.PIC_HEIGHT, x_center - RIGHT_OBSTACLE_X_THRESHOLD)
         else:
@@ -95,8 +106,28 @@ class ImageAlgorithms:
             rad_angle = math.atan2(y_center - ImageUtils.PIC_HEIGHT, x_center - LEFT_OBSTACLE_X_THRESHOLD)
 
         angle = 90 + math.degrees(rad_angle)
-        return angle, target_img
+        old_angle = angle
+        old_is_green = is_green
+        return angle, target_img, is_green
 
+    @staticmethod
+    def calculate_servo_angle_obstacle(object_angle, is_green):
+        if object_angle is None:
+            return None
+        #servo_angle = math.pow(object_angle * 0.1, 2) * 0.5
+        if is_green:
+            servo_angle = 88 - ((object_angle + 45) * 1.5) # green obstacle
+        else:
+            servo_angle = 88 - ((object_angle - 45) * 1.5) # red obstacle
+        if servo_angle < 48:
+            servo_angle = 49
+        elif servo_angle > 128:
+            servo_angle = 127
+        return int(servo_angle)
 
-
-
+    def choose_output_angle(angle_walls, angle_obstacles):
+        if angle_obstacles is None:
+            print("Walls at angle : ", angle_walls)
+            return angle_walls
+        print("Obstacles at angle : ", angle_obstacles)
+        return angle_obstacles

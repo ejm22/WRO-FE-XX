@@ -90,7 +90,7 @@ class CameraManager:
             #self.grayscale_image = ImageUtils.color_to_grayscale(self.binary_obstacle)
             #self.obstacle_image = ImageUtils.make_binary(self.grayscale_image)
             ##self.obstacle_image = ImageUtils.dilate(self.obstacle_image)
-            self.contour_obstacle_with_rect, _, rect = ImageUtils.find_rect(self.obstacle_image.copy())
+            self.contour_obstacle_with_rect, _, rect = ImageUtils.find_rect(self.obstacle_image.copy(), self.grayscale_image.copy())
 
 if __name__ == "__main__":
     camera_manager = CameraManager()
@@ -98,49 +98,28 @@ if __name__ == "__main__":
     while True:
         camera_manager.capture_image()
         camera_manager.transform_image()
-        #cv2.imshow("Raw image", camera_manager.raw_image)
         cv2.imshow("Cropped image", camera_manager.cropped_image)
-        #cv2.imshow("Masked image", camera_manager.colormask_image)
-        #cv2.imshow("Blue line only", camera_manager.clean_blueline_image)
-        #cv2.imshow("Orange line only", camera_manager.clean_orangeline_image)
-        #if camera_manager.cnt_blueline is not None:
-        #    cv2.imshow("Cnt blue", camera_manager.cnt_blueline)
-        #if camera_manager.cnt_orangeline is not None:
-        #    cv2.imshow("Cnt orange", camera_manager.cnt_orangeline)
-        #if (camera_manager.length_blue > camera_manager.length_orange):
-        #    print("blue")
-        #else:
-        #    print("orange")
-        #print(camera_manager.length_blue)
-        #print(camera_manager.length_orange)
-        #cv2.imshow("Grayscale image", camera_manager.grayscale_image)
-        #cv2.imshow("Blurred image", camera_manager.blurred_image)
-        #cv2.imshow("Binary image", camera_manager.binary_image)
-        #cv2.imshow("Clean image", camera_manager.clean_image)
-        #cv2.imshow("x image", camera_manager.polygon_image)
-        #cv2.imshow("Binary obstacle image", camera_manager.binary_obstacle)
-        #cv2.imshow("Obstacle image", camera_manager.obstacle_image)
-        #cv2.imshow("Big obstacle", camera_manager.contour_obstacle_with_rect)
-        #cv2.imshow("Combined mask", camera_manager.combined_mask)
         cv2.imshow("Lol", camera_manager.obstacle_image)
         angle, image = ImageAlgorithms.find_obstacle_angle(camera_manager.obstacle_image.copy(), camera_manager.hsv_image.copy(), camera_manager.cropped_image.copy())
         cv2.imshow("Obstacle with rect", camera_manager.contour_obstacle_with_rect)
+        
         #Test for keep red only
-        lowerdb = np.array([175, 100, 50])
-        upperdb = np.array([185, 255, 255])
-        if upperdb[0] > 179:
-            extra = upperdb[0] -179
-            upperdb[0] = 179
-            mask1 = cv2.inRange(camera_manager.hsv_image, lowerdb, upperdb)
-            lowerdb[0] = 0
-            upperdb[0] = extra
-            mask2 = cv2.inRange(camera_manager.hsv_image, lowerdb, upperdb)
-            mask = cv2.bitwise_or(mask1, mask2)                    
-            
-        else:
-            mask = cv2.inRange(camera_manager.hsv_image, lowerdb, upperdb)
+        #lowerdb = np.array([175, 100, 50])
+        #upperdb = np.array([185, 255, 255])
+        #if upperdb[0] > 179:
+        #    extra = upperdb[0] -179
+        #    upperdb[0] = 179
+        #    mask1 = cv2.inRange(camera_manager.hsv_image, lowerdb, upperdb)
+        #    lowerdb[0] = 0
+        #    upperdb[0] = extra
+        #    mask2 = cv2.inRange(camera_manager.hsv_image, lowerdb, upperdb)
+        #    mask = cv2.bitwise_or(mask1, mask2)                    
+        #    
+        #else:
+        #    mask = cv2.inRange(camera_manager.hsv_image, lowerdb, upperdb)
         #cv2.imshow("mask red cam", mask)
-        keep_red_image = cv2.bitwise_and(camera_manager.cropped_image.copy(), camera_manager.cropped_image.copy(), mask=mask )
+        #keep_red_image = cv2.bitwise_and(camera_manager.cropped_image.copy(), camera_manager.cropped_image.copy(), mask=mask )
+        
         #cv2.imshow("Keep Red ", keep_red_image)
         #cv2.imshow("Blue mask", camera_manager.blue_mask)
         #cv2.imshow("Orange mask", camera_manager.orange_mask)
@@ -150,6 +129,7 @@ if __name__ == "__main__":
         # db part
         if image is not None:
             cv2.imshow("Image with line", image)
+
         print(angle)
         time.sleep(0.01)
         key = cv2.waitKey(1)  # Let OpenCV update the window
