@@ -40,7 +40,7 @@ class ImageColorUtils:
         x_center = rect[0][0]
         y_center = rect[0][1]
         pt = (x_center, y_center)
-        return ColorUtils.find_color_from_pt(img, pt, color)
+        return ImageColorUtils.find_color_from_pt(img, pt, color)
     
     @staticmethod
     def is_rect_green(img, rect):

@@ -1,4 +1,5 @@
 from XX_2025_package.utils.image_utils import ImageTransformUtils
+from XX_2025_package.utils.image_utils import ImageColorUtils
 import numpy as np
 import math
 from XX_2025_package.utils.enums import Direction
@@ -37,10 +38,10 @@ class ImageAlgorithms:
         return y_vals
 
     def find_black_sides(img, rotation, row_range):
-        end_index = 0 if rotation == -1 else ImageTransformUtils.PIC_WIDTH - 1
+        end_index = 0 if rotation.value == -1 else ImageTransformUtils.PIC_WIDTH - 1
         x_vals = []
         for y in row_range:
-            for x in range(ImageTransformUtils.PIC_WIDTH // 2, end_index, rotation):
+            for x in range(ImageTransformUtils.PIC_WIDTH // 2, end_index, rotation.value):
                 if img[y,x] == 0:       
                     x_vals.append(x)
                     break
@@ -56,7 +57,7 @@ class ImageAlgorithms:
         rows = range(ImageTransformUtils.PIC_HEIGHT - 3*nbr_cols, ImageTransformUtils.PIC_HEIGHT - 2*nbr_cols)
 
         y_vals = ImageAlgorithms.find_black_from_bottom(img, cols)
-        x_vals = ImageAlgorithms.find_black_sides(img, dir, rows)
+        x_vals = ImageAlgorithms.find_black_sides(img, direction, rows)
 
         avg_y = np.mean(y_vals)
         avg_x = np.mean(x_vals)
@@ -72,7 +73,7 @@ class ImageAlgorithms:
         differential_adjust = (diff - old_diff) * 1
         # kd was 0.25 for obstacles
         # kd was 1 for parking
-        angle =  88 + direction * (int((diff) * 0.75) + differential_adjust)
+        angle =  88 + direction.value * (int((diff) * 0.75) + differential_adjust)
         # kp was 0.2
         # kp was 0.75 for parking
         old_diff = diff
@@ -108,7 +109,7 @@ class ImageAlgorithms:
         if y_center < 50:# was 60
             return None, target_img, None
 
-        is_green = ImageTransformUtils.is_rect_green(hsv_img, rect)
+        is_green = ImageColorUtils.is_rect_green(hsv_img, rect)
 
         if is_green:
             ImageTransformUtils.draw_line(target_img, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))

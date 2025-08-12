@@ -1,6 +1,7 @@
 from picamera2 import Picamera2
 import time
 from XX_2025_package.utils.image_utils import ImageTransformUtils
+from XX_2025_package.utils.image_utils import ImageColorUtils
 from XX_2025_package.classes.image_algoriths import ImageAlgorithms
 import cv2
 import numpy as np
@@ -70,11 +71,11 @@ class CameraManager:
             self.binary_image = ImageTransformUtils.make_binary(self.blurred_image)
             self.clean_image = ImageTransformUtils.clean_binary(self.binary_image)
             
-            self.blue_mask = ImageTransformUtils.calculate_color_mask(self.hsv_image, 'blue')
-            self.orange_mask = ImageTransformUtils.calculate_color_mask(self.hsv_image, 'orange')
-            self.green_mask = ImageTransformUtils.calculate_color_mask(self.hsv_image, 'green')
-            self.red_mask = ImageTransformUtils.calculate_color_mask(self.hsv_image, 'red')
-            self.pink_mask = ImageTransformUtils.calculate_color_mask(self.hsv_image, 'pink')
+            self.blue_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, 'blue')
+            self.orange_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, 'orange')
+            self.green_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, 'green')
+            self.red_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, 'red')
+            self.pink_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, 'pink')
 
             cv2.imshow("Green only", self.green_mask)
             self.polygon_image, self.polygon_lines = ImageTransformUtils.draw_polygon(self.clean_image, self.clean_image)

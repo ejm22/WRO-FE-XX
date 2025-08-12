@@ -9,7 +9,7 @@ from XX_2025_package.classes.lap_tracker import LapTracker
 
 arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
 speed = 1000
-defi = 2
+defi = 3
 
 if __name__ == "__main__":
     ## 0 ##
@@ -146,7 +146,7 @@ if __name__ == "__main__":
                 #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
 
                 #command = f"{servo_angle},{speed}.".encode()
-                if camera_manager.binary_image[85, ImageUtils.PIC_WIDTH // 2] == 0 and top_angle is not None:
+                if camera_manager.binary_image[85, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None:
                     speed = 0
                     command = f"85,0.".encode()
                     arduino.write(command)
@@ -170,7 +170,7 @@ if __name__ == "__main__":
             while True:
                 camera_manager.capture_image()
                 camera_manager.transform_image()
-                if camera_manager.binary_image[60, ImageUtils.PIC_WIDTH // 2] != 0:
+                if camera_manager.binary_image[60, ImageTransformUtils.PIC_WIDTH // 2] != 0:
                     command = f"85,0.".encode()
                     arduino.write(command)
                     break
@@ -194,7 +194,7 @@ if __name__ == "__main__":
                 #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
 
                 #command = f"{servo_angle},{speed}.".encode()
-                if camera_manager.binary_image[65, ImageUtils.PIC_WIDTH // 2] == 0 and top_angle is not None:
+                if camera_manager.binary_image[65, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None:
                     speed = 0
                     command = f"85,0.".encode()
                     arduino.write(command)
