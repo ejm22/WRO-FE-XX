@@ -66,10 +66,11 @@ class ImageUtils:
         return target_img, mask
     
     @staticmethod
-    def remove_color2(hsv_img, color):
+    def exclude_color(hsv_img, color):
         mask = cv2.bitwise_not(ImageUtils.calculate_color_mask(hsv_img, color))
         return mask
-           
+    
+    @staticmethod
     def keep_color(img, color):
         mask = ImageUtils.calculate_color_mask(img, color)
              
@@ -121,6 +122,7 @@ class ImageUtils:
         target_img = cv2.bitwise_and(binary_img, mask)        
         return target_img, polygon
     
+    @staticmethod
     def find_rect(img, color_img = None):
         cnt = ImageUtils.find_contour(img)
         if cnt is None:
