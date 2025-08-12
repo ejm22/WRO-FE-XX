@@ -37,6 +37,7 @@ class CameraManager:
         self.binary_obstacle = None
         self.obstacle_image = None
         self.contour_obstacle = None
+        self.pink_image = None
 
         self.configure_camera()
 
@@ -73,7 +74,8 @@ class CameraManager:
             self.orange_mask = ImageUtils.calculate_color_mask(self.hsv_image, 'orange')
             self.green_mask = ImageUtils.calculate_color_mask(self.hsv_image, 'green')
             self.red_mask = ImageUtils.calculate_color_mask(self.hsv_image, 'red')
-            
+            self.pink_mask = ImageUtils.calculate_color_mask(self.hsv_image, 'pink')
+
             cv2.imshow("Green only", self.green_mask)
             self.polygon_image, self.polygon_lines = ImageUtils.draw_polygon(self.clean_image, self.clean_image)
             self.blueline_image = ImageUtils.keep_color(self.hsv_image, 'blue')
@@ -83,8 +85,10 @@ class CameraManager:
             self.cnt_blueline, self.length_blue, _ = ImageUtils.find_rect(self.clean_blueline_image)
             self.cnt_orangeline, self.length_orange, _ = ImageUtils.find_rect(self.clean_orangeline_image)
 
+            self.pink_image = cv2.bitwise_and(self.polygon_image, self.polygon_image, mask = self.pink_mask)
             self.combined_mask = cv2.bitwise_or(ImageUtils.keep_color(self.hsv_image.copy(), 'green'), ImageUtils.keep_color(self.hsv_image.copy(), 'red'))
             cv2.imshow("Combine_mask", self.combined_mask)
+            cv2.imshow("img_polygon_image", self.polygon_image)
             self.obstacle_image = cv2.bitwise_and(self.polygon_image, self.polygon_image, mask = self.combined_mask)
             #self.binary_obstacle = cv2.bitwise_and(self.cropped_image.copy(), self.cropped_image.copy(), mask = self.combined_mask)
             #self.grayscale_image = ImageUtils.color_to_grayscale(self.binary_obstacle)

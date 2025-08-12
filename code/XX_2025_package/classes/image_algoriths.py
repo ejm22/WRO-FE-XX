@@ -9,11 +9,12 @@ RIGHT_OBSTACLE_X_THRESHOLD = ImageUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
 old_diff = 0
 old_angle = 0
 old_is_green = 0
-direction = 1
+direction = -1
 #threshold = 400
 
 class ImageAlgorithms:
-    direction = -1
+    direction = 1
+
     @classmethod
     def get_direction(cls, camera_object):
         cls.direction = -1 if camera_object.length_blue > camera_object.length_orange else 1
@@ -62,7 +63,7 @@ class ImageAlgorithms:
         if dir == 1 : avg_x = 640 - avg_x
         #print("avg_y : ", avg_y)
         #print("avg_x : ", avg_x)
-        diff = avg_y + avg_x - (ImageUtils.PIC_HEIGHT + 0) #ImageAlgorithms.threshold
+        diff = avg_y + avg_x - (ImageUtils.PIC_HEIGHT - 60) #ImageAlgorithms.threshold # was +40
         differential_adjust = (diff - old_diff) * 0.25
         angle =  88 + dir * (int((diff) * 0.2) + differential_adjust)
         old_diff = diff
@@ -86,15 +87,17 @@ class ImageAlgorithms:
         global old_is_green
         v1, v2, rect = ImageUtils.find_rect(obstacle_img, gray)
         if rect is None:
-            return None, None, None
+            return None, target_img, None
         x_center = rect[0][0] # + min(rect[1][0], rect[1][1])/2
         y_center = rect[0][1]
 
         if y_center > ImageUtils.PIC_HEIGHT - 60:
             if y_center > ImageUtils.PIC_HEIGHT - 30:
-                return None, None, None
+                return None, target_img, None
             else:
                 return old_angle, None, old_is_green
+        if y_center < 50:# was 60
+            return None, target_img, None
 
         is_green = ImageUtils.is_rect_green(hsv_img, rect)
 
@@ -131,3 +134,38 @@ class ImageAlgorithms:
             return angle_walls
         print("Obstacles at angle : ", angle_obstacles)
         return angle_obstacles
+
+    @staticmethod
+    def get_facing_wall_angle(poly_lines):
+        for i in range(len(poly_lines)):
+            pt1 = poly_lines[i][0]
+            pt2 = poly_lines[(i+1) % len(poly_lines)][0]
+            dx = pt2[0] - pt1[0]
+            dy = pt2[1] - pt1[1]
+            angle = np.degrees(np.arctan2(dy,dx))
+            print("Exterior wall angle = ", angle)
+            #print("dir = ", direction)
+            if direction == 1:
+                if (angle > 50) & (angle < 85):
+                    return angle
+            elif direction == -1:
+                if (angle > 175) or (angle < -175):
+                    return angle
+
+        return None
+
+    @staticmethod
+    def calculate_servo_angle_parking(angle_walls, wall_angle):
+        if wall_angle  is None:
+            return None
+        #servo_angle = math.pow(object_angle * 0.1, 2) * 0.5
+        if wall_angle > 0:
+            servo_angle = -(wall_angle -180) * 10 +88
+        else:
+            servo_angle = -(wall_angle +180) * 10 +88
+
+        if servo_angle < 48:
+            servo_angle = 49
+        elif servo_angle > 128:
+            servo_angle = 127
+        return int(servo_angle)

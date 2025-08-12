@@ -18,7 +18,8 @@ COLOR_RANGES = {
     'orange': (np.array([10, 100, 50]), np.array([30, 255, 255])),
     'all_colors': (np.array([0,100, 50]), np.array([179, 255, 255])),
     'green': (np.array([60, 100, 50]), np.array([80, 255, 255])),
-    'red': (np.array([175, 100, 50]), np.array([185, 255, 255]))
+    'red': (np.array([175, 100, 50]), np.array([185, 255, 255])),
+    'pink': (np.array([155, 135, 50]), np.array([175, 255, 255]))
 }
 
 class ImageUtils:
@@ -38,8 +39,12 @@ class ImageUtils:
     
     def dilate(img):
         kernel = np.ones((3,3), np.uintp)
-        dilated_image = cv2.dilate(img, kernel, iterations = 3)
+        dilated_image = cv2.dilate(img, kernel, iterations = 1)
         return dilated_image
+    
+    def erode(img):
+        kernel = np.ones((3,3), np.uintp)
+        eroded_image = cv2.erode(img, kernel, iterations=2)
 
     @staticmethod
     def calculate_color_mask(hsv_img, color):
@@ -61,8 +66,17 @@ class ImageUtils:
 
     @staticmethod
     def remove_color(hsv_img, target_img, color):
+        if color == 'all_colors':
+            print("4")
+            maskb = ImageUtils.calculate_color_mask(hsv_img, 'blue')
+            masko = ImageUtils.calculate_color_mask(hsv_img, 'orange')
+            maskg = ImageUtils.calculate_color_mask(hsv_img, 'green')
+            maskr = ImageUtils.calculate_color_mask(hsv_img, 'red')
+            mask = cv2.bitwise_or(maskb, masko, maskg, maskr)
+            maskp = ImageUtils.calculate_color_mask(hsv_img, 'pink')
         mask = ImageUtils.calculate_color_mask(hsv_img, color)
         target_img[mask > 0] = WHITE_COLOR  # Change color to white
+        target_img[maskp > 0] = (0, 0, 0)
         return target_img, mask
     
     @staticmethod
@@ -100,22 +114,22 @@ class ImageUtils:
     @staticmethod
     def find_contour(img, white = 0):
         contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if white == 1:
+            target_pt = (ImageUtils.PIC_WIDTH / 2, ImageUtils.PIC_HEIGHT - 10)
+            contours = [cnt for cnt in contours if cv2.pointPolygonTest(cnt, target_pt, False) >= 0]
+            
         if not contours:
-            return None
-        else:
-            if white != 0:
-                target_pt = (ImageUtils.PIC_WIDTH / 2, ImageUtils.PIC_HEIGHT - 10)
-                contours = [cnt for cnt in contours if cv2.pointPolygonTest(cnt, target_pt, False) >= 0]
-            if not contours:
-                return
-            biggest_contour = max(contours, key=cv2.contourArea)
+            return
+        biggest_contour = max(contours, key=cv2.contourArea)
         return biggest_contour
     
     @staticmethod
     def draw_polygon(binary_img, target_img):
+        #cv2.imshow("drawpolygon", binary_img)
+        #binary_img = ImageUtils.dilate(binary_img)
         cnt = ImageUtils.find_contour(binary_img, 1)
         if cnt is None: return target_img, None
-        epsilon = 0.01*cv2.arcLength(cnt, True)
+        epsilon = 0.008*cv2.arcLength(cnt, True)  # was 0.01
         polygon = cv2.approxPolyDP(cnt, epsilon, True)
         mask = np.zeros_like(binary_img)
         cv2.fillPoly(mask, [polygon], (255, 255, 255))
@@ -140,19 +154,20 @@ class ImageUtils:
             min_x = max(min(x_coords), 0)
             max_x = min(max(x_coords), img.shape[1] - 1)
             bottom_y = max(pt[1] for pt in box) # this finds the lowest point of the rect
-            line_y = bottom_y + 2
+            line_y = bottom_y + 20 # was 2
             if line_y < img.shape[0]:
                 white_line = color_img[int(line_y), int(min_x):int(max_x) + 1]    # creates line
                 white_count = np.count_nonzero(white_line > 100)   # amount of white pixels
                 total_count = white_line.size                       # amount of total pixels
                 ratio = white_count / total_count
-                print("White ratio : ", ratio)
+                #print("White count : ", white_count)
+                #print("Total count : ", total_count)
+                #print("White ratio : ", ratio)
                 
                 # Require at least 50% white pixels
                 if ratio < 0.5:
                     print("Not enough white below")
                     return img, 360, None
-
         img_with_box = cv2.cvtColor(img.copy(), cv2.COLOR_GRAY2BGR)
         cv2.drawContours(img_with_box, [box], 0, (0, 255, 0), 2)
         return img_with_box, max_width_height, rect
@@ -193,7 +208,7 @@ class ImageUtils:
         pt1 = (int(pt1[0]), int(pt1[1]))
         pt2 = (int(pt2[0]), int(pt2[1]))
         cv2.line(img, (pt1[0], pt1[1]), (pt2[0], pt2[1]), color=(0, 253, 0), thickness=3)
-        cv2.imshow("Lines,", img)
+        #cv2.imshow("Lines,", img)
     
     @staticmethod
     def find_color_from_pt(img, pt, color): # img is already given in hsv
@@ -213,3 +228,5 @@ class ImageUtils:
     @staticmethod
     def is_rect_green(img, rect):
         return ImageUtils.find_color_from_rect(img, rect, 'green')
+    
+
