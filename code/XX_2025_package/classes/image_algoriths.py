@@ -17,7 +17,7 @@ class ImageAlgorithms:
 
     @classmethod
     def get_direction(cls, camera_object):
-        cls.direction = -1 if camera_object.length_blue > camera_object.length_orange else 1
+        cls.direction = 1 if camera_object.length_blue > camera_object.length_orange else 1
         
     @classmethod
     def get_threshold(cls, elapsed):
@@ -63,9 +63,17 @@ class ImageAlgorithms:
         if dir == 1 : avg_x = 640 - avg_x
         #print("avg_y : ", avg_y)
         #print("avg_x : ", avg_x)
-        diff = avg_y + avg_x - (ImageUtils.PIC_HEIGHT - 60) #ImageAlgorithms.threshold # was +40
-        differential_adjust = (diff - old_diff) * 0.25
-        angle =  88 + dir * (int((diff) * 0.2) + differential_adjust)
+        diff = avg_y + avg_x - (ImageUtils.PIC_HEIGHT - 40) #ImageAlgorithms.threshold # was +40
+        # thresholds : 
+        # challenge 1 : 400
+        # challenge 2 : 300
+        # challenge 3 : 320
+        differential_adjust = (diff - old_diff) * 1
+        # kd was 0.25 for obstacles
+        # kd was 1 for parking
+        angle =  88 + dir * (int((diff) * 0.75) + differential_adjust)
+        # kp was 0.2
+        # kp was 0.75 for parking
         old_diff = diff
         #print("angle : ",angle)
         return angle
@@ -136,22 +144,16 @@ class ImageAlgorithms:
         return angle_obstacles
 
     @staticmethod
-    def get_facing_wall_angle(poly_lines):
+    def get_top_angle(poly_lines):
         for i in range(len(poly_lines)):
             pt1 = poly_lines[i][0]
             pt2 = poly_lines[(i+1) % len(poly_lines)][0]
             dx = pt2[0] - pt1[0]
             dy = pt2[1] - pt1[1]
             angle = np.degrees(np.arctan2(dy,dx))
-            print("Exterior wall angle = ", angle)
-            #print("dir = ", direction)
-            if direction == 1:
-                if (angle > 50) & (angle < 85):
-                    return angle
-            elif direction == -1:
-                if (angle > 175) or (angle < -175):
-                    return angle
-
+            if (angle > 178) or (angle < -178):
+                print("Top wall angle = ", angle)
+                return angle
         return None
 
     @staticmethod
@@ -160,9 +162,9 @@ class ImageAlgorithms:
             return None
         #servo_angle = math.pow(object_angle * 0.1, 2) * 0.5
         if wall_angle > 0:
-            servo_angle = -(wall_angle -180) * 10 +88
+            servo_angle = 88 - (wall_angle -180) * 10
         else:
-            servo_angle = -(wall_angle +180) * 10 +88
+            servo_angle = 88 - (wall_angle +180) * 10
 
         if servo_angle < 48:
             servo_angle = 49

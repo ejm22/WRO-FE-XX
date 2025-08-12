@@ -67,7 +67,6 @@ class ImageUtils:
     @staticmethod
     def remove_color(hsv_img, target_img, color):
         if color == 'all_colors':
-            print("4")
             maskb = ImageUtils.calculate_color_mask(hsv_img, 'blue')
             masko = ImageUtils.calculate_color_mask(hsv_img, 'orange')
             maskg = ImageUtils.calculate_color_mask(hsv_img, 'green')

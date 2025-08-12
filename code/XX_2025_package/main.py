@@ -6,7 +6,7 @@ from XX_2025_package.utils.image_utils import ImageUtils
 from XX_2025_package.classes.image_algoriths import ImageAlgorithms
 
 arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
-speed = 3000
+speed = 1000
 defi = 2
 
 if __name__ == "__main__":
@@ -125,41 +125,115 @@ if __name__ == "__main__":
     if (defi == 3):
        
         print("Defi 3")
-        speed = 500
         while True:
-            arduino.flushInput()
-            camera_manager.capture_image()
-            camera_manager.transform_image()
+            speed = 1000
+            while True:
+                arduino.flushInput()
+                camera_manager.capture_image()
+                camera_manager.transform_image()
 
-            cv2.imshow("Cropped", camera_manager.cropped_image)
-            cv2.imshow("Polygon Image", camera_manager.polygon_image)
-            #print("Poly Lines = ", camera_manager.polygon_lines)
-            angle_walls = ImageAlgorithms.calculate_servo_angle_walls(camera_manager.polygon_image)
-            print ("angle_walls = ", angle_walls)
-            wall_angle = ImageAlgorithms.get_facing_wall_angle(camera_manager.polygon_lines)
-            print("Exterior wall angle = ", wall_angle)
+                cv2.imshow("Cropped", camera_manager.cropped_image)
+                cv2.imshow("Polygon Image", camera_manager.polygon_image)
+                #print("Poly Lines = ", camera_manager.polygon_lines)
+                angle_walls = ImageAlgorithms.calculate_servo_angle_walls(camera_manager.polygon_image)
+                print ("angle_walls = ", angle_walls)
+                top_angle = ImageAlgorithms.get_top_angle(camera_manager.polygon_lines)
+                #print("Top angle = ", top_angle)
+                #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
 
-            angle = ImageAlgorithms.calculate_servo_angle_walls(camera_manager.polygon_image)
-            servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, wall_angle)
-
-            #command = f"{servo_angle},{speed}.".encode()
-            if camera_manager.binary_image[63, 320] == 0:
-                speed = 0
-            else:
-                speed = 300
-            command = f"{servo_angle},{speed}.".encode()
-            
-
-            arduino.write(command)
-            arduino.flush()
-        
-            time.sleep(0.01)
-            key = cv2.waitKey(1)  # Let OpenCV update the window
-            if key == 27:  # Escape key to quit
-                if (speed != 0):
+                #command = f"{servo_angle},{speed}.".encode()
+                if camera_manager.binary_image[85, ImageUtils.PIC_WIDTH // 2] == 0 and top_angle is not None:
                     speed = 0
-                else:
+                    command = f"85,0.".encode()
+                    arduino.write(command)
                     break
+                else:
+                    speed = 1000
+                command = f"{angle_walls},{speed}.".encode()
+                
+
+                arduino.write(command)
+                arduino.flush()
+            
+                time.sleep(0.01)
+                key = cv2.waitKey(1)  # Let OpenCV update the window
+                if key == 27:  # Escape key to quit
+                    if (speed != 0):
+                        speed = 0
+                    else:
+                        break
+            
+            while True:
+                camera_manager.capture_image()
+                camera_manager.transform_image()
+                if camera_manager.binary_image[60, ImageUtils.PIC_WIDTH // 2] != 0:
+                    command = f"85,0.".encode()
+                    arduino.write(command)
+                    break
+                command = f"85,-1000.".encode()
+                arduino.write(command)
+            time.sleep(1)
+
+            speed = 1000
+            while True:
+                arduino.flushInput()
+                camera_manager.capture_image()
+                camera_manager.transform_image()
+
+                cv2.imshow("Cropped", camera_manager.cropped_image)
+                cv2.imshow("Polygon Image", camera_manager.polygon_image)
+                #print("Poly Lines = ", camera_manager.polygon_lines)
+                angle_walls = ImageAlgorithms.calculate_servo_angle_walls(camera_manager.polygon_image)
+                print ("angle_walls = ", angle_walls)
+                top_angle = ImageAlgorithms.get_top_angle(camera_manager.polygon_lines)
+                #print("Top angle = ", top_angle)
+                #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
+
+                #command = f"{servo_angle},{speed}.".encode()
+                if camera_manager.binary_image[65, ImageUtils.PIC_WIDTH // 2] == 0 and top_angle is not None:
+                    speed = 0
+                    command = f"85,0.".encode()
+                    arduino.write(command)
+                    break
+                else:
+                    speed = 1000
+                command = f"{angle_walls},{speed}.".encode()
+                
+
+                arduino.write(command)
+                arduino.flush()
+            
+                time.sleep(0.01)
+                key = cv2.waitKey(1)  # Let OpenCV update the window
+                if key == 27:  # Escape key to quit
+                    if (speed != 0):
+                        speed = 0
+                    else:
+                        break
+
+            time.sleep(1)
+            
+            
+            command = f"48,-1000.".encode()
+            arduino.write(command)
+            time.sleep(1.4)
+            #command = f"85,0.".encode()
+            #arduino.write(command)
+            #time.sleep(2)
+            command = f"85,-1000.".encode()
+            arduino.write(command)
+            time.sleep(1.1)
+            #command = f"85,0.".encode()
+            #arduino.write(command)
+            #time.sleep(2)
+            command = f"128,-1000.".encode()
+            arduino.write(command)
+            time.sleep(1)
+            command = f"85,0.".encode()
+            arduino.write(command)
+            time.sleep(1)
+            break
+            
            
         
     cv2.destroyAllWindows()
