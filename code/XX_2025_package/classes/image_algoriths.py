@@ -1,6 +1,7 @@
 from XX_2025_package.utils.image_utils import ImageTransformUtils
 import numpy as np
 import math
+from XX_2025_package.utils.enums import Direction
 
 MIDDLE_X = 320
 #THRESHOLD_Y_HEIGHT = 145
@@ -9,15 +10,15 @@ RIGHT_OBSTACLE_X_THRESHOLD = ImageTransformUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THR
 old_diff = 0
 old_angle = 0
 old_is_green = 0
-direction = -1
+direction = Direction.LEFT
 #threshold = 400
 
 class ImageAlgorithms:
-    direction = 1
+    direction = Direction.RIGHT
 
     @classmethod
     def get_direction(cls, camera_object):
-        cls.direction = -1 if camera_object.length_blue > camera_object.length_orange else 1
+        cls.direction = Direction.LEFT if camera_object.length_blue > camera_object.length_orange else Direction.RIGHT
         
     @classmethod
     def get_threshold(cls, elapsed):
@@ -50,8 +51,8 @@ class ImageAlgorithms:
     @staticmethod
     def find_angle_from_img(img, nbr_cols = 10):
         global old_diff
-        dir = ImageAlgorithms.direction
-        cols = range(0, nbr_cols) if dir == -1 else range(ImageTransformUtils.PIC_WIDTH - nbr_cols, ImageTransformUtils.PIC_WIDTH)
+        direction = ImageAlgorithms.direction
+        cols = range(0, nbr_cols) if direction == Direction.LEFT else range(ImageTransformUtils.PIC_WIDTH - nbr_cols, ImageTransformUtils.PIC_WIDTH)
         rows = range(ImageTransformUtils.PIC_HEIGHT - 3*nbr_cols, ImageTransformUtils.PIC_HEIGHT - 2*nbr_cols)
 
         y_vals = ImageAlgorithms.find_black_from_bottom(img, cols)
@@ -60,12 +61,12 @@ class ImageAlgorithms:
         avg_y = np.mean(y_vals)
         avg_x = np.mean(x_vals)
         
-        if dir == 1 : avg_x = 640 - avg_x
+        if direction == Direction.RIGHT : avg_x = 640 - avg_x
         #print("avg_y : ", avg_y)
         #print("avg_x : ", avg_x)
         diff = avg_y + avg_x - (ImageTransformUtils.PIC_HEIGHT - 60) #ImageAlgorithms.threshold # was +40
         differential_adjust = (diff - old_diff) * 0.25
-        angle =  88 + dir * (int((diff) * 0.2) + differential_adjust)
+        angle =  88 + direction * (int((diff) * 0.2) + differential_adjust)
         old_diff = diff
         #print("angle : ",angle)
         return angle
