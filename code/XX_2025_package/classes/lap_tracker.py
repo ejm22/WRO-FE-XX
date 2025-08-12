@@ -1,5 +1,6 @@
 from enum import Enum
 from XX_2025_package.utils.enums import Direction
+import time
 
 class LapState(Enum):
     LOOKING_FOR_WHITE = 1
@@ -23,6 +24,8 @@ class LapTracker:
     
     def _process_left_direction(self, detected_color):
         if self._state == LapState.LOOKING_FOR_WHITE and detected_color == "white":
+            # wait 0.5 before checking for next turn
+            time.sleep(0.5)
             self._state = LapState.LOOKING_FOR_BLUE
 
         elif self._state == LapState.LOOKING_FOR_BLUE and detected_color == "blue":
