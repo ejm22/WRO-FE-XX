@@ -5,6 +5,7 @@ from XX_2025_package.classes.camera_manager import CameraManager
 from XX_2025_package.utils.image_utils import ImageTransformUtils
 from XX_2025_package.classes.image_algoriths import ImageAlgorithms
 from XX_2025_package.classes.context_manager import ContextManager
+from XX_2025_package.classes.lap_tracker import LapTracker
 
 arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
 speed = 3000

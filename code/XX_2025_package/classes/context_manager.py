@@ -12,12 +12,13 @@ class ContextManager:
         
     def set_direction(self, direction: Direction):
         self.direction = direction
-    
-    def increment_lap_count(self):
-        self.lap_count += 1
         
     def increment_quarter_lap_count(self):
         self.quarter_lap_count += 1
+        if (self.quarter_lap_count >= 4):
+            self._lap_count += 1
+            self._quarter_lap_count = 0
+            print(f"Lap completed! Total laps: {self._lap_count}")
         
     def get_direction(self) -> Direction:
         return self._direction
