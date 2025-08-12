@@ -2,8 +2,10 @@ import cv2
 import serial
 import time
 from XX_2025_package.classes.camera_manager import CameraManager
-from XX_2025_package.utils.image_utils import ImageUtils
+from XX_2025_package.utils.image_utils import ImageTransformUtils
 from XX_2025_package.classes.image_algoriths import ImageAlgorithms
+from XX_2025_package.classes.context_manager import ContextManager
+from XX_2025_package.classes.lap_tracker import LapTracker
 
 arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
 speed = 1000
@@ -13,6 +15,8 @@ if __name__ == "__main__":
     ## 0 ##
     # Initialize program, camera, etc
 
+    context_manager = ContextManager()
+    
     time.sleep(1)
     camera_manager = CameraManager()
     camera_manager.start_camera()
@@ -38,8 +42,8 @@ if __name__ == "__main__":
         ## 1 ##
         # Find direction with blue and orange lines
 
-        dir = ImageAlgorithms.get_direction(camera_manager)
-        print("Direction : ", dir)
+        context_manager.set_direction(ImageAlgorithms.get_direction(camera_manager))
+        print("Direction : ", context_manager.get_direction())
 
         ## 2 ##
         # Find starting area
