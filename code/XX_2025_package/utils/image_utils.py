@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+from utils.image_color_utils import ImageColorUtils
 from picamera2 import Picamera2
 
 BLUR_FILTER_SIZE = 9            # size of the bilateral filter
@@ -22,7 +23,7 @@ COLOR_RANGES = {
     'pink': (np.array([155, 135, 50]), np.array([175, 255, 255]))
 }
 
-class ImageUtils:
+class ImageTransformUtils:
 
     CAMERA_PIC_WIDTH = 640                 # reduced image width
     CAMERA_PIC_HEIGHT = 360                # reduced image height
@@ -37,56 +38,40 @@ class ImageUtils:
     def bgr_to_hsv(img):
         return cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     
+    @staticmethod
     def dilate(img):
         kernel = np.ones((3,3), np.uintp)
         dilated_image = cv2.dilate(img, kernel, iterations = 1)
         return dilated_image
     
+    @staticmethod
     def erode(img):
         kernel = np.ones((3,3), np.uintp)
         eroded_image = cv2.erode(img, kernel, iterations=2)
 
     @staticmethod
-    def calculate_color_mask(hsv_img, color):
-        lower = COLOR_RANGES[color][0].copy()
-        upper = COLOR_RANGES[color][1].copy()
-        #print("lower,upper = ",lower, upper)
-        if upper[0] > 179:
-            #print("Lol")
-            extra = upper[0] -179
-            upper[0] = 179
-            mask1 = cv2.inRange(hsv_img, lower, upper)
-            lower[0] = 0
-            upper2 = np.array([extra, upper[1], upper[2]])
-            mask2 = cv2.inRange(hsv_img, lower, upper2)
-            mask = cv2.bitwise_or(mask1, mask2)                    
-        else:
-            mask = cv2.inRange(hsv_img, lower, upper)
-        return mask
-
-    @staticmethod
     def remove_color(hsv_img, target_img, color):
         if color == 'all_colors':
             print("4")
-            maskb = ImageUtils.calculate_color_mask(hsv_img, 'blue')
-            masko = ImageUtils.calculate_color_mask(hsv_img, 'orange')
-            maskg = ImageUtils.calculate_color_mask(hsv_img, 'green')
-            maskr = ImageUtils.calculate_color_mask(hsv_img, 'red')
+            maskb = ImageColorUtils.calculate_color_mask(hsv_img, 'blue')
+            masko = ImageColorUtils.calculate_color_mask(hsv_img, 'orange')
+            maskg = ImageColorUtils.calculate_color_mask(hsv_img, 'green')
+            maskr = ImageColorUtils.calculate_color_mask(hsv_img, 'red')
             mask = cv2.bitwise_or(maskb, masko, maskg, maskr)
-            maskp = ImageUtils.calculate_color_mask(hsv_img, 'pink')
-        mask = ImageUtils.calculate_color_mask(hsv_img, color)
+            maskp = ImageColorUtils.calculate_color_mask(hsv_img, 'pink')
+        mask = ImageColorUtils.calculate_color_mask(hsv_img, color)
         target_img[mask > 0] = WHITE_COLOR  # Change color to white
         target_img[maskp > 0] = (0, 0, 0)
         return target_img, mask
     
     @staticmethod
     def exclude_color(hsv_img, color):
-        mask = cv2.bitwise_not(ImageUtils.calculate_color_mask(hsv_img, color))
+        mask = cv2.bitwise_not(ImageColorUtils.calculate_color_mask(hsv_img, color))
         return mask
     
     @staticmethod
     def keep_color(img, color):
-        mask = ImageUtils.calculate_color_mask(img, color)
+        mask = ImageColorUtils.calculate_color_mask(img, color)
              
         #dilated_mask = ImageUtils.dilate(mask)
         #keep_color_img = cv2.bitwise_and(img, img, mask=mask)
@@ -115,7 +100,7 @@ class ImageUtils:
     def find_contour(img, white = 0):
         contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if white == 1:
-            target_pt = (ImageUtils.PIC_WIDTH / 2, ImageUtils.PIC_HEIGHT - 10)
+            target_pt = (ImageTransformUtils.PIC_WIDTH / 2, ImageTransformUtils.PIC_HEIGHT - 10)
             contours = [cnt for cnt in contours if cv2.pointPolygonTest(cnt, target_pt, False) >= 0]
             
         if not contours:
@@ -127,7 +112,7 @@ class ImageUtils:
     def draw_polygon(binary_img, target_img):
         #cv2.imshow("drawpolygon", binary_img)
         #binary_img = ImageUtils.dilate(binary_img)
-        cnt = ImageUtils.find_contour(binary_img, 1)
+        cnt = ImageTransformUtils.find_contour(binary_img, 1)
         if cnt is None: return target_img, None
         epsilon = 0.008*cv2.arcLength(cnt, True)  # was 0.01
         polygon = cv2.approxPolyDP(cnt, epsilon, True)
@@ -138,7 +123,7 @@ class ImageUtils:
     
     @staticmethod
     def find_rect(img, color_img = None):
-        cnt = ImageUtils.find_contour(img)
+        cnt = ImageTransformUtils.find_contour(img)
         if cnt is None:
             return img, 360, None
         rect = cv2.minAreaRect(cnt)
@@ -174,7 +159,7 @@ class ImageUtils:
     
     @staticmethod
     def get_top_line_coords(binary_img):
-        cnt = ImageUtils.find_contour(binary_img)
+        cnt = ImageTransformUtils.find_contour(binary_img)
         epsilon = 0.01*cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, epsilon, True)
         for i in range(len(approx)):
@@ -189,7 +174,7 @@ class ImageUtils:
 
     @staticmethod
     def get_corner_line_coords(binary_img):
-        cnt = ImageUtils.find_contour(binary_img)
+        cnt = ImageTransformUtils.find_contour(binary_img)
         epsilon = 0.01*cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, epsilon, True)
         for i in range(len(approx)):
@@ -209,24 +194,5 @@ class ImageUtils:
         pt2 = (int(pt2[0]), int(pt2[1]))
         cv2.line(img, (pt1[0], pt1[1]), (pt2[0], pt2[1]), color=(0, 253, 0), thickness=3)
         #cv2.imshow("Lines,", img)
-    
-    @staticmethod
-    def find_color_from_pt(img, pt, color): # img is already given in hsv
-        lower, higher = COLOR_RANGES[color]
-        x, y = map(int, pt)
-        hsv_value = img[y, x]
-        pixel = np.uint8([[hsv_value]])
-        return cv2.inRange(pixel, lower, higher)[0] == 255
-
-    @staticmethod
-    def find_color_from_rect(img, rect, color):
-        x_center = rect[0][0]
-        y_center = rect[0][1]
-        pt = (x_center, y_center)
-        return ImageUtils.find_color_from_pt(img, pt, color)
-
-    @staticmethod
-    def is_rect_green(img, rect):
-        return ImageUtils.find_color_from_rect(img, rect, 'green')
-    
+        
 

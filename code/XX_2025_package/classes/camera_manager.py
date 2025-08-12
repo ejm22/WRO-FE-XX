@@ -1,6 +1,6 @@
 from picamera2 import Picamera2
 import time
-from XX_2025_package.utils.image_utils import ImageUtils
+from XX_2025_package.utils.image_utils import ImageTransformUtils
 from XX_2025_package.classes.image_algoriths import ImageAlgorithms
 import cv2
 import numpy as np
@@ -46,7 +46,7 @@ class CameraManager:
         sensor_width, sensor_height = sensor_mode["size"]
         config = (self.picam2.create_still_configuration(
         raw={"size":(sensor_width,sensor_height)},
-        main={"format":'RGB888',"size": (ImageUtils.CAMERA_PIC_WIDTH, ImageUtils.CAMERA_PIC_HEIGHT)}))
+        main={"format":'RGB888',"size": (ImageTransformUtils.CAMERA_PIC_WIDTH, ImageTransformUtils.CAMERA_PIC_HEIGHT)}))
         self.picam2.configure(config)
 
     def start_camera(self):
@@ -62,31 +62,31 @@ class CameraManager:
 
     def transform_image(self):
         if self.raw_image is not None:
-            self.cropped_image = ImageUtils.crop_image(self.raw_image, 0, ImageUtils.PIC_WIDTH, ImageUtils.CAMERA_PIC_HEIGHT - ImageUtils.PIC_HEIGHT, ImageUtils.CAMERA_PIC_HEIGHT)
-            self.hsv_image = ImageUtils.bgr_to_hsv(self.cropped_image.copy())
-            self.colormask_image,_ = ImageUtils.remove_color(self.hsv_image.copy(), self.cropped_image.copy(), 'all_colors')
-            self.grayscale_image = ImageUtils.color_to_grayscale(self.colormask_image)
-            self.blurred_image = ImageUtils.blur_image(self.grayscale_image)
-            self.binary_image = ImageUtils.make_binary(self.blurred_image)
-            self.clean_image = ImageUtils.clean_binary(self.binary_image)
+            self.cropped_image = ImageTransformUtils.crop_image(self.raw_image, 0, ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.CAMERA_PIC_HEIGHT - ImageTransformUtils.PIC_HEIGHT, ImageTransformUtils.CAMERA_PIC_HEIGHT)
+            self.hsv_image = ImageTransformUtils.bgr_to_hsv(self.cropped_image.copy())
+            self.colormask_image,_ = ImageTransformUtils.remove_color(self.hsv_image.copy(), self.cropped_image.copy(), 'all_colors')
+            self.grayscale_image = ImageTransformUtils.color_to_grayscale(self.colormask_image)
+            self.blurred_image = ImageTransformUtils.blur_image(self.grayscale_image)
+            self.binary_image = ImageTransformUtils.make_binary(self.blurred_image)
+            self.clean_image = ImageTransformUtils.clean_binary(self.binary_image)
             
-            self.blue_mask = ImageUtils.calculate_color_mask(self.hsv_image, 'blue')
-            self.orange_mask = ImageUtils.calculate_color_mask(self.hsv_image, 'orange')
-            self.green_mask = ImageUtils.calculate_color_mask(self.hsv_image, 'green')
-            self.red_mask = ImageUtils.calculate_color_mask(self.hsv_image, 'red')
-            self.pink_mask = ImageUtils.calculate_color_mask(self.hsv_image, 'pink')
+            self.blue_mask = ImageTransformUtils.calculate_color_mask(self.hsv_image, 'blue')
+            self.orange_mask = ImageTransformUtils.calculate_color_mask(self.hsv_image, 'orange')
+            self.green_mask = ImageTransformUtils.calculate_color_mask(self.hsv_image, 'green')
+            self.red_mask = ImageTransformUtils.calculate_color_mask(self.hsv_image, 'red')
+            self.pink_mask = ImageTransformUtils.calculate_color_mask(self.hsv_image, 'pink')
 
             cv2.imshow("Green only", self.green_mask)
-            self.polygon_image, self.polygon_lines = ImageUtils.draw_polygon(self.clean_image, self.clean_image)
-            self.blueline_image = ImageUtils.keep_color(self.hsv_image, 'blue')
-            self.orangeline_image = ImageUtils.keep_color(self.hsv_image, 'orange')
+            self.polygon_image, self.polygon_lines = ImageTransformUtils.draw_polygon(self.clean_image, self.clean_image)
+            self.blueline_image = ImageTransformUtils.keep_color(self.hsv_image, 'blue')
+            self.orangeline_image = ImageTransformUtils.keep_color(self.hsv_image, 'orange')
             self.clean_blueline_image = cv2.bitwise_and(self.blueline_image, self.blueline_image, mask = self.polygon_image)
             self.clean_orangeline_image = cv2.bitwise_and(self.orangeline_image, self.orangeline_image, mask = self.polygon_image)
-            self.cnt_blueline, self.length_blue, _ = ImageUtils.find_rect(self.clean_blueline_image)
-            self.cnt_orangeline, self.length_orange, _ = ImageUtils.find_rect(self.clean_orangeline_image)
+            self.cnt_blueline, self.length_blue, _ = ImageTransformUtils.find_rect(self.clean_blueline_image)
+            self.cnt_orangeline, self.length_orange, _ = ImageTransformUtils.find_rect(self.clean_orangeline_image)
 
             self.pink_image = cv2.bitwise_and(self.polygon_image, self.polygon_image, mask = self.pink_mask)
-            self.combined_mask = cv2.bitwise_or(ImageUtils.keep_color(self.hsv_image.copy(), 'green'), ImageUtils.keep_color(self.hsv_image.copy(), 'red'))
+            self.combined_mask = cv2.bitwise_or(ImageTransformUtils.keep_color(self.hsv_image.copy(), 'green'), ImageTransformUtils.keep_color(self.hsv_image.copy(), 'red'))
             cv2.imshow("Combine_mask", self.combined_mask)
             cv2.imshow("img_polygon_image", self.polygon_image)
             self.obstacle_image = cv2.bitwise_and(self.polygon_image, self.polygon_image, mask = self.combined_mask)
@@ -94,7 +94,7 @@ class CameraManager:
             #self.grayscale_image = ImageUtils.color_to_grayscale(self.binary_obstacle)
             #self.obstacle_image = ImageUtils.make_binary(self.grayscale_image)
             ##self.obstacle_image = ImageUtils.dilate(self.obstacle_image)
-            self.contour_obstacle_with_rect, _, rect = ImageUtils.find_rect(self.obstacle_image.copy(), self.grayscale_image.copy())
+            self.contour_obstacle_with_rect, _, rect = ImageTransformUtils.find_rect(self.obstacle_image.copy(), self.grayscale_image.copy())
 
 if __name__ == "__main__":
     camera_manager = CameraManager()

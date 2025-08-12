@@ -1,11 +1,11 @@
-from XX_2025_package.utils.image_utils import ImageUtils
+from XX_2025_package.utils.image_utils import ImageTransformUtils
 import numpy as np
 import math
 
 MIDDLE_X = 320
 #THRESHOLD_Y_HEIGHT = 145
 LEFT_OBSTACLE_X_THRESHOLD = 40
-RIGHT_OBSTACLE_X_THRESHOLD = ImageUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
+RIGHT_OBSTACLE_X_THRESHOLD = ImageTransformUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
 old_diff = 0
 old_angle = 0
 old_is_green = 0
@@ -27,7 +27,7 @@ class ImageAlgorithms:
     def find_black_from_bottom(img, col_range):
         y_vals = []
         for x in col_range:
-            for y in reversed(range(ImageUtils.PIC_HEIGHT - 30)):
+            for y in reversed(range(ImageTransformUtils.PIC_HEIGHT - 30)):
                 if img[y,x] == 0:
                     y_vals.append(y)
                     break
@@ -36,10 +36,10 @@ class ImageAlgorithms:
         return y_vals
 
     def find_black_sides(img, rotation, row_range):
-        end_index = 0 if rotation == -1 else ImageUtils.PIC_WIDTH - 1
+        end_index = 0 if rotation == -1 else ImageTransformUtils.PIC_WIDTH - 1
         x_vals = []
         for y in row_range:
-            for x in range(ImageUtils.PIC_WIDTH // 2, end_index, rotation):
+            for x in range(ImageTransformUtils.PIC_WIDTH // 2, end_index, rotation):
                 if img[y,x] == 0:       
                     x_vals.append(x)
                     break
@@ -51,8 +51,8 @@ class ImageAlgorithms:
     def find_angle_from_img(img, nbr_cols = 10):
         global old_diff
         dir = ImageAlgorithms.direction
-        cols = range(0, nbr_cols) if dir == -1 else range(ImageUtils.PIC_WIDTH - nbr_cols, ImageUtils.PIC_WIDTH)
-        rows = range(ImageUtils.PIC_HEIGHT - 3*nbr_cols, ImageUtils.PIC_HEIGHT - 2*nbr_cols)
+        cols = range(0, nbr_cols) if dir == -1 else range(ImageTransformUtils.PIC_WIDTH - nbr_cols, ImageTransformUtils.PIC_WIDTH)
+        rows = range(ImageTransformUtils.PIC_HEIGHT - 3*nbr_cols, ImageTransformUtils.PIC_HEIGHT - 2*nbr_cols)
 
         y_vals = ImageAlgorithms.find_black_from_bottom(img, cols)
         x_vals = ImageAlgorithms.find_black_sides(img, dir, rows)
@@ -63,7 +63,7 @@ class ImageAlgorithms:
         if dir == 1 : avg_x = 640 - avg_x
         #print("avg_y : ", avg_y)
         #print("avg_x : ", avg_x)
-        diff = avg_y + avg_x - (ImageUtils.PIC_HEIGHT - 60) #ImageAlgorithms.threshold # was +40
+        diff = avg_y + avg_x - (ImageTransformUtils.PIC_HEIGHT - 60) #ImageAlgorithms.threshold # was +40
         differential_adjust = (diff - old_diff) * 0.25
         angle =  88 + dir * (int((diff) * 0.2) + differential_adjust)
         old_diff = diff
@@ -85,28 +85,28 @@ class ImageAlgorithms:
     def find_obstacle_angle(obstacle_img, hsv_img, target_img, gray):
         global old_angle
         global old_is_green
-        v1, v2, rect = ImageUtils.find_rect(obstacle_img, gray)
+        v1, v2, rect = ImageTransformUtils.find_rect(obstacle_img, gray)
         if rect is None:
             return None, target_img, None
         x_center = rect[0][0] # + min(rect[1][0], rect[1][1])/2
         y_center = rect[0][1]
 
-        if y_center > ImageUtils.PIC_HEIGHT - 60:
-            if y_center > ImageUtils.PIC_HEIGHT - 30:
+        if y_center > ImageTransformUtils.PIC_HEIGHT - 60:
+            if y_center > ImageTransformUtils.PIC_HEIGHT - 30:
                 return None, target_img, None
             else:
                 return old_angle, None, old_is_green
         if y_center < 50:# was 60
             return None, target_img, None
 
-        is_green = ImageUtils.is_rect_green(hsv_img, rect)
+        is_green = ImageTransformUtils.is_rect_green(hsv_img, rect)
 
         if is_green:
-            ImageUtils.draw_line(target_img, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageUtils.PIC_HEIGHT))
-            rad_angle = math.atan2(y_center - ImageUtils.PIC_HEIGHT, x_center - RIGHT_OBSTACLE_X_THRESHOLD)
+            ImageTransformUtils.draw_line(target_img, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
+            rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - RIGHT_OBSTACLE_X_THRESHOLD)
         else:
-            ImageUtils.draw_line(target_img, (x_center, y_center), (LEFT_OBSTACLE_X_THRESHOLD, ImageUtils.PIC_HEIGHT))
-            rad_angle = math.atan2(y_center - ImageUtils.PIC_HEIGHT, x_center - LEFT_OBSTACLE_X_THRESHOLD)
+            ImageTransformUtils.draw_line(target_img, (x_center, y_center), (LEFT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
+            rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - LEFT_OBSTACLE_X_THRESHOLD)
 
         angle = 90 + math.degrees(rad_angle)
         old_angle = angle
