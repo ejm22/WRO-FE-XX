@@ -28,7 +28,7 @@ private:
 public:
     SerialReceiver(Servo &servoRef, FlexyStepper &stepperRef, int &angleRef, int &speedRef, long int &targetPositionRef);
     void processSerial();
-    void decryptMovementOrder();
+    void decryptMovementOrder(char action);
 };
 
 #endif
