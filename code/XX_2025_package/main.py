@@ -8,8 +8,11 @@ from XX_2025_package.classes.context_manager import ContextManager
 from XX_2025_package.classes.lap_tracker import LapTracker
 
 arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
-speed = 1000
-defi = 3
+speed = 3000
+defi = 2
+
+# 0.1559 mm per 1 step
+# 1 mm per 6.412 steps
 
 if __name__ == "__main__":
     ## 0 ##
@@ -113,7 +116,7 @@ if __name__ == "__main__":
             cv2.imshow("Binary image", camera_manager.binary_image)
             cv2.imshow("Obstacle with rect", camera_manager.contour_obstacle_with_rect)
             #cv2.imshow("Pink image", camera_manager.pink_image)
-            command = f"{servo_angle},{speed}.".encode()
+            command = f"m{servo_angle},{speed}.".encode()
             arduino.write(command)
             arduino.flush()
             time.sleep(0.01)
@@ -148,12 +151,12 @@ if __name__ == "__main__":
                 #command = f"{servo_angle},{speed}.".encode()
                 if camera_manager.binary_image[85, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None:
                     speed = 0
-                    command = f"85,0.".encode()
+                    command = f"m85,0.".encode()
                     arduino.write(command)
                     break
                 else:
                     speed = 1000
-                command = f"{angle_walls},{speed}.".encode()
+                command = f"m{angle_walls},{speed}.".encode()
                 
 
                 arduino.write(command)
@@ -170,75 +173,48 @@ if __name__ == "__main__":
             while True:
                 camera_manager.capture_image()
                 camera_manager.transform_image()
-                if camera_manager.binary_image[60, ImageTransformUtils.PIC_WIDTH // 2] != 0:
-                    command = f"85,0.".encode()
-                    arduino.write(command)
-                    break
-                command = f"85,-1000.".encode()
-                arduino.write(command)
-            time.sleep(1)
-
-            speed = 1000
-            while True:
-                arduino.flushInput()
-                camera_manager.capture_image()
-                camera_manager.transform_image()
-
                 cv2.imshow("Cropped", camera_manager.cropped_image)
                 cv2.imshow("Polygon Image", camera_manager.polygon_image)
-                #print("Poly Lines = ", camera_manager.polygon_lines)
-                angle_walls = ImageAlgorithms.calculate_servo_angle_walls(camera_manager.polygon_image)
-                print ("angle_walls = ", angle_walls)
-                top_angle = ImageAlgorithms.get_top_angle(camera_manager.polygon_lines)
-                #print("Top angle = ", top_angle)
-                #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
-
-                #command = f"{servo_angle},{speed}.".encode()
-                if camera_manager.binary_image[65, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None:
-                    speed = 0
-                    command = f"85,0.".encode()
+                if camera_manager.binary_image[ImageTransformUtils.PIC_HEIGHT - 10, ImageTransformUtils.PIC_WIDTH - 100] == 0:
+                    command = f"m85,0.".encode()
                     arduino.write(command)
                     break
-                else:
-                    speed = 1000
-                command = f"{angle_walls},{speed}.".encode()
-                
-
+                command = f"m85,-1000.".encode()
                 arduino.write(command)
-                arduino.flush()
-            
-                time.sleep(0.01)
-                key = cv2.waitKey(1)  # Let OpenCV update the window
-                if key == 27:  # Escape key to quit
-                    if (speed != 0):
-                        speed = 0
-                    else:
-                        break
+            time.sleep(0.2)
 
-            time.sleep(1)
+            speed = 1000
+            command = f"t85,1000,1750.".encode()
+            arduino.write(command)
+            time.sleep(3)
             
+            command = f"t48,-1000,1350.".encode()
+            arduino.write(command)
+            time.sleep (7)
+            command = f"t85,-1000,650.".encode()
+            arduino.write(command)
+            time.sleep (1.5)
+            command = f"t128,-1000,1300.".encode()
+            arduino.write(command)
+            time.sleep (1.5)
+            command = f"m85,0.".encode()
+            arduino.write(command)
             
-            command = f"48,-1000.".encode()
-            arduino.write(command)
-            time.sleep(1.4)
-            #command = f"85,0.".encode()
-            #arduino.write(command)
-            #time.sleep(2)
-            command = f"85,-1000.".encode()
-            arduino.write(command)
-            time.sleep(1.1)
-            #command = f"85,0.".encode()
-            #arduino.write(command)
-            #time.sleep(2)
-            command = f"128,-1000.".encode()
-            arduino.write(command)
-            time.sleep(1)
-            command = f"85,0.".encode()
-            arduino.write(command)
-            time.sleep(1)
             break
             
-           
-        
+    if (defi == 4):
+        print("Hello")
+        command = f"t48,-1000,-1500.".encode()
+        arduino.write(command)
+        time.sleep (1.8)
+        command = f"t85,-1000,-1100.".encode()
+        arduino.write(command)
+        time.sleep (1.5)
+        command = f"t128,-1000,-1300.".encode()
+        arduino.write(command)
+        time.sleep (1.5)
+        command = f"m85,0.".encode()
+        arduino.write(command)
+ 
     cv2.destroyAllWindows()
-    arduino.write(b'88,0.')
+    arduino.write(b'm88,0.')
