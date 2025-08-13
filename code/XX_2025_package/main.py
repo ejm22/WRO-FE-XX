@@ -2,7 +2,7 @@ import cv2
 import serial
 import time
 from XX_2025_package.classes.camera_manager import CameraManager
-from XX_2025_package.utils.image_utils import ImageTransformUtils
+from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
 from XX_2025_package.classes.image_algoriths import ImageAlgorithms
 from XX_2025_package.classes.context_manager import ContextManager
 from XX_2025_package.classes.lap_tracker import LapTracker
@@ -19,6 +19,7 @@ if __name__ == "__main__":
     # Initialize program, camera, etc
 
     context_manager = ContextManager()
+    lap_tracker = LapTracker(context_manager)
     
     time.sleep(1)
     camera_manager = CameraManager()
@@ -97,6 +98,7 @@ if __name__ == "__main__":
         while True:
             camera_manager.capture_image()
             camera_manager.transform_image()
+            lap_tracker.process_img(camera_manager.cropped_image)
             display_image = camera_manager.cropped_image.copy()
             angle, display_image, is_green = ImageAlgorithms.find_obstacle_angle(camera_manager.obstacle_image.copy(), 
                                                                camera_manager.hsv_image.copy(), 
@@ -109,7 +111,8 @@ if __name__ == "__main__":
             angle_obstacles = ImageAlgorithms.calculate_servo_angle_obstacle(angle, is_green)
             servo_angle = ImageAlgorithms.choose_output_angle(angle_walls, angle_obstacles)
             print("angle_walls,angle_obstacles, servo_angle", angle_walls, angle_obstacles, servo_angle)
-
+            cv2.imshow("blue line", camera_manager.cnt_blueline)
+            cv2.imshow("orange line", camera_manager.cnt_orangeline)
             #cv2.imshow("Polygon image", camera_manager.polygon_image)
             #cv2.imshow("Cropped image", camera_manager.cropped_image)
             #cv2.imshow("Lol", camera_manager.obstacle_image)

@@ -1,7 +1,7 @@
 from picamera2 import Picamera2
 import time
-from XX_2025_package.utils.image_utils import ImageTransformUtils
-from XX_2025_package.utils.image_utils import ImageColorUtils
+from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
+from XX_2025_package.utils.image_transform_utils import ImageColorUtils
 from XX_2025_package.classes.image_algoriths import ImageAlgorithms
 import cv2
 import numpy as np

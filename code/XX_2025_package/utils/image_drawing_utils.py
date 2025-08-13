@@ -1,5 +1,5 @@
 import cv2
-from utils.image_utils import ImageTransformUtils
+from utils.image_transform_utils import ImageTransformUtils
 import numpy as np
 
 class ImageDrawingUtils:

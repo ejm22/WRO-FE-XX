@@ -1,5 +1,5 @@
-from XX_2025_package.utils.image_utils import ImageTransformUtils
-from XX_2025_package.utils.image_utils import ImageColorUtils
+from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
+from XX_2025_package.utils.image_color_utils import ImageColorUtils
 import numpy as np
 import math
 from XX_2025_package.utils.enums import Direction

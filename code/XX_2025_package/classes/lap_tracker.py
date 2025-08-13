@@ -13,6 +13,9 @@ class LapTracker:
         self.lap_count = 0
         self.context_manager = context_manager
 
+    # def process_image(img):
+        # Image
+
     # call in the image algo methods? Probably need an enum too for the colors
     def process_color(self, detected_color):
         direction = self.context_manager.get_direction()
