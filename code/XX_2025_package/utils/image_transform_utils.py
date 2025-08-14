@@ -28,7 +28,7 @@ class ImageTransformUtils:
     CAMERA_PIC_WIDTH = 640                 # reduced image width
     CAMERA_PIC_HEIGHT = 360                # reduced image height
     PIC_WIDTH = 640
-    PIC_HEIGHT = 280
+    PIC_HEIGHT = 280        
 
     @staticmethod
     def crop_image(img, x_start, x_end, y_start, y_end):

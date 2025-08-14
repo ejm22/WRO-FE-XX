@@ -46,7 +46,7 @@ if __name__ == "__main__":
         ## 1 ##
         # Find direction with blue and orange lines
 
-        context_manager.set_direction(ImageAlgorithms.get_direction(camera_manager))
+        context_manager.set_direction(ImageAlgorithms.get_direction_from_lines(camera_manager))
         print("Direction : ", context_manager.get_direction())
 
         ## 2 ##
