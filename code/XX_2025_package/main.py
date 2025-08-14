@@ -9,7 +9,7 @@ from XX_2025_package.classes.lap_tracker import LapTracker
 
 arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
 speed = 3000
-defi = 2
+defi = 1
 
 # 0.1559 mm per 1 step
 # 1 mm per 6.412 steps
@@ -48,6 +48,7 @@ if __name__ == "__main__":
 
         context_manager.set_direction(ImageAlgorithms.get_direction_from_lines(camera_manager))
         print("Direction : ", context_manager.get_direction())
+        print(ImageAlgorithms.direction)
 
         ## 2 ##
         # Find starting area
@@ -96,6 +97,9 @@ if __name__ == "__main__":
 
         ## 3 ##
         # Complete 3 laps
+        context_manager.set_direction(ImageAlgorithms.get_direction_from_parking(camera_manager))
+        print("Direction : ", context_manager.get_direction())
+        time.sleep(4)
         while True:
             camera_manager.capture_image()
             camera_manager.transform_image()

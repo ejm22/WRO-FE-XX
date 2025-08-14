@@ -9,7 +9,7 @@ class ContextManager:
         # add more later
         
     def set_direction(self, direction: Direction):
-        self.direction = direction
+        self._direction = direction
         
     def increment_quarter_lap_count(self):
         self.quarter_lap_count += 1

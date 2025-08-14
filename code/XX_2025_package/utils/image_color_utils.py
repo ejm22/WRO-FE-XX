@@ -52,7 +52,7 @@ class ImageColorUtils:
         return: color if a color is detected at pt, else None
         """
         x, y = map(int, pt)
-        hsv_value = img[y, x]
+        hsv_value = img[x, y]
         pixel = np.uint8([[hsv_value]])
         for color, (lower, upper) in COLOR_RANGES.items():
             if cv2.inRange(pixel, lower, upper)[0] == 255:

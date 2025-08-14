@@ -15,18 +15,20 @@ direction = Direction.LEFT
 #threshold = 400
 
 class ImageAlgorithms:
-    direction = Direction.RIGHT
+    #direction = Direction.RIGHT
 
     @classmethod
-    def get_direction_from_parking(cls, binary_img):
-        left = np.sum(binary_img[:, :ImageTransformUtils.PIC_WIDTH // 2])
-        right = np.sum(binary_img[:, ImageTransformUtils.PIC_WIDTH // 2:])
+    def get_direction_from_parking(cls, camera_object):
+        left = np.sum(camera_object.binary_image[:, :ImageTransformUtils.PIC_WIDTH // 2])
+        right = np.sum(camera_object.binary_image[:, ImageTransformUtils.PIC_WIDTH // 2:])
         cls.direction = Direction.LEFT if left > right else Direction.RIGHT
+        return cls.direction
 
     @classmethod
-    def get_direction_from_lines(cls, camera_object, defi):
-        if defi == 1:
-            cls.direction = Direction.LEFT if camera_object.length_blue > camera_object.length_orange else Direction.RIGHT
+    def get_direction_from_lines(cls, camera_object):
+        print("Lol")
+        cls.direction = Direction.LEFT if camera_object.length_blue > camera_object.length_orange else Direction.RIGHT
+        return cls.direction
 
     @classmethod
     def get_threshold(cls, elapsed):

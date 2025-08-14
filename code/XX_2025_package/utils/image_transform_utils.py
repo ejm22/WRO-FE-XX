@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 from utils.image_color_utils import ImageColorUtils
 from picamera2 import Picamera2
+from XX_2025_package.utils.enums import Color
 
 BLUR_FILTER_SIZE = 9            # size of the bilateral filter
 BLUR_SIGMA_COLOR = 75           # how much colors can differ to be considered similar
@@ -13,15 +14,6 @@ MATRIX_SIZE = 5                 # size of the kernel for morphological operation
 MIN_WIDTH = 5
 MIN_HEIGHT = 5
 
-COLOR_RANGES = {
-    # this is hsv
-    'blue': (np.array([100, 100, 50]), np.array([130, 255, 255])),
-    'orange': (np.array([10, 100, 50]), np.array([30, 255, 255])),
-    'all_colors': (np.array([0,100, 50]), np.array([179, 255, 255])),
-    'green': (np.array([60, 100, 50]), np.array([80, 255, 255])),
-    'red': (np.array([175, 100, 50]), np.array([185, 255, 255])),
-    'pink': (np.array([155, 135, 50]), np.array([175, 255, 255]))
-}
 
 class ImageTransformUtils:
 
@@ -51,13 +43,13 @@ class ImageTransformUtils:
 
     @staticmethod
     def remove_color(hsv_img, target_img, color):
-        if color == 'all_colors':
-            maskb = ImageColorUtils.calculate_color_mask(hsv_img, 'blue')
-            masko = ImageColorUtils.calculate_color_mask(hsv_img, 'orange')
-            maskg = ImageColorUtils.calculate_color_mask(hsv_img, 'green')
-            maskr = ImageColorUtils.calculate_color_mask(hsv_img, 'red')
+        if color == Color.ALL_COLORS:
+            maskb = ImageColorUtils.calculate_color_mask(hsv_img, Color.BLUE)
+            masko = ImageColorUtils.calculate_color_mask(hsv_img, Color.ORANGE)
+            maskg = ImageColorUtils.calculate_color_mask(hsv_img, Color.GREEN)
+            maskr = ImageColorUtils.calculate_color_mask(hsv_img, Color.RED)
             mask = cv2.bitwise_or(maskb, masko, maskg, maskr)
-            maskp = ImageColorUtils.calculate_color_mask(hsv_img, 'pink')
+            maskp = ImageColorUtils.calculate_color_mask(hsv_img, Color.PINK)
         mask = ImageColorUtils.calculate_color_mask(hsv_img, color)
         target_img[mask > 0] = WHITE_COLOR  # Change color to white
         target_img[maskp > 0] = (0, 0, 0)
@@ -133,7 +125,6 @@ class ImageTransformUtils:
         box = cv2.boxPoints(rect)
         box = np.intp(box)
         if color_img is not None:
-            print("Dedans")
             x_coords = [pt[0] for pt in box]
             min_x = max(min(x_coords), 0)
             max_x = min(max(x_coords), img.shape[1] - 1)
@@ -150,7 +141,7 @@ class ImageTransformUtils:
                 
                 # Require at least 50% white pixels
                 if ratio < 0.5:
-                    print("Not enough white below")
+                    #print("Not enough white below")
                     return img, 360, None
         img_with_box = cv2.cvtColor(img.copy(), cv2.COLOR_GRAY2BGR)
         cv2.drawContours(img_with_box, [box], 0, (0, 255, 0), 2)
