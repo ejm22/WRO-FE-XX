@@ -14,39 +14,28 @@ void SerialReceiver::processSerial() {
                 VoltageUtils::showVoltage();
                 break;
 
-            case 'm':
-            case 'M':
-                decryptMovementOrder('m');
+            case '.':
+                decryptMovementOrder();
                 break;
-            
-            case 't':
-            case 'T':
-                decryptMovementOrder('t');
-                break;
-                
+
             default:
+                inputString += inChar; // Append the character to the input string
                 break;
         }
     }
 }
 
-void SerialReceiver::decryptMovementOrder(char action) {
-    inputString = ""; // Clear the letter out of the input string
-    char inChar;
-    while (inChar != '.') {
-        if (Serial.available()){
-            inChar = (char)Serial.read();
-            inputString += inChar;
-        }
-    }
+void SerialReceiver::decryptMovementOrder() {
+    char action = inputString.charAt(0); // Get the first character as action
     int firstComma = inputString.indexOf(',');
     int secondComma = -1; // Initialize second comma index
     long int newTarget = targetPosition; // Initialize new target position
     if (firstComma > 0) {
         // Read angle
-        angle = inputString.substring(0, firstComma).toInt(); // before the ,
+        angle = inputString.substring(1, firstComma).toInt(); // before the ,
         // Read speed
         if (action == 't') {    // Check if there's a second comma for target position
+            waitingForTarget = true;
             secondComma = inputString.indexOf(',', firstComma + 1);
             speed = inputString.substring(firstComma + 1, secondComma).toInt();
             newTarget = long(-inputString.substring(secondComma + 1).toInt()); // after the second ,

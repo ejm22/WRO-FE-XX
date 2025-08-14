@@ -50,4 +50,9 @@ void loop() {
     } else digitalWrite(ENABLE_PIN, LOW); // Enable stepper when speed is not 0
     stepper.processMovement();
     serialReceiver.processSerial();
+    if (stepper.motionComplete() && serialReceiver.waitingForTarget) {
+        Serial.println("F");
+        serialReceiver.waitingForTarget = false; // Reset waiting for target flag
+        speed = 0; // Stop the stepper motor
+    }
 }

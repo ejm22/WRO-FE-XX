@@ -28,7 +28,8 @@ private:
 public:
     SerialReceiver(Servo &servoRef, FlexyStepper &stepperRef, int &angleRef, int &speedRef, long int &targetPositionRef);
     void processSerial();
-    void decryptMovementOrder(char action);
+    void decryptMovementOrder();
+    bool waitingForTarget = false; // Flag to indicate if waiting for target position
 };
 
 #endif
