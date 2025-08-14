@@ -5,6 +5,11 @@ from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
 from XX_2025_package.utils.enums import Color
 import time
 
+LINE_COORDS = {
+    Direction.LEFT: (0, ImageTransformUtils.PIC_HEIGHT),
+    Direction.RIGHT: (ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.PIC_HEIGHT)
+}
+
 class LapState(Enum):
     LOOKING_FOR_WHITE = 1
     LOOKING_FOR_BLUE = 2
@@ -17,7 +22,7 @@ class LapTracker:
         self.context_manager = context_manager
 
     def process_image(self, img):
-        self._process_color(ImageColorUtils.find_color_from_pt(img, (0, ImageTransformUtils.PIC_HEIGHT)))
+        self._process_color(ImageColorUtils.find_color_from_pt(img, LINE_COORDS[self.context_manager.get_direction()]))
 
     
     def _process_color(self, detected_color):
