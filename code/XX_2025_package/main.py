@@ -46,7 +46,7 @@ if __name__ == "__main__":
         ## 1 ##
         # Find direction with blue and orange lines
 
-        context_manager.set_direction(ImageAlgorithms.get_direction(camera_manager))
+        context_manager.set_direction(ImageAlgorithms.get_direction_from_lines(camera_manager))
         print("Direction : ", context_manager.get_direction())
 
         ## 2 ##
@@ -98,7 +98,7 @@ if __name__ == "__main__":
         while True:
             camera_manager.capture_image()
             camera_manager.transform_image()
-            lap_tracker.process_img(camera_manager.cropped_image)
+            #lap_tracker.process_img(camera_manager.cropped_image)
             display_image = camera_manager.cropped_image.copy()
             angle, display_image, is_green = ImageAlgorithms.find_obstacle_angle(camera_manager.obstacle_image.copy(), 
                                                                camera_manager.hsv_image.copy(), 
