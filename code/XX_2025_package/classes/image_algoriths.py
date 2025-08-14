@@ -4,9 +4,10 @@ import numpy as np
 import math
 from XX_2025_package.utils.enums import Direction
 from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
+from XX_2025_package.utils.enums import StartPostition
 
 MIDDLE_X = 320
-#THRESHOLD_Y_HEIGHT = 145
+START_WALL_HEIGHT_THRESHOLD = ImageTransformUtils.PIC_HEIGHT - 115
 LEFT_OBSTACLE_X_THRESHOLD = 40
 RIGHT_OBSTACLE_X_THRESHOLD = ImageTransformUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
 old_diff = 0
@@ -36,6 +37,7 @@ class ImageAlgorithms:
         #cls.threshold = 250 if elapsed < 2.25 else 400
         cls.threshold = 400
 
+    @staticmethod
     def find_black_from_bottom(img, col_range):
         y_vals = []
         for x in col_range:
@@ -47,6 +49,7 @@ class ImageAlgorithms:
                 y_vals.append(0)
         return y_vals
 
+    @staticmethod
     def find_black_sides(img, rotation, row_range):
         end_index = 0 if rotation.value == -1 else ImageTransformUtils.PIC_WIDTH - 1
         x_vals = []
@@ -183,3 +186,18 @@ class ImageAlgorithms:
         elif servo_angle > 128:
             servo_angle = 127
         return int(servo_angle)
+    
+    @staticmethod
+    def get_starting_position(img):
+        nbr_cols = 10
+        mid_x = ImageTransformUtils.PIC_WIDTH // 2
+        start = mid_x - (nbr_cols // 2)
+        end = start + nbr_cols
+        cols = range(start, end)
+        
+        distance = np.mean(ImageAlgorithms.find_black_from_bottom(img, cols))
+        
+        print("Wall distance = ", distance)
+        
+        if distance > START_WALL_HEIGHT_THRESHOLD:
+            return StartPostition.BACK

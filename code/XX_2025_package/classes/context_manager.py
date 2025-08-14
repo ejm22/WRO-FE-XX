@@ -6,6 +6,7 @@ class ContextManager:
         self._direction = None
         self._lap_count = 0
         self._quarter_lap_count = 0
+        self._start_position = None
         # add more later
         
     def set_direction(self, direction: Direction):
@@ -26,3 +27,6 @@ class ContextManager:
     
     def get_quarter_lap_count(self):
         return self._quarter_lap_count
+    
+    def set_start_position(self, start_position):
+        self._start_position = start_position

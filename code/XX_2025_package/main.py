@@ -52,7 +52,11 @@ if __name__ == "__main__":
 
         ## 2 ##
         # Find starting area
+        start_position = ImageAlgorithms.get_starting_position(camera_manager.polygon_image)
+        print("Start position: ", start_position)
+        context_manager.set_start_position(start_position)
 
+        
         ## 2.1 ##
         # Adjust robot if starting area is problematic
 
