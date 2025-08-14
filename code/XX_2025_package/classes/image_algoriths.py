@@ -3,6 +3,7 @@ from XX_2025_package.utils.image_color_utils import ImageColorUtils
 import numpy as np
 import math
 from XX_2025_package.utils.enums import Direction
+from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
 
 MIDDLE_X = 320
 #THRESHOLD_Y_HEIGHT = 145
@@ -104,7 +105,7 @@ class ImageAlgorithms:
     def find_obstacle_angle(obstacle_img, hsv_img, target_img, gray):
         global old_angle
         global old_is_green
-        v1, v2, rect = ImageTransformUtils.find_rect(obstacle_img, gray)
+        v1, v2, rect = ImageDrawingUtils.find_rect(obstacle_img, gray)
         if rect is None:
             return None, target_img, None
         x_center = rect[0][0] # + min(rect[1][0], rect[1][1])/2
@@ -121,10 +122,10 @@ class ImageAlgorithms:
         is_green = ImageColorUtils.is_rect_green(hsv_img, rect)
 
         if is_green:
-            ImageTransformUtils.draw_line(target_img, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
+            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
             rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - RIGHT_OBSTACLE_X_THRESHOLD)
         else:
-            ImageTransformUtils.draw_line(target_img, (x_center, y_center), (LEFT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
+            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (LEFT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
             rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - LEFT_OBSTACLE_X_THRESHOLD)
 
         angle = 90 + math.degrees(rad_angle)

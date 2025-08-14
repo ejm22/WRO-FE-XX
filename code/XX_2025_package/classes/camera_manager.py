@@ -6,6 +6,7 @@ from XX_2025_package.classes.image_algoriths import ImageAlgorithms
 import cv2
 import numpy as np
 from XX_2025_package.utils.enums import Color
+from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
 
 class CameraManager:
 
@@ -79,13 +80,13 @@ class CameraManager:
             self.pink_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, Color.PINK)
 
             cv2.imshow("Green only", self.green_mask)
-            self.polygon_image, self.polygon_lines = ImageTransformUtils.draw_polygon(self.clean_image, self.clean_image)
+            self.polygon_image, self.polygon_lines = ImageDrawingUtils.draw_polygon(self.clean_image, self.clean_image)
             self.blueline_image = ImageTransformUtils.keep_color(self.hsv_image, Color.BLUE)
             self.orangeline_image = ImageTransformUtils.keep_color(self.hsv_image, Color.ORANGE)
             self.clean_blueline_image = cv2.bitwise_and(self.blueline_image, self.blueline_image, mask = self.polygon_image)
             self.clean_orangeline_image = cv2.bitwise_and(self.orangeline_image, self.orangeline_image, mask = self.polygon_image)
-            self.cnt_blueline, self.length_blue, _ = ImageTransformUtils.find_rect(self.clean_blueline_image)
-            self.cnt_orangeline, self.length_orange, _ = ImageTransformUtils.find_rect(self.clean_orangeline_image)
+            self.cnt_blueline, self.length_blue, _ = ImageDrawingUtils.find_rect(self.clean_blueline_image)
+            self.cnt_orangeline, self.length_orange, _ = ImageDrawingUtils.find_rect(self.clean_orangeline_image)
 
             self.pink_image = cv2.bitwise_and(self.polygon_image, self.polygon_image, mask = self.pink_mask)
             self.combined_mask = cv2.bitwise_or(ImageTransformUtils.keep_color(self.hsv_image.copy(), Color.GREEN), ImageTransformUtils.keep_color(self.hsv_image.copy(), Color.RED))
@@ -96,7 +97,7 @@ class CameraManager:
             #self.grayscale_image = ImageUtils.color_to_grayscale(self.binary_obstacle)
             #self.obstacle_image = ImageUtils.make_binary(self.grayscale_image)
             ##self.obstacle_image = ImageUtils.dilate(self.obstacle_image)
-            self.contour_obstacle_with_rect, _, rect = ImageTransformUtils.find_rect(self.obstacle_image.copy(), self.grayscale_image.copy())
+            self.contour_obstacle_with_rect, _, rect = ImageDrawingUtils.find_rect(self.obstacle_image.copy(), self.grayscale_image.copy())
 
 if __name__ == "__main__":
     camera_manager = CameraManager()
