@@ -1,9 +1,7 @@
 import numpy as np
 import cv2
 from utils.image_color_utils import ImageColorUtils
-from picamera2 import Picamera2
 from XX_2025_package.utils.enums import Color
-from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
 
 BLUR_FILTER_SIZE = 9            # size of the bilateral filter
 BLUR_SIGMA_COLOR = 75           # how much colors can differ to be considered similar
@@ -12,8 +10,6 @@ THRESHOLD = 100                 # threshold value for binary image
 WHITE_VALUE = 255               # to set white color in binary image
 WHITE_COLOR = (255, 255, 255)   # BGR white color for OpenCV
 MATRIX_SIZE = 5                 # size of the kernel for morphological operations
-MIN_WIDTH = 5
-MIN_HEIGHT = 5
 
 
 class ImageTransformUtils:

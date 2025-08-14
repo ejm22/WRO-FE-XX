@@ -9,7 +9,7 @@ COLOR_RANGES = {
     Color.GREEN: (np.array([60, 100, 50]), np.array([80, 255, 255])),
     Color.RED: (np.array([175, 100, 50]), np.array([185, 255, 255])),
     Color.PINK: (np.array([155, 135, 50]), np.array([175, 255, 255])),
-    Color.WHITE: (np.array([0, 0, 200]), np.array([179, 30, 255])),
+    Color.WHITE: (np.array([0, 0, 100]), np.array([179, 30, 255])),
 }
 
 class ImageColorUtils:
@@ -51,11 +51,13 @@ class ImageColorUtils:
         
         return: color if a color is detected at pt, else None
         """
+        print("find color")
         x, y = map(int, pt)
         hsv_value = img[x, y]
         pixel = np.uint8([[hsv_value]])
         for color, (lower, upper) in COLOR_RANGES.items():
             if cv2.inRange(pixel, lower, upper)[0] == 255:
+                print(color)
                 return color
         
 

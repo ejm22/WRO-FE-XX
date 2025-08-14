@@ -78,7 +78,7 @@ class ImageAlgorithms:
         if direction == Direction.RIGHT : avg_x = 640 - avg_x
         #print("avg_y : ", avg_y)
         #print("avg_x : ", avg_x)
-        diff = avg_y + avg_x - (ImageTransformUtils.PIC_HEIGHT - 60) #ImageAlgorithms.threshold # was +40
+        diff = avg_y + avg_x - (ImageTransformUtils.PIC_HEIGHT + 40) #ImageAlgorithms.threshold # was +40
         # thresholds : 
         # challenge 1 : 400
         # challenge 2 : 300
