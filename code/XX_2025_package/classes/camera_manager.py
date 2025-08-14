@@ -5,6 +5,7 @@ from XX_2025_package.utils.image_transform_utils import ImageColorUtils
 from XX_2025_package.classes.image_algoriths import ImageAlgorithms
 import cv2
 import numpy as np
+from XX_2025_package.utils.enums import Color
 
 class CameraManager:
 
@@ -65,29 +66,29 @@ class CameraManager:
         if self.raw_image is not None:
             self.cropped_image = ImageTransformUtils.crop_image(self.raw_image, 0, ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.CAMERA_PIC_HEIGHT - ImageTransformUtils.PIC_HEIGHT, ImageTransformUtils.CAMERA_PIC_HEIGHT)
             self.hsv_image = ImageTransformUtils.bgr_to_hsv(self.cropped_image.copy())
-            self.colormask_image,_ = ImageTransformUtils.remove_color(self.hsv_image.copy(), self.cropped_image.copy(), 'all_colors')
+            self.colormask_image,_ = ImageTransformUtils.remove_color(self.hsv_image.copy(), self.cropped_image.copy(), Color.ALL_COLORS)
             self.grayscale_image = ImageTransformUtils.color_to_grayscale(self.colormask_image)
             self.blurred_image = ImageTransformUtils.blur_image(self.grayscale_image)
             self.binary_image = ImageTransformUtils.make_binary(self.blurred_image)
             self.clean_image = ImageTransformUtils.clean_binary(self.binary_image)
             
-            self.blue_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, 'blue')
-            self.orange_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, 'orange')
-            self.green_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, 'green')
-            self.red_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, 'red')
-            self.pink_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, 'pink')
+            self.blue_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, Color.BLUE)
+            self.orange_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, Color.ORANGE)
+            self.green_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, Color.GREEN)
+            self.red_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, Color.RED)
+            self.pink_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, Color.PINK)
 
             cv2.imshow("Green only", self.green_mask)
             self.polygon_image, self.polygon_lines = ImageTransformUtils.draw_polygon(self.clean_image, self.clean_image)
-            self.blueline_image = ImageTransformUtils.keep_color(self.hsv_image, 'blue')
-            self.orangeline_image = ImageTransformUtils.keep_color(self.hsv_image, 'orange')
+            self.blueline_image = ImageTransformUtils.keep_color(self.hsv_image, Color.BLUE)
+            self.orangeline_image = ImageTransformUtils.keep_color(self.hsv_image, Color)
             self.clean_blueline_image = cv2.bitwise_and(self.blueline_image, self.blueline_image, mask = self.polygon_image)
             self.clean_orangeline_image = cv2.bitwise_and(self.orangeline_image, self.orangeline_image, mask = self.polygon_image)
             self.cnt_blueline, self.length_blue, _ = ImageTransformUtils.find_rect(self.clean_blueline_image)
             self.cnt_orangeline, self.length_orange, _ = ImageTransformUtils.find_rect(self.clean_orangeline_image)
 
             self.pink_image = cv2.bitwise_and(self.polygon_image, self.polygon_image, mask = self.pink_mask)
-            self.combined_mask = cv2.bitwise_or(ImageTransformUtils.keep_color(self.hsv_image.copy(), 'green'), ImageTransformUtils.keep_color(self.hsv_image.copy(), 'red'))
+            self.combined_mask = cv2.bitwise_or(ImageTransformUtils.keep_color(self.hsv_image.copy(), Color.GREEN), ImageTransformUtils.keep_color(self.hsv_image.copy(), 'red'))
             cv2.imshow("Combine_mask", self.combined_mask)
             cv2.imshow("img_polygon_image", self.polygon_image)
             self.obstacle_image = cv2.bitwise_and(self.polygon_image, self.polygon_image, mask = self.combined_mask)

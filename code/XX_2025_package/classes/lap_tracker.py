@@ -1,6 +1,14 @@
 from enum import Enum
 from XX_2025_package.utils.enums import Direction
+from XX_2025_package.utils.image_color_utils import ImageColorUtils
+from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
+from XX_2025_package.utils.enums import Color
 import time
+
+LINE_COORDS = {
+    Direction.LEFT: (0, ImageTransformUtils.PIC_HEIGHT),
+    Direction.RIGHT: (ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.PIC_HEIGHT)
+}
 
 class LapState(Enum):
     LOOKING_FOR_WHITE = 1
@@ -13,11 +21,11 @@ class LapTracker:
         self.lap_count = 0
         self.context_manager = context_manager
 
-    # def process_image(img):
-        # Image
+    def process_image(self, img):
+        self._process_color(ImageColorUtils.find_color_from_pt(img, LINE_COORDS[self.context_manager.get_direction()]))
 
-    # call in the image algo methods? Probably need an enum too for the colors
-    def process_color(self, detected_color):
+    
+    def _process_color(self, detected_color):
         direction = self.context_manager.get_direction()
         if direction == Direction.LEFT:
             self._process_left_direction(detected_color)
@@ -26,7 +34,7 @@ class LapTracker:
             
     
     def _process_left_direction(self, detected_color):
-        if self._state == LapState.LOOKING_FOR_WHITE and detected_color == "white":
+        if self._state == LapState.LOOKING_FOR_WHITE and detected_color == Color.WHITE:
             # wait 0.5 before checking for next turn
             time.sleep(0.5)
             self._state = LapState.LOOKING_FOR_BLUE

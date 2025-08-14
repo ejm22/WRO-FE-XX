@@ -61,6 +61,7 @@ if __name__ == "__main__":
             arduino.flushInput()
             camera_manager.capture_image()
             camera_manager.transform_image()
+            lap_tracker.process_image(camera_manager.hsv_image)
             cv2.imshow("Cropped", camera_manager.cropped_image)
             cv2.imshow("New Image", camera_manager.polygon_image)
             if arduino.out_waiting == 0:
@@ -98,7 +99,7 @@ if __name__ == "__main__":
         while True:
             camera_manager.capture_image()
             camera_manager.transform_image()
-            #lap_tracker.process_img(camera_manager.cropped_image)
+            lap_tracker.process_image(camera_manager.hsv_image)
             display_image = camera_manager.cropped_image.copy()
             angle, display_image, is_green = ImageAlgorithms.find_obstacle_angle(camera_manager.obstacle_image.copy(), 
                                                                camera_manager.hsv_image.copy(), 
