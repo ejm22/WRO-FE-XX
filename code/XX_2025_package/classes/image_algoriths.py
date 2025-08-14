@@ -17,7 +17,7 @@ direction = Direction.LEFT
 #threshold = 400
 
 class ImageAlgorithms:
-    direction = Direction.LEFT
+    direction = Direction.RIGHT
 
     @classmethod
     def get_direction_from_parking(cls, camera_object):
@@ -78,15 +78,15 @@ class ImageAlgorithms:
         if direction == Direction.RIGHT : avg_x = 640 - avg_x
         #print("avg_y : ", avg_y)
         #print("avg_x : ", avg_x)
-        diff = avg_y + avg_x - (ImageTransformUtils.PIC_HEIGHT + 40) #ImageAlgorithms.threshold # was +40
+        diff = avg_y + avg_x - (ImageTransformUtils.PIC_HEIGHT - 40) #ImageAlgorithms.threshold # was +40
         # thresholds : 
         # challenge 1 : 400
         # challenge 2 : 300
         # challenge 3 : 320
-        differential_adjust = (diff - old_diff) * 0.25
+        differential_adjust = (diff - old_diff) * 1
         # kd was 0.25 for obstacles
         # kd was 1 for parking
-        angle =  88 + direction.value * (int((diff) * 0.2) + differential_adjust)
+        angle =  88 + direction.value * (int((diff) * 0.75) + differential_adjust)
         # kp was 0.2
         # kp was 0.75 for parking
         old_diff = diff
