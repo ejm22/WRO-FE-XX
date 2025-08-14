@@ -13,7 +13,8 @@ LINE_COORDS = {
 }
 
 class LapState(Enum):
-    INITIAL_STATE = 1
+    INITIAL_STATE = 0
+    WAITING_STATE = 1
     LOOKING_FOR_BLUE = 2
     LOOKING_FOR_ORANGE = 3
     
@@ -22,15 +23,23 @@ class LapTracker:
         self._state = LapState.INITIAL_STATE
         self.lap_count = 0
         self.context_manager = context_manager
+        self.time_stamp = 0
 
     def process_image(self, blue_img, orange_img):
         if self.context_manager.get_direction() is not None:
-            finds_blue = np.any(blue_img[ImageTransformUtils.PIC_HEIGHT - 50: ImageTransformUtils.PIC_HEIGHT - 30, ImageTransformUtils.PIC_WIDTH // 2 - 20: ImageTransformUtils.PIC_WIDTH // 2 + 20])
-            finds_orange = np.any(orange_img[ImageTransformUtils.PIC_HEIGHT - 50: ImageTransformUtils.PIC_HEIGHT - 30, ImageTransformUtils.PIC_WIDTH // 2 - 20: ImageTransformUtils.PIC_WIDTH // 2 + 20])
-            if finds_blue:
-                self._process_color(Color.BLUE)
-            if finds_orange:
-                self._process_color(Color.ORANGE)
+            finds_blue = np.any(blue_img[ImageTransformUtils.PIC_HEIGHT - 130: ImageTransformUtils.PIC_HEIGHT - 30, ImageTransformUtils.PIC_WIDTH // 2 - 20: ImageTransformUtils.PIC_WIDTH // 2 + 20])
+            finds_orange = np.any(orange_img[ImageTransformUtils.PIC_HEIGHT - 130: ImageTransformUtils.PIC_HEIGHT - 30, ImageTransformUtils.PIC_WIDTH // 2 - 20: ImageTransformUtils.PIC_WIDTH // 2 + 20])
+            if (self.context_manager.get_direction() == Direction.LEFT):
+                if finds_blue:
+                    self._process_color(Color.BLUE)
+                elif finds_orange:
+                    self._process_color(Color.ORANGE)
+            else:
+                if finds_orange:
+                    self._process_color(Color.ORANGE)
+                elif finds_blue:
+                    self._process_color(Color.BLUE)
+
 
 
     def _process_color(self, detected_color):
@@ -45,20 +54,42 @@ class LapTracker:
         if self._state == LapState.INITIAL_STATE:
             self._state = LapState.LOOKING_FOR_BLUE
 
+        if self._state == LapState.WAITING_STATE:
+            if self.time_stamp == 0:
+                self.time_stamp = time.time()
+
+            if time.time() - self.time_stamp >= 0.5:
+                self._state = LapState.LOOKING_FOR_BLUE
+                self.time_stamp = time.time()
+
         elif self._state == LapState.LOOKING_FOR_BLUE and detected_color == Color.BLUE:
-            self._state = LapState.LOOKING_FOR_BLUE
-            time.sleep(0.1)
+            self._state = LapState.LOOKING_FOR_ORANGE
+
+        elif self._state == LapState.LOOKING_FOR_ORANGE and detected_color == Color.ORANGE:
+
             self.context_manager.increment_quarter_lap_count()
+            self._state = LapState.WAITING_STATE
+
+
             
 
     def _process_right_direction(self, detected_color):
         if self._state == LapState.INITIAL_STATE:
             self._state = LapState.LOOKING_FOR_ORANGE
+    
+        if self._state == LapState.WAITING_STATE:
+            if self.time_stamp == 0:
+                self.time_stamp = time.time()
+
+            if time.time() - self.time_stamp >= 0.5:
+                self._state = LapState.LOOKING_FOR_ORANGE
+                self.time_stamp = time.time()
 
         elif self._state == LapState.LOOKING_FOR_ORANGE and detected_color == Color.ORANGE:
             self._state = LapState.LOOKING_FOR_BLUE
 
         elif self._state == LapState.LOOKING_FOR_BLUE and detected_color == Color.BLUE:
-            self._state = LapState.LOOKING_FOR_ORANGE
-            time.sleep(0.1)
             self.context_manager.increment_quarter_lap_count()
+            self._state = LapState.WAITING_STATE
+
+            

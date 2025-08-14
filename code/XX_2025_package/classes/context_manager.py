@@ -37,3 +37,6 @@ class ContextManager:
     
     def has_completed_laps(self):
         return self._lap_count >= 3
+    
+    def get_start_position(self):
+        return self._start_position

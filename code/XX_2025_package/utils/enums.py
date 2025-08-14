@@ -13,7 +13,7 @@ class Color(Enum):
     GREEN = "green"
     WHITE = "white"
     
-class StartPostion(Enum):
+class StartPosition(Enum):
     BACK = "back"
     FRONT = "front"
     

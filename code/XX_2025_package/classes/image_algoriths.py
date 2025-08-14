@@ -4,10 +4,10 @@ import numpy as np
 import math
 from XX_2025_package.utils.enums import Direction
 from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
-from XX_2025_package.utils.enums import StartPostition
+from XX_2025_package.utils.enums import StartPosition
 
 MIDDLE_X = 320
-START_WALL_HEIGHT_THRESHOLD = ImageTransformUtils.PIC_HEIGHT - 115
+START_WALL_HEIGHT_THRESHOLD = 34
 LEFT_OBSTACLE_X_THRESHOLD = 40
 RIGHT_OBSTACLE_X_THRESHOLD = ImageTransformUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
 old_diff = 0
@@ -199,5 +199,7 @@ class ImageAlgorithms:
         
         print("Wall distance = ", distance)
         
-        if distance > START_WALL_HEIGHT_THRESHOLD:
-            return StartPostition.BACK
+        if distance < START_WALL_HEIGHT_THRESHOLD:
+            return StartPosition.BACK
+        else:
+            return StartPosition.FRONT
