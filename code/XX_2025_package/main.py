@@ -65,7 +65,7 @@ if __name__ == "__main__":
             arduino.flushInput()
             camera_manager.capture_image()
             camera_manager.transform_image()
-            lap_tracker.process_image(camera_manager.blueline_image, camera_manager.orangeline_image)
+            lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
             cv2.imshow("Cropped", camera_manager.cropped_image)
             cv2.imshow("New Image", camera_manager.polygon_image)
             if arduino.out_waiting == 0:
@@ -104,13 +104,13 @@ if __name__ == "__main__":
 
         ## 3 ##
         # Complete 3 laps
-        context_manager.set_direction(ImageAlgorithms.get_direction_from_parking(camera_manager))
-        print("Direction : ", context_manager.get_direction())
+        #context_manager.set_direction(ImageAlgorithms.get_direction_from_parking(camera_manager))
+        #print("Direction : ", context_manager.get_direction())
         time.sleep(4)
         while True:
             camera_manager.capture_image()
             camera_manager.transform_image()
-            lap_tracker.process_image(camera_manager.hsv_image)
+            lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
             display_image = camera_manager.cropped_image.copy()
             angle, display_image, is_green = ImageAlgorithms.find_obstacle_angle(camera_manager.obstacle_image.copy(), 
                                                                camera_manager.hsv_image.copy(), 
@@ -118,11 +118,11 @@ if __name__ == "__main__":
                                                                camera_manager.grayscale_image.copy())
             if display_image is not None:
                 cv2.imshow("Display_image", display_image)
-            print("Angle objet : ", angle)
+            #print("Angle objet : ", angle)
             angle_walls = ImageAlgorithms.calculate_servo_angle_walls(camera_manager.polygon_image)
             angle_obstacles = ImageAlgorithms.calculate_servo_angle_obstacle(angle, is_green)
             servo_angle = ImageAlgorithms.choose_output_angle(angle_walls, angle_obstacles)
-            print("angle_walls,angle_obstacles, servo_angle", angle_walls, angle_obstacles, servo_angle)
+            #print("angle_walls,angle_obstacles, servo_angle", angle_walls, angle_obstacles, servo_angle)
             cv2.imshow("blue line", camera_manager.cnt_blueline)
             cv2.imshow("orange line", camera_manager.cnt_orangeline)
             #cv2.imshow("Polygon image", camera_manager.polygon_image)

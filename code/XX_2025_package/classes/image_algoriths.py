@@ -17,7 +17,7 @@ direction = Direction.LEFT
 #threshold = 400
 
 class ImageAlgorithms:
-    #direction = Direction.RIGHT
+    direction = Direction.LEFT
 
     @classmethod
     def get_direction_from_parking(cls, camera_object):
@@ -28,7 +28,7 @@ class ImageAlgorithms:
 
     @classmethod
     def get_direction_from_lines(cls, camera_object):
-        print("Lol")
+        #print("Lol")
         cls.direction = Direction.LEFT if camera_object.length_blue > camera_object.length_orange else Direction.RIGHT
         return cls.direction
 
@@ -153,9 +153,9 @@ class ImageAlgorithms:
 
     def choose_output_angle(angle_walls, angle_obstacles):
         if angle_obstacles is None:
-            print("Walls at angle : ", angle_walls)
+            #print("Walls at angle : ", angle_walls)
             return angle_walls
-        print("Obstacles at angle : ", angle_obstacles)
+        #print("Obstacles at angle : ", angle_obstacles)
         return angle_obstacles
 
     @staticmethod
@@ -167,7 +167,7 @@ class ImageAlgorithms:
             dy = pt2[1] - pt1[1]
             angle = np.degrees(np.arctan2(dy,dx))
             if (angle > 178) or (angle < -178):
-                print("Top wall angle = ", angle)
+                #print("Top wall angle = ", angle)
                 return angle
         return None
 
@@ -197,7 +197,7 @@ class ImageAlgorithms:
         
         distance = np.mean(ImageAlgorithms.find_black_from_bottom(img, cols))
         
-        print("Wall distance = ", distance)
+        #print("Wall distance = ", distance)
         
         if distance < START_WALL_HEIGHT_THRESHOLD:
             return StartPosition.BACK

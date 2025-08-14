@@ -3,10 +3,10 @@ from XX_2025_package.utils.enums import Direction
 
 
 class ContextManager:
-    challenge = 1
+    challenge = 2
 
     def __init__(self):
-        self._direction = None
+        self._direction = Direction.LEFT
         self._lap_count = 0
         self._quarter_lap_count = 0
         self._start_position = None
