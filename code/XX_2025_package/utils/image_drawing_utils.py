@@ -1,6 +1,10 @@
 import cv2
-from utils.image_transform_utils import ImageTransformUtils
+from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
 import numpy as np
+from XX_2025_package.classes.context_manager import ContextManager
+
+MIN_WIDTH = 5
+MIN_HEIGHT = 5
 
 class ImageDrawingUtils:
 
@@ -50,13 +54,13 @@ class ImageDrawingUtils:
             return img, 360, None
         rect = cv2.minAreaRect(cnt)
         (w, h) = rect[1]
-        if w < ImageTransformUtils.MIN_WIDTH or h < ImageTransformUtils.MIN_HEIGHT:
-            return img, 360, None
+        if ContextManager.challenge == 2:
+            if w < MIN_WIDTH or h < MIN_HEIGHT:
+                return img, 360, None
         max_width_height = max(rect[1][0], rect[1][1])
         box = cv2.boxPoints(rect)
         box = np.intp(box)
         if color_img is not None:
-            print("Dedans")
             x_coords = [pt[0] for pt in box]
             min_x = max(min(x_coords), 0)
             max_x = min(max(x_coords), img.shape[1] - 1)
@@ -73,7 +77,7 @@ class ImageDrawingUtils:
                 
                 # Require at least 50% white pixels
                 if ratio < 0.5:
-                    print("Not enough white below")
+                    #print("Not enough white below")
                     return img, 360, None
         img_with_box = cv2.cvtColor(img.copy(), cv2.COLOR_GRAY2BGR)
         cv2.drawContours(img_with_box, [box], 0, (0, 255, 0), 2)

@@ -36,6 +36,7 @@ class ImageAlgorithms:
         #cls.threshold = 250 if elapsed < 2.25 else 400
         cls.threshold = 400
 
+    @staticmethod
     def find_black_from_bottom(img, col_range):
         y_vals = []
         for x in col_range:
@@ -47,6 +48,7 @@ class ImageAlgorithms:
                 y_vals.append(0)
         return y_vals
 
+    @staticmethod
     def find_black_sides(img, rotation, row_range):
         end_index = 0 if rotation.value == -1 else ImageTransformUtils.PIC_WIDTH - 1
         x_vals = []
@@ -75,7 +77,7 @@ class ImageAlgorithms:
         if direction == Direction.RIGHT : avg_x = 640 - avg_x
         #print("avg_y : ", avg_y)
         #print("avg_x : ", avg_x)
-        diff = avg_y + avg_x - (ImageTransformUtils.PIC_HEIGHT - 60) #ImageAlgorithms.threshold # was +40
+        diff = avg_y + avg_x - (ImageTransformUtils.PIC_HEIGHT + 40) #ImageAlgorithms.threshold # was +40
         # thresholds : 
         # challenge 1 : 400
         # challenge 2 : 300

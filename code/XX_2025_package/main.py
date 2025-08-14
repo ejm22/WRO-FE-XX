@@ -9,7 +9,6 @@ from XX_2025_package.classes.lap_tracker import LapTracker
 
 arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
 speed = 3000
-defi = 1
 
 # 0.1559 mm per 1 step
 # 1 mm per 6.412 steps
@@ -42,7 +41,7 @@ if __name__ == "__main__":
     ############################ Défi 1 ############################
     ################################################################
     
-    if (defi == 1):
+    if (ContextManager.challenge == 1):
         ## 1 ##
         # Find direction with blue and orange lines
 
@@ -62,17 +61,21 @@ if __name__ == "__main__":
             arduino.flushInput()
             camera_manager.capture_image()
             camera_manager.transform_image()
-            lap_tracker.process_image(camera_manager.hsv_image)
+            lap_tracker.process_image(camera_manager.blueline_image, camera_manager.orangeline_image)
             cv2.imshow("Cropped", camera_manager.cropped_image)
             cv2.imshow("New Image", camera_manager.polygon_image)
             if arduino.out_waiting == 0:
                 angle = ImageAlgorithms.calculate_servo_angle_walls(camera_manager.polygon_image)
-                command = f"{angle},{speed}.".encode()
+                command = f"m{angle},{speed}.".encode()
                 arduino.write(command)
                 arduino.flush()
             else:
                 print("Arduino is busy, skipping command.")
             time.sleep(0.01)
+
+            if (context_manager.has_completed_laps()):
+                break
+
             key = cv2.waitKey(1)  # Let OpenCV update the window
             if key == 27:  # Escape key to quit
                 if (speed != 0):
@@ -88,7 +91,7 @@ if __name__ == "__main__":
     ############################ Défi 2 ############################
     ################################################################
 
-    if (defi == 2):
+    if (ContextManager.challenge == 2):
         ## 1 ##
         # Find direction with parking
 
@@ -137,9 +140,9 @@ if __name__ == "__main__":
         ## 5 ##
         # Parallel park in the parking area
 
-    if (defi == 3):
+    if (ContextManager.challenge == 3):
        
-        print("Defi 3")
+        print("Challenge 3")
         while True:
             speed = 1000
             while True:
@@ -210,7 +213,7 @@ if __name__ == "__main__":
             
             break
             
-    if (defi == 4):
+    if (ContextManager.challenge == 4):
         print("Hello")
         command = f"t48,-1000,-1500.".encode()
         arduino.write(command)
