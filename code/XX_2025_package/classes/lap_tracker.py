@@ -21,7 +21,6 @@ class LapTracker:
         self._state = LapState.LOOKING_FOR_WHITE
         self.lap_count = 0
         self.context_manager = context_manager
-        self.logger = Logger()
 
     def process_image(self, img):
         if self.context_manager.get_direction() is not None:
