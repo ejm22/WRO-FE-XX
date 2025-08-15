@@ -54,7 +54,7 @@ class ImageDrawingUtils:
             return img, 360, None
         rect = cv2.minAreaRect(cnt)
         (w, h) = rect[1]
-        if ContextManager.challenge == 2:
+        if ContextManager.CHALLENGE == 2:
             if w < MIN_WIDTH or h < MIN_HEIGHT:
                 return img, 360, None
         max_width_height = max(rect[1][0], rect[1][1])

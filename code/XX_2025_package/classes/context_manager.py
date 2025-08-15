@@ -3,7 +3,7 @@ from XX_2025_package.utils.enums import Direction
 
 
 class ContextManager:
-    challenge = 2
+    CHALLENGE = 2
 
     def __init__(self):
         self._direction = Direction.LEFT

@@ -42,7 +42,7 @@ if __name__ == "__main__":
     ############################ Défi 1 ############################
     ################################################################
     
-    if (ContextManager.challenge == 1):
+    if (ContextManager.CHALLENGE == 1):
         ## 1 ##
         # Find direction with blue and orange lines
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     ############################ Défi 2 ############################
     ################################################################
 
-    if (ContextManager.challenge == 2):
+    if (ContextManager.CHALLENGE == 2):
         ## 1 ##
         # Find direction with parking
 
@@ -147,7 +147,7 @@ if __name__ == "__main__":
         ## 5 ##
         # Parallel park in the parking area
 
-    if (ContextManager.challenge == 3):
+    if (ContextManager.CHALLENGE == 3):
        
         print("Challenge 3")
         while True:
@@ -220,7 +220,7 @@ if __name__ == "__main__":
             
             break
             
-    if (ContextManager.challenge == 4):
+    if (ContextManager.CHALLENGE == 4):
         print("Hello")
         command = f"t48,-1000,-1500.".encode()
         arduino.write(command)
