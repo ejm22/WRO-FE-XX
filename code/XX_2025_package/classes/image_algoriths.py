@@ -5,6 +5,7 @@ import math
 from XX_2025_package.utils.enums import Direction
 from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
 from XX_2025_package.utils.enums import StartPosition
+from XX_2025_package.classes.context_manager import ContextManager
 
 MIDDLE_X = 320
 START_WALL_HEIGHT_THRESHOLD = 34
@@ -17,25 +18,20 @@ direction = Direction.LEFT
 #threshold = 400
 
 class ImageAlgorithms:
-    direction = Direction.RIGHT
 
-    @classmethod
-    def get_direction_from_parking(cls, camera_object):
-        left = np.sum(camera_object.binary_image[:, :ImageTransformUtils.PIC_WIDTH // 2])
-        right = np.sum(camera_object.binary_image[:, ImageTransformUtils.PIC_WIDTH // 2:])
-        cls.direction = Direction.LEFT if left > right else Direction.RIGHT
-        return cls.direction
+    def __init__(self, context_manager):
+        self.context_manager = context_manager
+    
+    def get_direction_from_parking(self, camera_object):
+        left = np.sum(camera_object.polygon_image[:, :ImageTransformUtils.PIC_WIDTH // 2] == 255)
+        right = np.sum(camera_object.polygon_image[:, ImageTransformUtils.PIC_WIDTH // 2:] == 255)
+        print(left)
+        print(right)
+        self.context_manager.set_direction(Direction.LEFT if left > right else Direction.RIGHT)
 
-    @classmethod
-    def get_direction_from_lines(cls, camera_object):
-        #print("Lol")
-        cls.direction = Direction.LEFT if camera_object.length_blue > camera_object.length_orange else Direction.RIGHT
-        return cls.direction
+    def get_direction_from_lines(self, camera_object):
+        self.context_manager.set_direction(Direction.LEFT if camera_object.length_blue > camera_object.length_orange else Direction.RIGHT)
 
-    @classmethod
-    def get_threshold(cls, elapsed):
-        #cls.threshold = 250 if elapsed < 2.25 else 400
-        cls.threshold = 400
 
     @staticmethod
     def find_black_from_bottom(img, col_range):
@@ -62,10 +58,10 @@ class ImageAlgorithms:
                 x_vals.append(end_index)
         return x_vals
     
-    @staticmethod
-    def find_angle_from_img(img, nbr_cols = 10):
+    #TODO threshold selon le défi
+    def find_angle_from_img(self, img, nbr_cols = 10):
         global old_diff
-        direction = ImageAlgorithms.direction
+        direction = self.context_manager.get_direction()
         cols = range(0, nbr_cols) if direction == Direction.LEFT else range(ImageTransformUtils.PIC_WIDTH - nbr_cols, ImageTransformUtils.PIC_WIDTH)
         rows = range(ImageTransformUtils.PIC_HEIGHT - 3*nbr_cols, ImageTransformUtils.PIC_HEIGHT - 2*nbr_cols)
 
@@ -93,9 +89,8 @@ class ImageAlgorithms:
         #print("angle : ",angle)
         return angle
 
-    @staticmethod
-    def calculate_servo_angle_walls(img):
-        angle1 = ImageAlgorithms.find_angle_from_img(img)
+    def calculate_servo_angle_walls(self, img):
+        angle1 = self.find_angle_from_img(img)
         angle = angle1
         if angle < 48:
             angle = 49
@@ -151,6 +146,7 @@ class ImageAlgorithms:
             servo_angle = 127
         return int(servo_angle)
 
+    @staticmethod
     def choose_output_angle(angle_walls, angle_obstacles):
         if angle_obstacles is None:
             #print("Walls at angle : ", angle_walls)
@@ -159,7 +155,7 @@ class ImageAlgorithms:
         return angle_obstacles
 
     @staticmethod
-    def get_top_angle(poly_lines):
+    def get_top_line_angle(poly_lines):
         for i in range(len(poly_lines)):
             pt1 = poly_lines[i][0]
             pt2 = poly_lines[(i+1) % len(poly_lines)][0]
