@@ -11,10 +11,15 @@ MIDDLE_X = 320
 START_WALL_HEIGHT_THRESHOLD = 34
 LEFT_OBSTACLE_X_THRESHOLD = 40
 RIGHT_OBSTACLE_X_THRESHOLD = ImageTransformUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
+#pass challenge as key
+SIDE_WALL_HEIGHT_THRESHOLD = {
+    1: 40,
+    2: -60,
+    3: -40,
+}
 old_diff = 0
 old_angle = 0
 old_is_green = 0
-direction = Direction.LEFT
 #threshold = 400
 
 class ImageAlgorithms:
@@ -59,7 +64,7 @@ class ImageAlgorithms:
         return x_vals
     
     #TODO threshold selon le défi
-    def find_angle_from_img(self, img, nbr_cols = 10):
+    def find_target_servo_angle_from_img(self, img, nbr_cols = 10):
         global old_diff
         direction = self.context_manager.get_direction()
         cols = range(0, nbr_cols) if direction == Direction.LEFT else range(ImageTransformUtils.PIC_WIDTH - nbr_cols, ImageTransformUtils.PIC_WIDTH)
@@ -74,7 +79,7 @@ class ImageAlgorithms:
         if direction == Direction.RIGHT : avg_x = 640 - avg_x
         #print("avg_y : ", avg_y)
         #print("avg_x : ", avg_x)
-        diff = avg_y + avg_x - (ImageTransformUtils.PIC_HEIGHT - 40) #ImageAlgorithms.threshold # was +40
+        diff = avg_y + avg_x - (ImageTransformUtils.PIC_HEIGHT + SIDE_WALL_HEIGHT_THRESHOLD[self.context_manager.CHALLENGE]) #ImageAlgorithms.threshold # was +40
         # thresholds : 
         # challenge 1 : 320 = 280 + 40
         # challenge 2 : 220 = 280 - 60
@@ -90,7 +95,7 @@ class ImageAlgorithms:
         return angle
 
     def calculate_servo_angle_walls(self, img):
-        angle1 = self.find_angle_from_img(img)
+        angle1 = self.find_target_servo_angle_from_img(img)
         angle = angle1
         if angle < 48:
             angle = 49
@@ -168,7 +173,7 @@ class ImageAlgorithms:
         return None
 
     @staticmethod
-    def calculate_servo_angle_parking(angle_walls, wall_angle):
+    def calculate_servo_angle_parking(wall_angle):
         if wall_angle  is None:
             return None
         #servo_angle = math.pow(object_angle * 0.1, 2) * 0.5
