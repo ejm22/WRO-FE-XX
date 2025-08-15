@@ -76,9 +76,9 @@ class ImageAlgorithms:
         #print("avg_x : ", avg_x)
         diff = avg_y + avg_x - (ImageTransformUtils.PIC_HEIGHT - 40) #ImageAlgorithms.threshold # was +40
         # thresholds : 
-        # challenge 1 : 400
-        # challenge 2 : 300
-        # challenge 3 : 320
+        # challenge 1 : 320 = 280 + 40
+        # challenge 2 : 220 = 280 - 60
+        # challenge 3 : 240 = 280 - 40
         differential_adjust = (diff - old_diff) * 1
         # kd was 0.25 for obstacles
         # kd was 1 for parking

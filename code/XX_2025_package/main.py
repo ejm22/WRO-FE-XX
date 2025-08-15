@@ -204,17 +204,20 @@ if __name__ == "__main__":
             speed = 1000
             command = f"t85,1000,1750.".encode()
             arduino.write(command)
-            time.sleep(3)
-            
+            while arduino.read().decode('utf-8') != 'F':
+                time.sleep(0.005)
             command = f"t48,-1000,1350.".encode()
             arduino.write(command)
-            time.sleep (7)
+            while arduino.read().decode('utf-8') != 'F':
+                time.sleep(0.005)
             command = f"t85,-1000,650.".encode()
             arduino.write(command)
-            time.sleep (1.5)
+            while arduino.read().decode('utf-8') != 'F':
+                time.sleep(0.005)
             command = f"t128,-1000,1300.".encode()
             arduino.write(command)
-            time.sleep (1.5)
+            while arduino.read().decode('utf-8') != 'F':
+                time.sleep(0.005)
             command = f"m85,0.".encode()
             arduino.write(command)
             
