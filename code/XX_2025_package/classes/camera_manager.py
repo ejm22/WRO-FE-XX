@@ -69,7 +69,7 @@ class CameraManager:
     def transform_image(self):
         if self.raw_image is not None:
             self.cropped_image = ImageTransformUtils.crop_image(self.raw_image, 0, ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.CAMERA_PIC_HEIGHT - ImageTransformUtils.PIC_HEIGHT, ImageTransformUtils.CAMERA_PIC_HEIGHT)
-            self.display_image = camera_manager.cropped_image.copy()
+            self.display_image = self.cropped_image.copy()
             
             self.hsv_image = ImageTransformUtils.bgr_to_hsv(self.cropped_image.copy())
             self.colormask_image,_ = ImageTransformUtils.remove_color(self.hsv_image.copy(), self.cropped_image.copy(), Color.ALL_COLORS)
@@ -84,7 +84,6 @@ class CameraManager:
             self.red_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, Color.RED)
             self.pink_mask = ImageColorUtils.calculate_color_mask(self.hsv_image, Color.PINK)
 
-            cv2.imshow("Green only", self.green_mask)
             self.polygon_image, self.polygon_lines = ImageDrawingUtils.draw_polygon(self.clean_image, self.clean_image)
             self.blueline_image = ImageTransformUtils.keep_color(self.hsv_image, Color.BLUE)
             self.orangeline_image = ImageTransformUtils.keep_color(self.hsv_image, Color.ORANGE)
@@ -95,14 +94,13 @@ class CameraManager:
 
             self.pink_image = cv2.bitwise_and(self.polygon_image, self.polygon_image, mask = self.pink_mask)
             self.combined_mask = cv2.bitwise_or(ImageTransformUtils.keep_color(self.hsv_image.copy(), Color.GREEN), ImageTransformUtils.keep_color(self.hsv_image.copy(), Color.RED))
-            cv2.imshow("Combine_mask", self.combined_mask)
             cv2.imshow("img_polygon_image", self.polygon_image)
             self.obstacle_image = cv2.bitwise_and(self.polygon_image, self.polygon_image, mask = self.combined_mask)
             #self.binary_obstacle = cv2.bitwise_and(self.cropped_image.copy(), self.cropped_image.copy(), mask = self.combined_mask)
             #self.grayscale_image = ImageUtils.color_to_grayscale(self.binary_obstacle)
             #self.obstacle_image = ImageUtils.make_binary(self.grayscale_image)
             ##self.obstacle_image = ImageUtils.dilate(self.obstacle_image)
-            self.contour_obstacle_with_rect, _, rect = ImageDrawingUtils.find_rect(self.obstacle_image.copy(), self.grayscale_image.copy(), self.display_image)
+            ImageDrawingUtils.find_rect(self.obstacle_image.copy(), self.grayscale_image.copy(), self.display_image)
 
 if __name__ == "__main__":
     camera_manager = CameraManager()

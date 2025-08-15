@@ -85,7 +85,7 @@ class ImageDrawingUtils:
         img_with_box = cv2.cvtColor(img.copy(), cv2.COLOR_GRAY2BGR)
         cv2.drawContours(img_with_box, [box], 0, (0, 255, 0), 2)
         if target_img is not None:
-            cv2.drawContours(target_img, [box], 0, (0, 255, 0), 2)
+            cv2.drawContours(target_img, [box], 0, (168, 116, 251), 2)
         return img_with_box, max_width_height, rect
     
     @staticmethod
