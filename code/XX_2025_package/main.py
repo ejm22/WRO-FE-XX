@@ -6,6 +6,7 @@ from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
 from XX_2025_package.classes.image_algoriths import ImageAlgorithms
 from XX_2025_package.classes.context_manager import ContextManager
 from XX_2025_package.classes.lap_tracker import LapTracker
+from XX_2025_package.utils.enums import Direction
 
 arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
 speed = 3000
@@ -155,7 +156,7 @@ if __name__ == "__main__":
                 arduino.flushInput()
                 camera_manager.capture_image()
                 camera_manager.transform_image()
-
+                context_manager.set_direction(Direction.RIGHT)
                 cv2.imshow("Cropped", camera_manager.cropped_image)
                 cv2.imshow("Polygon Image", camera_manager.polygon_image)
                 #print("Poly Lines = ", camera_manager.polygon_lines)
@@ -203,17 +204,20 @@ if __name__ == "__main__":
             speed = 1000
             command = f"t85,1000,1750.".encode()
             arduino.write(command)
-            time.sleep(3)
-            
+            while arduino.read().decode('utf-8') != 'F':
+                time.sleep(0.005)
             command = f"t48,-1000,1350.".encode()
             arduino.write(command)
-            time.sleep (7)
+            while arduino.read().decode('utf-8') != 'F':
+                time.sleep(0.005)
             command = f"t85,-1000,650.".encode()
             arduino.write(command)
-            time.sleep (1.5)
+            while arduino.read().decode('utf-8') != 'F':
+                time.sleep(0.005)
             command = f"t128,-1000,1300.".encode()
             arduino.write(command)
-            time.sleep (1.5)
+            while arduino.read().decode('utf-8') != 'F':
+                time.sleep(0.005)
             command = f"m85,0.".encode()
             arduino.write(command)
             
