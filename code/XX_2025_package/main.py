@@ -110,13 +110,12 @@ if __name__ == "__main__":
             camera_manager.capture_image()
             camera_manager.transform_image()
             lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
-            display_image = camera_manager.cropped_image.copy()
-            angle, display_image, is_green = image_algorithms.find_obstacle_angle(camera_manager.obstacle_image.copy(), 
+            angle, camera_manager.display_image, is_green = image_algorithms.find_obstacle_angle_and_draw_lines(camera_manager.obstacle_image.copy(), 
                                                                camera_manager.hsv_image.copy(), 
-                                                               display_image, 
+                                                               camera_manager.display_image, 
                                                                camera_manager.grayscale_image.copy())
-            if display_image is not None:
-                cv2.imshow("Display_image", display_image)
+            if camera_manager.display_image is not None:
+                cv2.imshow("Display_image", camera_manager.display_image)
             #print("Angle objet : ", angle)
             angle_walls = image_algorithms.calculate_servo_angle_walls(camera_manager.polygon_image)
             angle_obstacles = image_algorithms.calculate_servo_angle_obstacle(angle, is_green)

@@ -5,7 +5,6 @@ import math
 from XX_2025_package.utils.enums import Direction
 from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
 from XX_2025_package.utils.enums import StartPosition
-from XX_2025_package.classes.context_manager import ContextManager
 
 MIDDLE_X = 320
 START_WALL_HEIGHT_THRESHOLD = 34
@@ -105,7 +104,7 @@ class ImageAlgorithms:
         return int(angle)
     
     @staticmethod
-    def find_obstacle_angle(obstacle_img, hsv_img, target_img, gray):
+    def find_obstacle_angle_and_draw_lines(obstacle_img, hsv_img, target_img, gray):
         global old_angle
         global old_is_green
         v1, v2, rect = ImageDrawingUtils.find_rect(obstacle_img, gray)

@@ -48,7 +48,10 @@ class ImageDrawingUtils:
         return target_img, polygon
     
     @staticmethod
-    def find_rect(img, color_img = None):
+    def find_rect(img, color_img = None, target_img = None):
+        """
+        Finds a rectangle in the image. Can add target_img to draw it on an image
+        """
         cnt = ImageDrawingUtils.find_contour(img)
         if cnt is None:
             return img, 360, None
@@ -81,6 +84,8 @@ class ImageDrawingUtils:
                     return img, 360, None
         img_with_box = cv2.cvtColor(img.copy(), cv2.COLOR_GRAY2BGR)
         cv2.drawContours(img_with_box, [box], 0, (0, 255, 0), 2)
+        if target_img is not None:
+            cv2.drawContours(target_img, [box], 0, (0, 255, 0), 2)
         return img_with_box, max_width_height, rect
     
     @staticmethod

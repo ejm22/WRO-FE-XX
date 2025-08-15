@@ -41,6 +41,9 @@ class CameraManager:
         self.obstacle_image = None
         self.contour_obstacle = None
         self.pink_image = None
+        
+        # the image used to display all the relevant info
+        self.display_image = None
 
         self.configure_camera()
 
@@ -66,6 +69,8 @@ class CameraManager:
     def transform_image(self):
         if self.raw_image is not None:
             self.cropped_image = ImageTransformUtils.crop_image(self.raw_image, 0, ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.CAMERA_PIC_HEIGHT - ImageTransformUtils.PIC_HEIGHT, ImageTransformUtils.CAMERA_PIC_HEIGHT)
+            self.display_image = camera_manager.cropped_image.copy()
+            
             self.hsv_image = ImageTransformUtils.bgr_to_hsv(self.cropped_image.copy())
             self.colormask_image,_ = ImageTransformUtils.remove_color(self.hsv_image.copy(), self.cropped_image.copy(), Color.ALL_COLORS)
             self.grayscale_image = ImageTransformUtils.color_to_grayscale(self.colormask_image)
@@ -97,7 +102,7 @@ class CameraManager:
             #self.grayscale_image = ImageUtils.color_to_grayscale(self.binary_obstacle)
             #self.obstacle_image = ImageUtils.make_binary(self.grayscale_image)
             ##self.obstacle_image = ImageUtils.dilate(self.obstacle_image)
-            self.contour_obstacle_with_rect, _, rect = ImageDrawingUtils.find_rect(self.obstacle_image.copy(), self.grayscale_image.copy())
+            self.contour_obstacle_with_rect, _, rect = ImageDrawingUtils.find_rect(self.obstacle_image.copy(), self.grayscale_image.copy(), self.display_image)
 
 if __name__ == "__main__":
     camera_manager = CameraManager()
@@ -107,7 +112,7 @@ if __name__ == "__main__":
         camera_manager.transform_image()
         cv2.imshow("Cropped image", camera_manager.cropped_image)
         cv2.imshow("Lol", camera_manager.obstacle_image)
-        angle, image = ImageAlgorithms.find_obstacle_angle(camera_manager.obstacle_image.copy(), camera_manager.hsv_image.copy(), camera_manager.cropped_image.copy())
+        angle, image = ImageAlgorithms.find_obstacle_angle_and_draw_lines(camera_manager.obstacle_image.copy(), camera_manager.hsv_image.copy(), camera_manager.cropped_image.copy())
         cv2.imshow("Obstacle with rect", camera_manager.contour_obstacle_with_rect)
         
         #Test for keep red only
