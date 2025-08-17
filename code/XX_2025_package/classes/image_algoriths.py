@@ -103,7 +103,7 @@ class ImageAlgorithms:
         # kd was 0.25 for obstacles
         # kd was 1 for parking
         #if self.context_manager
-        kp = 0.2
+        kp = 0.35
         angle =  88 + direction.value * (int((diff) * kp) + differential_adjust)
         # kp was 0.2
         # kp was 0.75 for parking
@@ -121,8 +121,15 @@ class ImageAlgorithms:
 
         return int(angle)
     
-    @staticmethod
-    def find_obstacle_angle_and_draw_lines(obstacle_img, hsv_img, target_img, gray):
+    def check_inner_wall_crash(self, polygon_img, object_height):
+        if object_height is None:
+            return True
+        if self.context_manager.get_direction() == Direction.RIGHT:
+            return (object_height < ImageTransformUtils.PIC_HEIGHT - 170) and (polygon_img[ImageTransformUtils.PIC_HEIGHT - 130, ImageTransformUtils.PIC_WIDTH - 200] == 0)
+        else:
+            return (object_height < ImageTransformUtils.PIC_HEIGHT - 170) and (polygon_img[ImageTransformUtils.PIC_HEIGHT - 130, 200] == 0)
+
+    def find_obstacle_angle_and_draw_lines(self, obstacle_img, hsv_img, target_img, gray, polygon_img):
         global old_angle
         global old_is_green
         v1, v2, rect = ImageDrawingUtils.find_rect(obstacle_img, gray)
@@ -138,9 +145,19 @@ class ImageAlgorithms:
                 return old_angle, None, old_is_green
         if y_center < ImageTransformUtils.PIC_HEIGHT - 240:# was 60
             return None, target_img, None
-        # this was to ignore objects too high on the screen, but it's now being removed for a better solution
+        # this is to ignore objects too high on the screen
+
+        if self.context_manager.get_direction() == Direction.RIGHT:
+            ImageDrawingUtils.draw_circle(target_img, (ImageTransformUtils.PIC_WIDTH - 200, ImageTransformUtils.PIC_HEIGHT - 130), 3)
+        else:
+            ImageDrawingUtils.draw_circle(target_img, (200, ImageTransformUtils.PIC_HEIGHT - 130), 3)
+
+        if self.check_inner_wall_crash(polygon_img, y_center):
+            return None, target_img, None
 
         is_green = ImageColorUtils.is_rect_green(hsv_img, rect)
+
+        
 
         if is_green:
             ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))

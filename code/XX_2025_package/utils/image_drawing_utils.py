@@ -125,3 +125,7 @@ class ImageDrawingUtils:
         pt2 = (int(pt2[0]), int(pt2[1]))
         cv2.line(img, (pt1[0], pt1[1]), (pt2[0], pt2[1]), color=(0, 253, 0), thickness=3)
         #cv2.imshow("Lines,", img)
+
+    @staticmethod
+    def draw_circle(img, center, radius):
+        cv2.circle(img, center, radius, color = (255, 0, 0), thickness = 3)

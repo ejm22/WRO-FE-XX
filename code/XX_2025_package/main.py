@@ -113,9 +113,10 @@ if __name__ == "__main__":
             camera_manager.transform_image()
             lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
             angle, camera_manager.display_image, is_green = image_algorithms.find_obstacle_angle_and_draw_lines(camera_manager.obstacle_image.copy(), 
-                                                               camera_manager.hsv_image.copy(), 
-                                                               camera_manager.display_image, 
-                                                               camera_manager.grayscale_image.copy())
+                                                            camera_manager.hsv_image.copy(), 
+                                                            camera_manager.display_image, 
+                                                            camera_manager.grayscale_image.copy(), 
+                                                            camera_manager.polygon_image.copy())
             if camera_manager.display_image is not None:
                 cv2.imshow("Display_image", camera_manager.display_image)
             #print("Angle objet : ", angle)
