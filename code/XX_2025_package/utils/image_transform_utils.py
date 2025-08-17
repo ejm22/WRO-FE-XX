@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from utils.image_color_utils import ImageColorUtils
+from XX_2025_package.utils.image_color_utils import ImageColorUtils
 from XX_2025_package.utils.enums import Color
 
 BLUR_FILTER_SIZE = 9            # size of the bilateral filter

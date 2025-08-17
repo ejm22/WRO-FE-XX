@@ -9,7 +9,6 @@ from XX_2025_package.classes.lap_tracker import LapTracker
 from XX_2025_package.utils.enums import Direction
 
 arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
-speed = 3000
 
 # 0.1559 mm per 1 step
 # 1 mm per 6.412 steps
@@ -44,6 +43,7 @@ if __name__ == "__main__":
     ################################################################
     
     if (ContextManager.CHALLENGE == 1):
+        speed = 5000
         ## 1 ##
         # Find direction with blue and orange lines
 
@@ -97,6 +97,7 @@ if __name__ == "__main__":
     ################################################################
 
     if (ContextManager.CHALLENGE == 2):
+        speed = 3000
         ## 1 ##
         # Find direction with parking
 
@@ -122,13 +123,12 @@ if __name__ == "__main__":
             angle_obstacles = image_algorithms.calculate_servo_angle_obstacle(angle, is_green)
             servo_angle = image_algorithms.choose_output_angle(angle_walls, angle_obstacles)
             #print("angle_walls,angle_obstacles, servo_angle", angle_walls, angle_obstacles, servo_angle)
-            cv2.imshow("blue line", camera_manager.cnt_blueline)
-            cv2.imshow("orange line", camera_manager.cnt_orangeline)
+            #cv2.imshow("blue line", camera_manager.cnt_blueline)
+            #cv2.imshow("orange line", camera_manager.cnt_orangeline)
             #cv2.imshow("Polygon image", camera_manager.polygon_image)
             #cv2.imshow("Cropped image", camera_manager.cropped_image)
             #cv2.imshow("Lol", camera_manager.obstacle_image)
-            cv2.imshow("Binary image", camera_manager.binary_image)
-            cv2.imshow("Obstacle with rect", camera_manager.contour_obstacle_with_rect)
+            #cv2.imshow("Binary image", camera_manager.binary_image)
             #cv2.imshow("Pink image", camera_manager.pink_image)
             command = f"m{servo_angle},{speed}.".encode()
             arduino.write(command)

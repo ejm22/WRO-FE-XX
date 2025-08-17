@@ -13,7 +13,7 @@ RIGHT_OBSTACLE_X_THRESHOLD = ImageTransformUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THR
 #pass challenge as key
 SIDE_WALL_HEIGHT_THRESHOLD = {
     1: 40,
-    2: -60,
+    2: -100,
     3: -40,
 }
 old_diff = 0
@@ -78,15 +78,33 @@ class ImageAlgorithms:
         if direction == Direction.RIGHT : avg_x = 640 - avg_x
         #print("avg_y : ", avg_y)
         #print("avg_x : ", avg_x)
-        diff = avg_y + avg_x - (ImageTransformUtils.PIC_HEIGHT + SIDE_WALL_HEIGHT_THRESHOLD[self.context_manager.CHALLENGE]) #ImageAlgorithms.threshold # was +40
+
+        print(self.context_manager.get_lap_count())
+        print(self.context_manager.get_quarter_lap_count())
+        threshold = ImageTransformUtils.PIC_HEIGHT
+        if (self.context_manager.CHALLENGE == 1 and self.context_manager.get_lap_count() == 0):
+            if (self.context_manager.get_quarter_lap_count() == 0):
+                threshold = ImageTransformUtils.PIC_HEIGHT + SIDE_WALL_HEIGHT_THRESHOLD[1] - 140
+            elif (self.context_manager.get_quarter_lap_count() == 1):
+                threshold = ImageTransformUtils.PIC_HEIGHT + SIDE_WALL_HEIGHT_THRESHOLD[1] - 70
+            else:
+                threshold = ImageTransformUtils.PIC_HEIGHT + SIDE_WALL_HEIGHT_THRESHOLD[1]
+        else:
+            threshold = ImageTransformUtils.PIC_HEIGHT + SIDE_WALL_HEIGHT_THRESHOLD[self.context_manager.CHALLENGE]
+        print(threshold)
+        diff = avg_y + avg_x - threshold
         # thresholds : 
         # challenge 1 : 320 = 280 + 40
         # challenge 2 : 220 = 280 - 60
         # challenge 3 : 240 = 280 - 40
-        differential_adjust = (diff - old_diff) * 1
+
+        kd = 0.25
+        differential_adjust = (diff - old_diff) * kd  #1
         # kd was 0.25 for obstacles
         # kd was 1 for parking
-        angle =  88 + direction.value * (int((diff) * 0.75) + differential_adjust)
+        #if self.context_manager
+        kp = 0.2
+        angle =  88 + direction.value * (int((diff) * kp) + differential_adjust)
         # kp was 0.2
         # kp was 0.75 for parking
         old_diff = diff
@@ -118,8 +136,9 @@ class ImageAlgorithms:
                 return None, target_img, None
             else:
                 return old_angle, None, old_is_green
-        if y_center < 50:# was 60
+        if y_center < ImageTransformUtils.PIC_HEIGHT - 240:# was 60
             return None, target_img, None
+        # this was to ignore objects too high on the screen, but it's now being removed for a better solution
 
         is_green = ImageColorUtils.is_rect_green(hsv_img, rect)
 

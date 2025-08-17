@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 from XX_2025_package.utils.enums import Color
 from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
+import math
 
 class CameraManager:
 
@@ -101,6 +102,51 @@ class CameraManager:
             #self.obstacle_image = ImageUtils.make_binary(self.grayscale_image)
             ##self.obstacle_image = ImageUtils.dilate(self.obstacle_image)
             ImageDrawingUtils.find_rect(self.obstacle_image.copy(), self.grayscale_image.copy(), self.display_image)
+    
+    def draw_arc(self, image, servo_angle):# Define arc parameters
+ 
+        # Parameters
+        wheelbase = .165  # m
+        steering_angle_deg = servo_angle  # degrees
+        steering_angle_rad = math.radians(steering_angle_deg)
+        path_length = .3 # m
+
+        # Calculate turning radius
+        R = wheelbase / math.tan(steering_angle_rad)
+
+        # Generate arc points in world coordinates
+        points_world = []
+        for d in np.linspace(0, path_length, num=50):
+            x = R * math.sin(d / R)
+            y = R * (1 - math.cos(d / R))
+            points_world.append([x, y])
+            print(x,y)
+
+        points_world = np.array(points_world)
+
+        # Simplified projection: scale and shift to image coordinates
+        # These values depend on your camera setup
+        scale = 1000  # pixels per meter
+        if servo_angle < 0: 
+            offset_x, offset_y = 320, 400  # image center or bottom center
+
+        else:
+            offset_x, offset_y = 320, 400  # image center or bottom center
+
+        # Rotate to match image orientation (forward = up)
+        points_world_rotated = np.array([[-p[1], p[0]] for p in points_world])
+
+        # Project to image coordinates
+        points_image = np.array([
+                [int(offset_x + p[0]*scale), int(offset_y - p[1]*scale)]
+        for p in points_world_rotated])
+
+        # Draw path
+        cv2.polylines(image, [points_image], isClosed=False, color=(0, 255, 0), thickness=2)
+
+        cv2.imshow("Projected Path", image)
+
+
 
 if __name__ == "__main__":
     camera_manager = CameraManager()
@@ -108,39 +154,11 @@ if __name__ == "__main__":
     while True:
         camera_manager.capture_image()
         camera_manager.transform_image()
-        cv2.imshow("Cropped image", camera_manager.cropped_image)
+        for i in range (41, -41, -6):
+            camera_manager.draw_arc(camera_manager.cropped_image, i)
+        #    time.sleep(.5)
         cv2.imshow("Lol", camera_manager.obstacle_image)
-        angle, image = ImageAlgorithms.find_obstacle_angle_and_draw_lines(camera_manager.obstacle_image.copy(), camera_manager.hsv_image.copy(), camera_manager.cropped_image.copy())
-        cv2.imshow("Obstacle with rect", camera_manager.contour_obstacle_with_rect)
-        
-        #Test for keep red only
-        #lowerdb = np.array([175, 100, 50])
-        #upperdb = np.array([185, 255, 255])
-        #if upperdb[0] > 179:
-        #    extra = upperdb[0] -179
-        #    upperdb[0] = 179
-        #    mask1 = cv2.inRange(camera_manager.hsv_image, lowerdb, upperdb)
-        #    lowerdb[0] = 0
-        #    upperdb[0] = extra
-        #    mask2 = cv2.inRange(camera_manager.hsv_image, lowerdb, upperdb)
-        #    mask = cv2.bitwise_or(mask1, mask2)                    
-        #    
-        #else:
-        #    mask = cv2.inRange(camera_manager.hsv_image, lowerdb, upperdb)
-        #cv2.imshow("mask red cam", mask)
-        #keep_red_image = cv2.bitwise_and(camera_manager.cropped_image.copy(), camera_manager.cropped_image.copy(), mask=mask )
-        
-        #cv2.imshow("Keep Red ", keep_red_image)
-        #cv2.imshow("Blue mask", camera_manager.blue_mask)
-        #cv2.imshow("Orange mask", camera_manager.orange_mask)
-        #cv2.imshow("Green mask", camera_manager.green_mask)
-        #cv2.imshow("Red mask", camera_manager.red_mask)
-        
-        # db part
-        if image is not None:
-            cv2.imshow("Image with line", image)
 
-        print(angle)
         time.sleep(0.01)
         key = cv2.waitKey(1)  # Let OpenCV update the window
         if key == 27:  # Escape key to quit
