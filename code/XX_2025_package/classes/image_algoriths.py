@@ -11,6 +11,8 @@ MIDDLE_X = 320
 START_WALL_HEIGHT_THRESHOLD = 34
 LEFT_OBSTACLE_X_THRESHOLD = 40
 RIGHT_OBSTACLE_X_THRESHOLD = ImageTransformUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
+MIN_ANGLE = 48
+MAX_ANGLE = 128
 
 ChallengeParameters = namedtuple('ChallengeParameters', ['kp', 'kd', 'base_threshold', 'offsets'])
 CHALLENGE_CONFIG = {
@@ -167,12 +169,14 @@ class ImageAlgorithms:
         return angle
 
     def calculate_servo_angle_walls(self, img):
-        angle1 = self.find_target_servo_angle_from_img(img)
-        angle = angle1
-        if angle < 48:
-            angle = 49
-        elif angle > 128:
-            angle = 127
+        """
+        
+        """
+        angle = self.find_target_servo_angle_from_img(img)
+        if angle < MIN_ANGLE:
+            angle = MIN_ANGLE
+        elif angle > MAX_ANGLE:
+            angle = MAX_ANGLE
 
         return int(angle)
     
@@ -233,10 +237,10 @@ class ImageAlgorithms:
             servo_angle = 88 - ((object_angle + 45) * 1.5) # green obstacle
         else:
             servo_angle = 88 - ((object_angle - 45) * 1.5) # red obstacle
-        if servo_angle < 48:
-            servo_angle = 49
-        elif servo_angle > 128:
-            servo_angle = 127
+        if servo_angle < MIN_ANGLE:
+            servo_angle = MIN_ANGLE
+        elif servo_angle > MAX_ANGLE:
+            servo_angle = MAX_ANGLE
         return int(servo_angle)
 
     @staticmethod
@@ -270,10 +274,10 @@ class ImageAlgorithms:
         else:
             servo_angle = 88 - (wall_angle +180) * 10
 
-        if servo_angle < 48:
-            servo_angle = 49
-        elif servo_angle > 128:
-            servo_angle = 127
+        if servo_angle < MIN_ANGLE:
+            servo_angle = MIN_ANGLE
+        elif servo_angle > MAX_ANGLE:
+            servo_angle = MAX_ANGLE
         return int(servo_angle)
     
     @staticmethod
