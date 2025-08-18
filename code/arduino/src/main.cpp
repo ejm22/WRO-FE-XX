@@ -4,7 +4,6 @@
 /// @date 24-07-2025
 /// @version 2.0 : Added voltage measurement and improved command handling
 
-
 #include <Arduino.h>
 #include <FlexyStepper.h>
 #include <Servo.h>
@@ -16,6 +15,12 @@ const int STEP_PIN = 9;      // Pin for stepper motor control
 const int ENABLE_PIN = 10;   // Pin for enabling/disabling the stepper motor
 const int ANGLE_PIN = 11;    // Pin for servo control
 const int ACCELERATION = 2000; // Acceleration for the stepper motor
+
+const float WHEEL_DIAMETER = 55.6; // Wheel diameter in mm
+const int STEPS_PER_REVOLUTION = 200; // Steps per revolution for the stepper motor
+const float MICROSTEPS = 0.25; // Microstepping factor for the stepper motor
+const float GEAR_RATIO = 10 / 14; // Gear ratio for the stepper motor
+//const float STEPS_PER_MM = STEPS_PER_REVOLUTION / MICROSTEPS
 
 // Voltage divider for battery voltage measurement
 const int R1 = 20000;       // Resistor R1 in ohms

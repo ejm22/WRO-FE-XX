@@ -5,43 +5,64 @@ import math
 from XX_2025_package.utils.enums import Direction
 from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
 from XX_2025_package.utils.enums import StartPosition
-
+from collections import namedtuple
+ 
 MIDDLE_X = 320
 START_WALL_HEIGHT_THRESHOLD = 34
 LEFT_OBSTACLE_X_THRESHOLD = 40
 RIGHT_OBSTACLE_X_THRESHOLD = ImageTransformUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
 #pass challenge as key
-SIDE_WALL_HEIGHT_THRESHOLD = {
-    1: 40,
-    2: -100,
-    3: -40,
+ChallengeParameters = namedtuple('ChallengeParameters', ['kp', 'kd', 'base_threshold', 'offsets'])
+CHALLENGE_CONFIG = {
+    1: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100, -30, 40  ]),
+    2: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ]),
+    3: ChallengeParameters(kp = 0.75, kd = 1    , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-40            ]),
 }
-old_diff = 0
+old_p_adjust = 0
 old_angle = 0
 old_is_green = 0
-#threshold = 400
 
 class ImageAlgorithms:
 
     def __init__(self, context_manager):
         self.context_manager = context_manager
-    
-    def get_direction_from_parking(self, camera_object):
-        left = np.sum(camera_object.polygon_image[:, :ImageTransformUtils.PIC_WIDTH // 2] == 255)
-        right = np.sum(camera_object.polygon_image[:, ImageTransformUtils.PIC_WIDTH // 2:] == 255)
-        print(left)
-        print(right)
-        self.context_manager.set_direction(Direction.LEFT if left > right else Direction.RIGHT)
 
     def get_direction_from_lines(self, camera_object):
-        self.context_manager.set_direction(Direction.LEFT if camera_object.length_blue > camera_object.length_orange else Direction.RIGHT)
-
+        """
+        Determine the direction by looking at which of the blue or orange lines is longer (Challenge 1)
+        I/O:
+            camera_object: CameraObject containing the binary image with blue and orange lines
+        Effects:
+            Sets the direction in context_manager
+        """
+        direction = Direction.LEFT if camera_object.length_blue > camera_object.length_orange else Direction.RIGHT
+        self.context_manager.set_direction(direction)
+    
+    def get_direction_from_parking(self, camera_object):
+        """
+        Determine the direction by looking at which half of the image has more white pixels (Challenge 2)
+        I/O: 
+            camera_object: CameraObject containing the polygon image
+        Effects:
+            Sets the direction in context_manager
+        """
+        left_side_white_pixels = np.sum(camera_object.polygon_image[:, :ImageTransformUtils.PIC_WIDTH // 2] == 255)
+        right_side_white_pixels = np.sum(camera_object.polygon_image[:, ImageTransformUtils.PIC_WIDTH // 2:] == 255)
+        self.context_manager.set_direction(Direction.LEFT if left_side_white_pixels > right_side_white_pixels else Direction.RIGHT)
 
     @staticmethod
     def find_black_from_bottom(img, col_range):
+        """
+        Find the first black pixel in each column starting from the bottom of the image
+        I/O:
+            img: binary image
+            col_range: range of columns to check
+            return: list of y-values where the first black pixel was found in each column of col_range
+        """
         y_vals = []
         for x in col_range:
             for y in reversed(range(ImageTransformUtils.PIC_HEIGHT - 30)):
+                # Start x pixels from the bottom so it skips inconsistencies in the polygon's bottom row
                 if img[y,x] == 0:
                     y_vals.append(y)
                     break
@@ -51,10 +72,19 @@ class ImageAlgorithms:
 
     @staticmethod
     def find_black_sides(img, rotation, row_range):
+        """
+        Find the first black pixel in each row starting from the middle column of the image
+        I/O:
+            img: binary image
+            rotation: Direction enum, either LEFT or RIGHT
+            row_range: range of rows to check
+            return: list of x-values where the first black pixel was found in each row of row_range
+        """
         end_index = 0 if rotation.value == -1 else ImageTransformUtils.PIC_WIDTH - 1
         x_vals = []
         for y in row_range:
             for x in range(ImageTransformUtils.PIC_WIDTH // 2, end_index, rotation.value):
+                # Start a middle column, and go left or right depending on the rotation
                 if img[y,x] == 0:       
                     x_vals.append(x)
                     break
@@ -62,53 +92,78 @@ class ImageAlgorithms:
                 x_vals.append(end_index)
         return x_vals
     
-    #TODO threshold selon le défi
-    def find_target_servo_angle_from_img(self, img, nbr_cols = 10):
-        global old_diff
-        direction = self.context_manager.get_direction()
-        cols = range(0, nbr_cols) if direction == Direction.LEFT else range(ImageTransformUtils.PIC_WIDTH - nbr_cols, ImageTransformUtils.PIC_WIDTH)
-        rows = range(ImageTransformUtils.PIC_HEIGHT - 3*nbr_cols, ImageTransformUtils.PIC_HEIGHT - 2*nbr_cols)
+    @staticmethod
+    def get_offset_from_lap(challenge, lap_count, quarter_lap_count):
+        """
+        Get the offset value based on the challenge, lap count, and quarter lap count
+        I/O:
+            challenge: current challenge number
+            lap_count: current lap count
+            quarter_lap_count: current quarter lap count
+            return: offset value for the given challenge and lap counts
+        """
+        config = CHALLENGE_CONFIG[challenge]
+        offset = config.offsets
 
+        if challenge == 1:
+            if lap_count == 0:
+                if quarter_lap_count == 0:  
+                    return offset[0]            # Challenge 1 first quarter offset
+                elif quarter_lap_count == 1:
+                    return offset[1]            # Challenge 1 second quarter offset
+                else:
+                    return offset[2]            # Challenge 1 normal offset
+            else:
+                return offset[2]                # Challenge 1 normal offset
+        else:
+            return offset[0]                    # Always use the only offset
+
+    def calculate_wall_threshold_kp_kd(self):
+        """
+        Calculate the threshold, kp, and kd values based on the challenge and lap count
+        I/O:
+            return: tuple of (threshold, kp, kd)
+        """
+        challenge = self.context_manager.CHALLENGE
+        lap = self.context_manager.get_lap_count()
+        quarter_lap = self.context_manager.get_quarter_lap_count()
+        config = CHALLENGE_CONFIG[challenge]
+        base_threshold = config.base_threshold
+        offset = self.get_offset_from_lap(challenge, lap, quarter_lap)
+        threshold = base_threshold + offset
+        kp = config.kp
+        kd = config.kd
+        return threshold, kp, kd
+
+
+    def find_target_servo_angle_from_img(self, img, nbr_cols = 10):
+        """
+        Calculate the servo's angle based on the wall's position in the image
+        I/O:
+            img: binary image (polygon image)
+            nbr_cols: number of columns to consider for the calculation (default is 10)
+            return: calculated servo angle
+        """
+        global old_p_adjust
+        direction = self.context_manager.get_direction()
+        if direction == Direction.LEFT:
+            cols = range(0, nbr_cols)
+        else:
+            cols = range(ImageTransformUtils.PIC_WIDTH - nbr_cols, ImageTransformUtils.PIC_WIDTH)
+        rows = range(ImageTransformUtils.PIC_HEIGHT - 3*nbr_cols, ImageTransformUtils.PIC_HEIGHT - 2*nbr_cols)
         y_vals = ImageAlgorithms.find_black_from_bottom(img, cols)
         x_vals = ImageAlgorithms.find_black_sides(img, direction, rows)
-
         avg_y = np.mean(y_vals)
         avg_x = np.mean(x_vals)
-        
-        if direction == Direction.RIGHT : avg_x = 640 - avg_x
-        #print("avg_y : ", avg_y)
-        #print("avg_x : ", avg_x)
+        if direction == Direction.RIGHT : avg_x = 640 - avg_x               # Adjust if follows right wall
 
-        print(self.context_manager.get_lap_count())
-        print(self.context_manager.get_quarter_lap_count())
-        threshold = ImageTransformUtils.PIC_HEIGHT
-        if (self.context_manager.CHALLENGE == 1 and self.context_manager.get_lap_count() == 0):
-            if (self.context_manager.get_quarter_lap_count() == 0):
-                threshold = ImageTransformUtils.PIC_HEIGHT + SIDE_WALL_HEIGHT_THRESHOLD[1] - 140
-            elif (self.context_manager.get_quarter_lap_count() == 1):
-                threshold = ImageTransformUtils.PIC_HEIGHT + SIDE_WALL_HEIGHT_THRESHOLD[1] - 70
-            else:
-                threshold = ImageTransformUtils.PIC_HEIGHT + SIDE_WALL_HEIGHT_THRESHOLD[1]
-        else:
-            threshold = ImageTransformUtils.PIC_HEIGHT + SIDE_WALL_HEIGHT_THRESHOLD[self.context_manager.CHALLENGE]
-        print(threshold)
-        diff = avg_y + avg_x - threshold
-        # thresholds : 
-        # challenge 1 : 320 = 280 + 40
-        # challenge 2 : 220 = 280 - 60
-        # challenge 3 : 240 = 280 - 40
+        # Get threshold, kp and kd values based on the challenge
+        threshold, kp, kd = self.calculate_wall_threshold_kp_kd()
 
-        kd = 0.25
-        differential_adjust = (diff - old_diff) * kd  #1
-        # kd was 0.25 for obstacles
-        # kd was 1 for parking
-        #if self.context_manager
-        kp = 0.35
-        angle =  88 + direction.value * (int((diff) * kp) + differential_adjust)
-        # kp was 0.2
-        # kp was 0.75 for parking
-        old_diff = diff
-        #print("angle : ",angle)
+        p_adjust = avg_y + avg_x - threshold                                # Get proportional adjustment
+        d_adjust = (p_adjust - old_p_adjust) * kd                           # Get differential adjustment 
+        angle =  88 + direction.value * (int((p_adjust) * kp) + d_adjust)   # Get output angle
+        old_p_adjust = p_adjust                                             # Save p_adjust for the next iteration
         return angle
 
     def calculate_servo_angle_walls(self, img):
@@ -232,8 +287,6 @@ class ImageAlgorithms:
         cols = range(start, end)
         
         distance = np.mean(ImageAlgorithms.find_black_from_bottom(img, cols))
-        
-        #print("Wall distance = ", distance)
         
         if distance < START_WALL_HEIGHT_THRESHOLD:
             return StartPosition.BACK
