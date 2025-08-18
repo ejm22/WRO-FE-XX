@@ -11,21 +11,20 @@ MIDDLE_X = 320
 START_WALL_HEIGHT_THRESHOLD = 34
 LEFT_OBSTACLE_X_THRESHOLD = 40
 RIGHT_OBSTACLE_X_THRESHOLD = ImageTransformUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
-#pass challenge as key
+
 ChallengeParameters = namedtuple('ChallengeParameters', ['kp', 'kd', 'base_threshold', 'offsets'])
 CHALLENGE_CONFIG = {
     1: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100, -30, 40  ]),
     2: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ]),
     3: ChallengeParameters(kp = 0.75, kd = 1    , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-40            ]),
 }
-old_p_adjust = 0
-old_angle = 0
-old_is_green = 0
 
 class ImageAlgorithms:
-
     def __init__(self, context_manager):
         self.context_manager = context_manager
+        self.old_p_adjust = 0
+        self.old_angle = 0
+        self.old_is_green = 0
 
     def get_direction_from_lines(self, camera_object):
         """
@@ -135,7 +134,6 @@ class ImageAlgorithms:
         kd = config.kd
         return threshold, kp, kd
 
-
     def find_target_servo_angle_from_img(self, img, nbr_cols = 10):
         """
         Calculate the servo's angle based on the wall's position in the image
@@ -144,7 +142,6 @@ class ImageAlgorithms:
             nbr_cols: number of columns to consider for the calculation (default is 10)
             return: calculated servo angle
         """
-        global old_p_adjust
         direction = self.context_manager.get_direction()
         if direction == Direction.LEFT:
             cols = range(0, nbr_cols)
@@ -155,15 +152,18 @@ class ImageAlgorithms:
         x_vals = ImageAlgorithms.find_black_sides(img, direction, rows)
         avg_y = np.mean(y_vals)
         avg_x = np.mean(x_vals)
-        if direction == Direction.RIGHT : avg_x = 640 - avg_x               # Adjust if follows right wall
-
+        # Adjust if follows right wall
+        if direction == Direction.RIGHT : avg_x = 640 - avg_x
         # Get threshold, kp and kd values based on the challenge
         threshold, kp, kd = self.calculate_wall_threshold_kp_kd()
-
-        p_adjust = avg_y + avg_x - threshold                                # Get proportional adjustment
-        d_adjust = (p_adjust - old_p_adjust) * kd                           # Get differential adjustment 
-        angle =  88 + direction.value * (int((p_adjust) * kp) + d_adjust)   # Get output angle
-        old_p_adjust = p_adjust                                             # Save p_adjust for the next iteration
+        # Get proportional adjustment
+        p_adjust = avg_y + avg_x - threshold
+        # Get differential adjustment
+        d_adjust = (p_adjust - self.old_p_adjust) * kd
+        # Get output angle
+        angle =  88 + direction.value * (int((p_adjust) * kp) + d_adjust)
+        # Save p_adjust for the next iteration
+        self.old_p_adjust = p_adjust
         return angle
 
     def calculate_servo_angle_walls(self, img):
@@ -185,8 +185,6 @@ class ImageAlgorithms:
             return (object_height < ImageTransformUtils.PIC_HEIGHT - 170) and (polygon_img[ImageTransformUtils.PIC_HEIGHT - 130, 200] == 0)
 
     def find_obstacle_angle_and_draw_lines(self, obstacle_img, hsv_img, target_img, gray, polygon_img):
-        global old_angle
-        global old_is_green
         v1, v2, rect = ImageDrawingUtils.find_rect(obstacle_img, gray)
         if rect is None:
             return None, target_img, None
@@ -197,7 +195,7 @@ class ImageAlgorithms:
             if y_center > ImageTransformUtils.PIC_HEIGHT - 30:
                 return None, target_img, None
             else:
-                return old_angle, None, old_is_green
+                return self.old_angle, None, self.old_is_green
         if y_center < ImageTransformUtils.PIC_HEIGHT - 240:# was 60
             return None, target_img, None
         # this is to ignore objects too high on the screen
@@ -222,8 +220,8 @@ class ImageAlgorithms:
             rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - LEFT_OBSTACLE_X_THRESHOLD)
 
         angle = 90 + math.degrees(rad_angle)
-        old_angle = angle
-        old_is_green = is_green
+        self.old_angle = angle
+        self.old_is_green = is_green
         return angle, target_img, is_green
 
     @staticmethod
