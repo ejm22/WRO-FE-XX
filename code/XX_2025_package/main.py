@@ -18,11 +18,11 @@ if __name__ == "__main__":
     # Initialize program, camera, etc
 
     context_manager = ContextManager()
+    camera_manager = CameraManager()
     lap_tracker = LapTracker(context_manager)
-    image_algorithms = ImageAlgorithms(context_manager)
+    image_algorithms = ImageAlgorithms(context_manager, camera_manager)
     
     time.sleep(1)
-    camera_manager = CameraManager()
     camera_manager.start_camera()
     arduino.write(b'v')
     time.sleep(0.1)
@@ -70,7 +70,7 @@ if __name__ == "__main__":
             cv2.imshow("Cropped", camera_manager.cropped_image)
             cv2.imshow("New Image", camera_manager.polygon_image)
             if arduino.out_waiting == 0:
-                angle = image_algorithms.calculate_servo_angle_walls(camera_manager.polygon_image)
+                angle = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image)
                 command = f"m{angle},{speed}.".encode()
                 arduino.write(command)
                 arduino.flush()
@@ -112,25 +112,18 @@ if __name__ == "__main__":
             camera_manager.capture_image()
             camera_manager.transform_image()
             lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
-            angle, camera_manager.display_image, is_green = image_algorithms.find_obstacle_angle_and_draw_lines(camera_manager.obstacle_image.copy(), 
+            angle, camera_manager.display_image, is_green = image_algorithms.find_obstacle_angle_and_draw_lines(
+                                                            camera_manager.obstacle_image.copy(), 
                                                             camera_manager.hsv_image.copy(), 
-                                                            camera_manager.display_image, 
-                                                            camera_manager.grayscale_image.copy(), 
+                                                            camera_manager.display_image,
                                                             camera_manager.polygon_image.copy())
             if camera_manager.display_image is not None:
                 cv2.imshow("Display_image", camera_manager.display_image)
             #print("Angle objet : ", angle)
-            angle_walls = image_algorithms.calculate_servo_angle_walls(camera_manager.polygon_image)
-            angle_obstacles = image_algorithms.calculate_servo_angle_obstacle(angle, is_green)
+            angle_walls = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image)
+            angle_obstacles = image_algorithms.calculate_servo_angle_from_obstacle(angle, is_green)
             servo_angle = image_algorithms.choose_output_angle(angle_walls, angle_obstacles)
-            #print("angle_walls,angle_obstacles, servo_angle", angle_walls, angle_obstacles, servo_angle)
-            #cv2.imshow("blue line", camera_manager.cnt_blueline)
-            #cv2.imshow("orange line", camera_manager.cnt_orangeline)
-            #cv2.imshow("Polygon image", camera_manager.polygon_image)
-            #cv2.imshow("Cropped image", camera_manager.cropped_image)
-            #cv2.imshow("Lol", camera_manager.obstacle_image)
-            #cv2.imshow("Binary image", camera_manager.binary_image)
-            #cv2.imshow("Pink image", camera_manager.pink_image)
+
             command = f"m{servo_angle},{speed}.".encode()
             arduino.write(command)
             arduino.flush()
@@ -161,13 +154,12 @@ if __name__ == "__main__":
                 cv2.imshow("Cropped", camera_manager.cropped_image)
                 cv2.imshow("Polygon Image", camera_manager.polygon_image)
                 #print("Poly Lines = ", camera_manager.polygon_lines)
-                angle_walls = image_algorithms.calculate_servo_angle_walls(camera_manager.polygon_image)
+                angle_walls = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image)
                 #print ("angle_walls = ", angle_walls)
                 top_angle = image_algorithms.get_top_line_angle(camera_manager.polygon_lines)
                 #print("Top angle = ", top_angle)
                 #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
 
-                #command = f"{servo_angle},{speed}.".encode()
                 if camera_manager.binary_image[85, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None:
                     speed = 0
                     command = f"m85,0.".encode()

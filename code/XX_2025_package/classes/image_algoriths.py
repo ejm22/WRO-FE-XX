@@ -13,6 +13,8 @@ LEFT_OBSTACLE_X_THRESHOLD = 40
 RIGHT_OBSTACLE_X_THRESHOLD = ImageTransformUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
 MIN_ANGLE = 48
 MAX_ANGLE = 128
+STRAIGHT_ANGLE = 86
+OBJECT_LINE_ANGLE_THRESHOLD = 45
 
 ChallengeParameters = namedtuple('ChallengeParameters', ['kp', 'kd', 'base_threshold', 'offsets'])
 CHALLENGE_CONFIG = {
@@ -22,8 +24,9 @@ CHALLENGE_CONFIG = {
 }
 
 class ImageAlgorithms:
-    def __init__(self, context_manager):
+    def __init__(self, context_manager, camera_manager):
         self.context_manager = context_manager
+        self.camera_manager = camera_manager
         self.old_p_adjust = 0
         self.old_angle = 0
         self.old_is_green = 0
@@ -136,13 +139,13 @@ class ImageAlgorithms:
         kd = config.kd
         return threshold, kp, kd
 
-    def find_target_servo_angle_from_img(self, img, nbr_cols = 10):
+    def find_wall_to_follow(self, img, nbr_cols = 10):
         """
-        Calculate the servo's angle based on the wall's position in the image
+        Find the wall to follow based on the black pixels in the image
         I/O:
             img: binary image (polygon image)
             nbr_cols: number of columns to consider for the calculation (default is 10)
-            return: calculated servo angle
+            return: position of neareast wall with y_vals and x_vals
         """
         direction = self.context_manager.get_direction()
         if direction == Direction.LEFT:
@@ -156,6 +159,18 @@ class ImageAlgorithms:
         avg_x = np.mean(x_vals)
         # Adjust if follows right wall
         if direction == Direction.RIGHT : avg_x = 640 - avg_x
+        return avg_x, avg_y
+
+    def calculate_servo_angle_from_walls(self, img):
+        """
+        Calculate the servo's angle
+        I/O:
+            img: binary image (polygon image)
+            return: servo angle to follow the wall
+        """
+        direction = self.context_manager.get_direction()
+        # Get position of nearest wall from find_wall_to_follow()
+        avg_x, avg_y = self.find_wall_to_follow(img)
         # Get threshold, kp and kd values based on the challenge
         threshold, kp, kd = self.calculate_wall_threshold_kp_kd()
         # Get proportional adjustment
@@ -163,80 +178,91 @@ class ImageAlgorithms:
         # Get differential adjustment
         d_adjust = (p_adjust - self.old_p_adjust) * kd
         # Get output angle
-        angle =  88 + direction.value * (int((p_adjust) * kp) + d_adjust)
+        angle =  STRAIGHT_ANGLE + direction.value * (int((p_adjust) * kp) + d_adjust)
         # Save p_adjust for the next iteration
         self.old_p_adjust = p_adjust
-        return angle
-
-    def calculate_servo_angle_walls(self, img):
-        """
-        
-        """
-        angle = self.find_target_servo_angle_from_img(img)
+        # Limit angle to min and max values
         if angle < MIN_ANGLE:
             angle = MIN_ANGLE
         elif angle > MAX_ANGLE:
             angle = MAX_ANGLE
-
         return int(angle)
     
-    def check_inner_wall_crash(self, polygon_img, object_height):
+    def check_inner_wall_crash(self, object_height):
+        """
+        Determines if the robot is too close to the inner wall while detecting an obstacle in a further section
+        I/O:
+            object_height: height of the detected object's center
+            return: True if the robot is too close to the inner wall, False otherwise
+        """
         if object_height is None:
             return True
         if self.context_manager.get_direction() == Direction.RIGHT:
-            return (object_height < ImageTransformUtils.PIC_HEIGHT - 170) and (polygon_img[ImageTransformUtils.PIC_HEIGHT - 130, ImageTransformUtils.PIC_WIDTH - 200] == 0)
+            return (object_height < ImageTransformUtils.PIC_HEIGHT - 170) and (self.camera_manager.polygon_img[ImageTransformUtils.PIC_HEIGHT - 130, ImageTransformUtils.PIC_WIDTH - 200] == 0)
         else:
-            return (object_height < ImageTransformUtils.PIC_HEIGHT - 170) and (polygon_img[ImageTransformUtils.PIC_HEIGHT - 130, 200] == 0)
+            return (object_height < ImageTransformUtils.PIC_HEIGHT - 170) and (self.camera_manager.polygon_img[ImageTransformUtils.PIC_HEIGHT - 130, 200] == 0)
 
-    def find_obstacle_angle_and_draw_lines(self, obstacle_img, hsv_img, target_img, gray, polygon_img):
-        v1, v2, rect = ImageDrawingUtils.find_rect(obstacle_img, gray)
+    def find_obstacle_angle_and_draw_lines(self, target_img):
+        """
+        Find the obstacle, draw a line between its center and a reference, return the line's angle
+        I/O:
+            target_img: colored image in which we draw
+            return: line's angle, target_img, and whether the object is green or not
+        """
+        _, _, rect = ImageDrawingUtils.find_rect(self.camera_manager.obstacle_img, self.camera_manager.polygon_img)
+        # Check if a rectangle was found
         if rect is None:
             return None, target_img, None
-        x_center = rect[0][0] # + min(rect[1][0], rect[1][1])/2
+        # Get the center of the rectangle
+        x_center = rect[0][0]
         y_center = rect[0][1]
-
+        # Check if the object is too low
         if y_center > ImageTransformUtils.PIC_HEIGHT - 60:
             if y_center > ImageTransformUtils.PIC_HEIGHT - 30:
+                # Object is too low, ignore it
                 return None, target_img, None
             else:
+                # Object is quite close, use previous adjustment
                 return self.old_angle, None, self.old_is_green
+        # Check if the object is too high
         if y_center < ImageTransformUtils.PIC_HEIGHT - 240:# was 60
+            # Object is too high, ignore it
             return None, target_img, None
-        # this is to ignore objects too high on the screen
-
+        
+        # Draw the point at which we check if the inner wall is too close
         if self.context_manager.get_direction() == Direction.RIGHT:
             ImageDrawingUtils.draw_circle(target_img, (ImageTransformUtils.PIC_WIDTH - 200, ImageTransformUtils.PIC_HEIGHT - 130), 3)
         else:
             ImageDrawingUtils.draw_circle(target_img, (200, ImageTransformUtils.PIC_HEIGHT - 130), 3)
-
-        if self.check_inner_wall_crash(polygon_img, y_center):
+        # Check if the inner wall is too close
+        if self.check_inner_wall_crash(y_center):
             return None, target_img, None
 
-        is_green = ImageColorUtils.is_rect_green(hsv_img, rect)
-
-        
-
+        # Check if the obstacle is green or red
+        is_green = ImageColorUtils.is_rect_green(self.camera_manager.hsv_img, rect)
+        # Create and draw a line from the center of the object to the left or right side of the image
+        # Line needs to be at x degrees (the angle threshold) to be able to pass around the obstacle
         if is_green:
             ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
             rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - RIGHT_OBSTACLE_X_THRESHOLD)
         else:
             ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (LEFT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
             rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - LEFT_OBSTACLE_X_THRESHOLD)
-
+        # Calculate the angle in degrees
         angle = 90 + math.degrees(rad_angle)
         self.old_angle = angle
         self.old_is_green = is_green
         return angle, target_img, is_green
 
     @staticmethod
-    def calculate_servo_angle_obstacle(object_angle, is_green):
+    def calculate_servo_angle_from_obstacle(object_angle, is_green):
         if object_angle is None:
             return None
-        #servo_angle = math.pow(object_angle * 0.1, 2) * 0.5
+        kp = 1.5
         if is_green:
-            servo_angle = 88 - ((object_angle + 45) * 1.5) # green obstacle
+            servo_angle = STRAIGHT_ANGLE - ((object_angle + OBJECT_LINE_ANGLE_THRESHOLD) * kp) # green obstacle
         else:
-            servo_angle = 88 - ((object_angle - 45) * 1.5) # red obstacle
+            servo_angle = STRAIGHT_ANGLE - ((object_angle - OBJECT_LINE_ANGLE_THRESHOLD) * kp) # red obstacle
         if servo_angle < MIN_ANGLE:
             servo_angle = MIN_ANGLE
         elif servo_angle > MAX_ANGLE:
@@ -270,9 +296,9 @@ class ImageAlgorithms:
             return None
         #servo_angle = math.pow(object_angle * 0.1, 2) * 0.5
         if wall_angle > 0:
-            servo_angle = 88 - (wall_angle -180) * 10
+            servo_angle = STRAIGHT_ANGLE - (wall_angle -180) * 10
         else:
-            servo_angle = 88 - (wall_angle +180) * 10
+            servo_angle = STRAIGHT_ANGLE - (wall_angle +180) * 10
 
         if servo_angle < MIN_ANGLE:
             servo_angle = MIN_ANGLE
