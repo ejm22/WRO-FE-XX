@@ -86,7 +86,11 @@ class CameraManager:
         if self.display_image.shape[1] != ImageTransformUtils.PIC_WIDTH or self.display_image.shape[0] != ImageTransformUtils.PIC_HEIGHT:
             print(f"Frame size does not match video output size. Expected ({ImageTransformUtils.PIC_WIDTH}, {ImageTransformUtils.PIC_HEIGHT}), got {self.display_image.shape[1]}x{self.display_image.shape[0]}.")
             return
-        self.video_output.write(self.display_image)
+         # Ensure the image has 3 channels
+        if len(self.display_image.shape) == 2: # grayscale or binary image
+            new_img = cv2.cvtColor(self.display_image, cv2.COLOR_GRAY2RGB)
+    
+        self.video_output.write(new_img)
 
 
     def transform_image(self):
