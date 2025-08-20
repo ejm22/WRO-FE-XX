@@ -8,6 +8,7 @@ from XX_2025_package.classes.image_algoriths import ImageAlgorithms
 from XX_2025_package.classes.context_manager import ContextManager
 from XX_2025_package.classes.lap_tracker import LapTracker
 from XX_2025_package.utils.enums import Direction
+from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
 
 arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
 
@@ -79,6 +80,7 @@ if __name__ == "__main__":
                 print("Arduino is busy, skipping command.")
             
             camera_manager.display_image = camera_manager.polygon_image.copy()
+            ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {lap_tracker.get_lap_count()}", (10, 30), (0, 0, 255), 1)
             camera_manager.add_frame_to_video()
             
             time.sleep(0.01)
@@ -120,6 +122,7 @@ if __name__ == "__main__":
             lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
             angle, camera_manager.display_image, is_green, _, _ = image_algorithms.find_obstacle_angle_and_draw_lines(camera_manager.display_image)
             if camera_manager.display_image is not None:
+                ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {lap_tracker.get_lap_count()}", (10, 30), (0, 0, 255), 1)
                 cv2.imshow("Display_image", camera_manager.display_image)
             #print("Angle objet : ", angle)
             angle_walls = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image)
