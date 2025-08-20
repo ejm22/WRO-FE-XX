@@ -37,9 +37,11 @@ class CameraManager:
         self.polygon_image = None
         self.polygon_lines = None
         self.combined_mask = None
+        self.with_pink_combined_mask = None
         self.grayscale_image = None
         self.binary_obstacle = None
         self.obstacle_image = None
+        self.pink_obstacle_image = None
         self.contour_obstacle = None
         self.pink_image = None
         
@@ -93,15 +95,17 @@ class CameraManager:
             self.cnt_blueline, self.length_blue, _ = ImageDrawingUtils.find_rect(self.clean_blueline_image)
             self.cnt_orangeline, self.length_orange, _ = ImageDrawingUtils.find_rect(self.clean_orangeline_image)
 
-            self.pink_image = cv2.bitwise_and(self.polygon_image, self.polygon_image, mask = self.pink_mask)
+            #self.pink_image = cv2.bitwise_and(self.polygon_image, self.polygon_image, mask = self.pink_mask)
             self.combined_mask = cv2.bitwise_or(ImageTransformUtils.keep_color(self.hsv_image.copy(), Color.GREEN), ImageTransformUtils.keep_color(self.hsv_image.copy(), Color.RED))
             cv2.imshow("img_polygon_image", self.polygon_image)
             self.obstacle_image = cv2.bitwise_and(self.polygon_image, self.polygon_image, mask = self.combined_mask)
+            
             #self.binary_obstacle = cv2.bitwise_and(self.cropped_image.copy(), self.cropped_image.copy(), mask = self.combined_mask)
             #self.grayscale_image = ImageUtils.color_to_grayscale(self.binary_obstacle)
             #self.obstacle_image = ImageUtils.make_binary(self.grayscale_image)
             ##self.obstacle_image = ImageUtils.dilate(self.obstacle_image)
-            ImageDrawingUtils.find_rect(self.obstacle_image.copy(), self.grayscale_image.copy(), self.display_image)
+            ImageDrawingUtils.find_rect(self.pink_mask.copy(), self.polygon_image.copy(), self.display_image)
+            ImageDrawingUtils.find_rect(self.obstacle_image.copy(), self.polygon_image.copy(), self.display_image)
     
     def draw_arc(self, image, servo_angle):# Define arc parameters
  

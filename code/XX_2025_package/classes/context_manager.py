@@ -2,7 +2,7 @@ from XX_2025_package.utils.enums import Direction
 
 
 class ContextManager:
-    CHALLENGE = 2
+    CHALLENGE = 4
 
     def __init__(self):
         self._direction = Direction.LEFT
@@ -35,7 +35,7 @@ class ContextManager:
         self._start_position = start_position
     
     def has_completed_laps(self):
-        return self._lap_count >= 100
+        return self._lap_count > 1
     
     def get_start_position(self):
         return self._start_position

@@ -13,7 +13,7 @@ LEFT_OBSTACLE_X_THRESHOLD = 40
 RIGHT_OBSTACLE_X_THRESHOLD = ImageTransformUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
 MIN_ANGLE = 48
 MAX_ANGLE = 128
-STRAIGHT_ANGLE = 86
+STRAIGHT_ANGLE = 85
 OBJECT_LINE_ANGLE_THRESHOLD = 45
 
 ChallengeParameters = namedtuple('ChallengeParameters', ['kp', 'kd', 'base_threshold', 'offsets'])
@@ -21,6 +21,7 @@ CHALLENGE_CONFIG = {
     1: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100, -30, 40  ]),
     2: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ]),
     3: ChallengeParameters(kp = 0.75, kd = 1    , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-40            ]),
+    4: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ])
 }
 
 class ImageAlgorithms:
@@ -122,13 +123,16 @@ class ImageAlgorithms:
         else:
             return offset[0]                    # Always use the only offset
 
-    def calculate_wall_threshold_kp_kd(self):
+    def calculate_wall_threshold_kp_kd(self, challenge_demanded = None):
         """
         Calculate the threshold, kp, and kd values based on the challenge and lap count
         I/O:
             return: tuple of (threshold, kp, kd)
         """
-        challenge = self.context_manager.CHALLENGE
+        if challenge_demanded is not None:
+            challenge = challenge_demanded
+        else:
+            challenge = self.context_manager.CHALLENGE
         lap = self.context_manager.get_lap_count()
         quarter_lap = self.context_manager.get_quarter_lap_count()
         config = CHALLENGE_CONFIG[challenge]
@@ -161,7 +165,7 @@ class ImageAlgorithms:
         if direction == Direction.RIGHT : avg_x = 640 - avg_x
         return avg_x, avg_y
 
-    def calculate_servo_angle_from_walls(self, img):
+    def calculate_servo_angle_from_walls(self, img, challenge_3 = False):
         """
         Calculate the servo's angle
         I/O:
@@ -172,7 +176,10 @@ class ImageAlgorithms:
         # Get position of nearest wall from find_wall_to_follow()
         avg_x, avg_y = self.find_wall_to_follow(img)
         # Get threshold, kp and kd values based on the challenge
-        threshold, kp, kd = self.calculate_wall_threshold_kp_kd()
+        if challenge_3:
+            threshold, kp, kd = self.calculate_wall_threshold_kp_kd(3)
+        else:
+            threshold, kp, kd = self.calculate_wall_threshold_kp_kd()
         # Get proportional adjustment
         p_adjust = avg_y + avg_x - threshold
         # Get differential adjustment
@@ -198,9 +205,9 @@ class ImageAlgorithms:
         if object_height is None:
             return True
         if self.context_manager.get_direction() == Direction.RIGHT:
-            return (object_height < ImageTransformUtils.PIC_HEIGHT - 170) and (self.camera_manager.polygon_img[ImageTransformUtils.PIC_HEIGHT - 130, ImageTransformUtils.PIC_WIDTH - 200] == 0)
+            return (object_height < ImageTransformUtils.PIC_HEIGHT - 170) and (self.camera_manager.polygon_image[ImageTransformUtils.PIC_HEIGHT - 130, ImageTransformUtils.PIC_WIDTH - 200] == 0)
         else:
-            return (object_height < ImageTransformUtils.PIC_HEIGHT - 170) and (self.camera_manager.polygon_img[ImageTransformUtils.PIC_HEIGHT - 130, 200] == 0)
+            return (object_height < ImageTransformUtils.PIC_HEIGHT - 170) and (self.camera_manager.polygon_image[ImageTransformUtils.PIC_HEIGHT - 130, 200] == 0)
 
     def find_obstacle_angle_and_draw_lines(self, target_img):
         """
@@ -209,10 +216,10 @@ class ImageAlgorithms:
             target_img: colored image in which we draw
             return: line's angle, target_img, and whether the object is green or not
         """
-        _, _, rect = ImageDrawingUtils.find_rect(self.camera_manager.obstacle_img, self.camera_manager.polygon_img)
+        _, _, rect = ImageDrawingUtils.find_rect(self.camera_manager.obstacle_image, self.camera_manager.polygon_image)
         # Check if a rectangle was found
         if rect is None:
-            return None, target_img, None
+            return None, target_img, None, None
         # Get the center of the rectangle
         x_center = rect[0][0]
         y_center = rect[0][1]
@@ -220,14 +227,14 @@ class ImageAlgorithms:
         if y_center > ImageTransformUtils.PIC_HEIGHT - 60:
             if y_center > ImageTransformUtils.PIC_HEIGHT - 30:
                 # Object is too low, ignore it
-                return None, target_img, None
+                return None, target_img, None, None
             else:
                 # Object is quite close, use previous adjustment
-                return self.old_angle, None, self.old_is_green
+                return self.old_angle, None, self.old_is_green, y_center
         # Check if the object is too high
         if y_center < ImageTransformUtils.PIC_HEIGHT - 240:# was 60
             # Object is too high, ignore it
-            return None, target_img, None
+            return None, target_img, None, None
         
         # Draw the point at which we check if the inner wall is too close
         if self.context_manager.get_direction() == Direction.RIGHT:
@@ -236,10 +243,10 @@ class ImageAlgorithms:
             ImageDrawingUtils.draw_circle(target_img, (200, ImageTransformUtils.PIC_HEIGHT - 130), 3)
         # Check if the inner wall is too close
         if self.check_inner_wall_crash(y_center):
-            return None, target_img, None
+            return None, target_img, None, None
 
         # Check if the obstacle is green or red
-        is_green = ImageColorUtils.is_rect_green(self.camera_manager.hsv_img, rect)
+        is_green = ImageColorUtils.is_rect_green(self.camera_manager.hsv_image, rect)
         # Create and draw a line from the center of the object to the left or right side of the image
         # Line needs to be at x degrees (the angle threshold) to be able to pass around the obstacle
         if is_green:
@@ -252,7 +259,39 @@ class ImageAlgorithms:
         angle = 90 + math.degrees(rad_angle)
         self.old_angle = angle
         self.old_is_green = is_green
-        return angle, target_img, is_green
+        return angle, target_img, is_green, y_center
+
+    def find_pink_obstacle_angle(self, target_img):
+        direction = self.context_manager.get_direction()
+        _, _, rect = ImageDrawingUtils.find_rect(self.camera_manager.pink_mask, self.camera_manager.polygon_image)
+        # Check if a rectangle was found
+        if rect is None:
+            return None, target_img, None, None
+        # Get the center of the rectangle
+        x_center = rect[0][0]
+        y_center = rect[0][1]
+        # Check if the object is too low
+        if y_center > ImageTransformUtils.PIC_HEIGHT - 30:
+            return None, target_img, None, None
+        # Check if the object is too high
+        if y_center < ImageTransformUtils.PIC_HEIGHT - 230:# was 60
+            # Object is too high, ignore it
+            return None, target_img, None, None
+
+        # Create and draw a line from the center of the object to the left or right side of the image
+        # Line needs to be at x degrees (the angle threshold) to be able to pass around the obstacle
+        if direction == Direction.LEFT:
+            left = True
+            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.PIC_HEIGHT))
+            rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - ImageTransformUtils.PIC_WIDTH)
+        else:
+            left = False
+            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (0, ImageTransformUtils.PIC_HEIGHT))
+            rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - 0)
+        # Calculate the angle in degrees
+        angle = 90 + math.degrees(rad_angle)
+        self.old_angle = angle
+        return angle, target_img, y_center, left
 
     @staticmethod
     def calculate_servo_angle_from_obstacle(object_angle, is_green):
