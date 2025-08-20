@@ -365,3 +365,22 @@ class ImageAlgorithms:
         cols = range(start, end)
         
         return np.mean(self.find_black_from_bottom(self.camera_manager.polygon_img, cols))
+
+    
+    def get_top_line_distance(self):
+        if self.camera_manager.polygon_lines is None:
+            return None
+        
+        # start value of infinity
+        highest_y = float('inf')
+        
+        for line in self.camera_manager.polygon_lines:
+            pt1 = line[0]
+            pt2 = line[1]
+            
+            line_y = min(pt1[1], pt2[1])
+            
+            if line_y < highest_y:
+                highest_y = line_y
+        
+        return highest_y
