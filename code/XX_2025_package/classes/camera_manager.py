@@ -7,6 +7,8 @@ import numpy as np
 from XX_2025_package.utils.enums import Color
 from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
 import math
+import os
+from XX_2025_package.video.video_counter import VideoCounter
 
 class CameraManager:
 
@@ -57,9 +59,15 @@ class CameraManager:
         main={"format":'RGB888',"size": (ImageTransformUtils.CAMERA_PIC_WIDTH, ImageTransformUtils.CAMERA_PIC_HEIGHT)}))
         self.picam2.configure(config)
         
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        self.video_output = cv2.VideoWriter('video.avi', fourcc, 20.0, (ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.PIC_HEIGHT))
-
+        output_folder = os.path.join(os.path.dirname(__file__), "../video")
+        os.makedirs(output_folder, exist_ok=True)
+        
+        output_path = os.path.join(output_folder, f"video{VideoCounter.get_video_counter()}.mp4")
+        
+        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+        self.video_output = cv2.VideoWriter(output_path, fourcc, 20.0, (ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.PIC_HEIGHT))
+        VideoCounter.increment_video_counter()
+        
     def start_camera(self):
         self.picam2.start()
         time.sleep(2)
