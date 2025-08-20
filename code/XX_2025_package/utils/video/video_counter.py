@@ -1,7 +1,7 @@
 import os
 
 class VideoCounter:
-    ptr_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "./video_counter_ptr.txt")
+    ptr_file = os.path.join(os.path.dirname(__file__), "./video_counter_ptr.txt")
     
     @staticmethod
     def get_video_counter():

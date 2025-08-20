@@ -62,7 +62,7 @@ class CameraManager:
         self.configure_video_output()
         
     def configure_video_output(self):
-        output_folder = os.path.join(os.path.dirname(__file__), "../video")
+        output_folder = os.path.join(os.path.dirname(__file__), "../videos")
         os.makedirs(output_folder, exist_ok=True)
         
         output_path = os.path.join(output_folder, f"video{VideoCounter.get_video_counter()}.mp4")

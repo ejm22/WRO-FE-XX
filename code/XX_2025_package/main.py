@@ -58,10 +58,6 @@ if __name__ == "__main__":
         print("Start position: ", start_position)
         context_manager.set_start_position(start_position)
 
-        
-        ## 2.1 ##
-        # Adjust robot if starting area is problematic
-
         ## 3 ##
         # Complete 3 laps
         while True:
