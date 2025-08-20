@@ -59,7 +59,7 @@ class CameraManager:
         main={"format":'RGB888',"size": (ImageTransformUtils.CAMERA_PIC_WIDTH, ImageTransformUtils.CAMERA_PIC_HEIGHT)}))
         self.picam2.configure(config)
         
-        self.conficure_video_output()
+        self.configure_video_output()
         
     def configure_video_output(self):
         output_folder = os.path.join(os.path.dirname(__file__), "../video")
@@ -68,7 +68,7 @@ class CameraManager:
         output_path = os.path.join(output_folder, f"video{VideoCounter.get_video_counter()}.mp4")
         
         fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-        self.video_output = cv2.VideoWriter(output_path, fourcc, 20.0, (ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.PIC_HEIGHT))
+        self.video_output = cv2.VideoWriter(output_path, fourcc, 15.0, (ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.PIC_HEIGHT))
         VideoCounter.increment_video_counter()
         
     def start_camera(self):

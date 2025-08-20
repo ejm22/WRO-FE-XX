@@ -20,7 +20,7 @@ ChallengeParameters = namedtuple('ChallengeParameters', ['kp', 'kd', 'base_thres
 CHALLENGE_CONFIG = {
     1: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100, -30, 40  ]),
     2: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ]),
-    3: ChallengeParameters(kp = 1.5 , kd = 1  , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-40            ]),
+    3: ChallengeParameters(kp = 1.5 , kd = 1    , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-40            ]),
     4: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ])
 }
 

@@ -234,8 +234,10 @@ if __name__ == "__main__":
         pink_pixel_y = ImageTransformUtils.PIC_HEIGHT - 80
         if context_manager.get_direction() == Direction.LEFT:
             pink_pixel_x = ImageTransformUtils.PIC_WIDTH - 70
+            pink_pixel_backwards_x = ImageTransformUtils.PIC_WIDTH - 100
         else:
             pink_pixel_x = 70
+            pink_pixel_backwards_x = 100
             
         ## 2 ##
         # Analyze starting area (optional)
@@ -295,6 +297,7 @@ if __name__ == "__main__":
             context_manager.set_direction(Direction.RIGHT)
         else:
             context_manager.set_direction(Direction.LEFT)
+            good_to_check = False
         while True:
             arduino.flushInput()
             camera_manager.capture_image()
@@ -308,7 +311,7 @@ if __name__ == "__main__":
             #print("Top angle = ", top_angle)
             #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
 
-            if camera_manager.binary_image[30, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None:
+            if np.any(camera_manager.cnt_orangeline[ImageTransformUtils.PIC_HEIGHT - 165: ImageTransformUtils.PIC_HEIGHT - 140, ImageTransformUtils.PIC_WIDTH // 2 - 20: ImageTransformUtils.PIC_WIDTH // 2 + 20]):
                 speed = 0
                 command = f"m85,0.".encode()
                 arduino.write(command)
@@ -334,7 +337,7 @@ if __name__ == "__main__":
             camera_manager.transform_image()
             cv2.imshow("Cropped", camera_manager.cropped_image)
             cv2.imshow("Polygon Image", camera_manager.polygon_image)
-            if camera_manager.binary_image[ImageTransformUtils.PIC_HEIGHT - 10, ImageTransformUtils.PIC_WIDTH - 100] == 0:
+            if camera_manager.binary_image[ImageTransformUtils.PIC_HEIGHT - 10, pink_pixel_backwards_x] == 0:
                 command = f"m85,0.".encode()
                 arduino.write(command)
                 break
