@@ -76,7 +76,12 @@ if __name__ == "__main__":
                 arduino.flush()
             else:
                 print("Arduino is busy, skipping command.")
+            
+            camera_manager.display_image = camera_manager.polygon_image.copy()
+            camera_manager.add_frame_to_video()
+            
             time.sleep(0.01)
+            
 
             if (context_manager.has_completed_laps()):
                 break
@@ -123,6 +128,9 @@ if __name__ == "__main__":
             command = f"m{servo_angle},{speed}.".encode()
             arduino.write(command)
             arduino.flush()
+            
+            camera_manager.add_frame_to_video()
+            
             time.sleep(0.01)
 
             if (context_manager.has_completed_laps()):
@@ -253,6 +261,8 @@ if __name__ == "__main__":
             command = f"m{servo_angle},{speed}.".encode()
             arduino.write(command)
             arduino.flush()
+            
+            camera_manager.add_frame_to_video()
 
             if camera_manager.pink_mask[ImageTransformUtils.PIC_HEIGHT - 80, ImageTransformUtils.PIC_WIDTH - 70] == 255:
                 break
