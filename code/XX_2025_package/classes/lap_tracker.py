@@ -21,7 +21,6 @@ class LapState(Enum):
 class LapTracker:
     def __init__(self, context_manager):
         self._state = LapState.INITIAL_STATE
-        self.lap_count = 0
         self.context_manager = context_manager
         self.time_stamp = 0
 
