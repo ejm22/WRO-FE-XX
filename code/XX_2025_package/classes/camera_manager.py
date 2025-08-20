@@ -2,7 +2,6 @@ from picamera2 import Picamera2
 import time
 from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
 from XX_2025_package.utils.image_transform_utils import ImageColorUtils
-from XX_2025_package.classes.image_algoriths import ImageAlgorithms
 import cv2
 import numpy as np
 from XX_2025_package.utils.enums import Color
@@ -57,6 +56,9 @@ class CameraManager:
         raw={"size":(sensor_width,sensor_height)},
         main={"format":'RGB888',"size": (ImageTransformUtils.CAMERA_PIC_WIDTH, ImageTransformUtils.CAMERA_PIC_HEIGHT)}))
         self.picam2.configure(config)
+        
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        self.video_output = cv2.VideoWriter('video.avi', fourcc, 20.0, (ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.PIC_HEIGHT))
 
     def start_camera(self):
         self.picam2.start()
@@ -66,7 +68,14 @@ class CameraManager:
         if self.raw_image is not None:
             del self.raw_image
         self.raw_image = self.picam2.capture_array()
-        #cv2.imshow("Color", self.current_image)
+        
+    def add_frame_to_video(self):
+        if self.video_output is None:
+            return
+        if self.display_image.shape[1] != ImageTransformUtils.PIC_WIDTH or self.display_image.shape[0] != ImageTransformUtils.PIC_HEIGHT:
+            print(f"Frame size does not match video output size. Expected ({ImageTransformUtils.PIC_WIDTH}, {ImageTransformUtils.PIC_HEIGHT}), got {self.display_image.shape[1]}x{self.display_image.shape[0]}.")
+            return
+        self.video_output.write(self.display_image)
 
 
     def transform_image(self):
