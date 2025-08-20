@@ -78,11 +78,9 @@ if __name__ == "__main__":
             camera_manager.display_image = camera_manager.polygon_image.copy()
             ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {lap_tracker.get_lap_count()}", (10, 30), (0, 0, 255), 1)
             camera_manager.add_frame_to_video()
-            
-            time.sleep(0.01)
-            
+                        
 
-            if (context_manager.has_completed_laps()):
+            if context_manager.has_completed_laps() and image_algorithms.get_back_wall_distance() > ImageTransformUtils.START_WALL_HEIGHT_THRESHOLD:
                 break
 
             key = cv2.waitKey(1)  # Let OpenCV update the window

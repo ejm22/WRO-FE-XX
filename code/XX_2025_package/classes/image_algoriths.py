@@ -348,17 +348,20 @@ class ImageAlgorithms:
             servo_angle = MAX_ANGLE
         return int(servo_angle)
     
-    @staticmethod
-    def get_starting_position(img):
+    def get_starting_position(self):
+        distance = self.get_back_wall_distance()
+        
+        if distance < START_WALL_HEIGHT_THRESHOLD:
+            return StartPosition.BACK
+        else:
+            return StartPosition.FRONT
+        
+        
+    def get_back_wall_distance(self):
         nbr_cols = 10
         mid_x = ImageTransformUtils.PIC_WIDTH // 2
         start = mid_x - (nbr_cols // 2)
         end = start + nbr_cols
         cols = range(start, end)
         
-        distance = np.mean(ImageAlgorithms.find_black_from_bottom(img, cols))
-        
-        if distance < START_WALL_HEIGHT_THRESHOLD:
-            return StartPosition.BACK
-        else:
-            return StartPosition.FRONT
+        return np.mean(self.find_black_from_bottom(self.camera_manager.polygon_img, cols))
