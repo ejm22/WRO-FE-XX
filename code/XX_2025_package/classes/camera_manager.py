@@ -70,7 +70,7 @@ class CameraManager:
         self.raw_image = self.picam2.capture_array()
         
     def add_frame_to_video(self):
-        if self.video_output is None:
+        if self.display_image is None:
             return
         if self.display_image.shape[1] != ImageTransformUtils.PIC_WIDTH or self.display_image.shape[0] != ImageTransformUtils.PIC_HEIGHT:
             print(f"Frame size does not match video output size. Expected ({ImageTransformUtils.PIC_WIDTH}, {ImageTransformUtils.PIC_HEIGHT}), got {self.display_image.shape[1]}x{self.display_image.shape[0]}.")

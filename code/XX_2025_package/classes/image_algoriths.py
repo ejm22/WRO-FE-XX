@@ -20,7 +20,7 @@ ChallengeParameters = namedtuple('ChallengeParameters', ['kp', 'kd', 'base_thres
 CHALLENGE_CONFIG = {
     1: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100, -30, 40  ]),
     2: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ]),
-    3: ChallengeParameters(kp = 1.5 , kd = 1    , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-40            ]),
+    3: ChallengeParameters(kp = 1.5 , kd = 1  , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-40            ]),
     4: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ])
 }
 
@@ -286,12 +286,12 @@ class ImageAlgorithms:
         # Line needs to be at x degrees (the angle threshold) to be able to pass around the obstacle
         if direction == Direction.LEFT:
             left = True
-            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
-            rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - RIGHT_OBSTACLE_X_THRESHOLD)
+            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.PIC_HEIGHT))
+            rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - ImageTransformUtils.PIC_WIDTH)
         else:
             left = False
-            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (LEFT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
-            rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - LEFT_OBSTACLE_X_THRESHOLD)
+            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (0, ImageTransformUtils.PIC_HEIGHT))
+            rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - 0)
         # Calculate the angle in degrees
         angle = 90 + math.degrees(rad_angle)
         return angle, target_img, x_center, y_center, left
@@ -300,10 +300,7 @@ class ImageAlgorithms:
     def calculate_servo_angle_from_obstacle(object_angle, is_green, pink = 0):
         if object_angle is None:
             return None
-        if pink == 0:
-            kp = 1.5
-        else:
-            kp = 3
+        kp = 1.5
         if is_green:
             servo_angle = STRAIGHT_ANGLE - ((object_angle + OBJECT_LINE_ANGLE_THRESHOLD) * kp) # green obstacle
         else:

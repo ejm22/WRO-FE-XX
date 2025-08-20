@@ -228,6 +228,12 @@ if __name__ == "__main__":
         # Find direction with parking
         image_algorithms.get_direction_from_parking(camera_manager)
         print("Direction : ", context_manager.get_direction())
+        pink_pixel_y = ImageTransformUtils.PIC_HEIGHT - 80
+        if context_manager.get_direction() == Direction.LEFT:
+            pink_pixel_x = ImageTransformUtils.PIC_WIDTH - 70
+        else:
+            pink_pixel_x = 70
+            
         ## 2 ##
         # Analyze starting area (optional)
         # Leave parking spot
@@ -270,7 +276,7 @@ if __name__ == "__main__":
             
             camera_manager.add_frame_to_video()
 
-            if camera_manager.pink_mask[ImageTransformUtils.PIC_HEIGHT - 80, ImageTransformUtils.PIC_WIDTH - 70] == 255:
+            if camera_manager.pink_mask[pink_pixel_y, pink_pixel_x] == 255:
                 break
             key = cv2.waitKey(1)  # Let OpenCV update the window
             if key == 27:  # Escape key to quit
@@ -281,78 +287,77 @@ if __name__ == "__main__":
         ## 5 ##
         # Parallel park in the parking area
         print("Challenge 3")
+        speed = 1000
+        if context_manager.get_direction() == Direction.LEFT:
+            context_manager.set_direction(Direction.RIGHT)
+        else:
+            context_manager.set_direction(Direction.LEFT)
         while True:
-            speed = 1000
-            while True:
-                arduino.flushInput()
-                camera_manager.capture_image()
-                camera_manager.transform_image()
-                context_manager.set_direction(Direction.RIGHT)
-                cv2.imshow("Cropped", camera_manager.cropped_image)
-                cv2.imshow("Polygon Image", camera_manager.polygon_image)
-                #print("Poly Lines = ", camera_manager.polygon_lines)
-                angle_walls = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image, True)
-                #print ("angle_walls = ", angle_walls)
-                top_angle = image_algorithms.get_top_line_angle(camera_manager.polygon_lines)
-                #print("Top angle = ", top_angle)
-                #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
+            arduino.flushInput()
+            camera_manager.capture_image()
+            camera_manager.transform_image()
+            cv2.imshow("Cropped", camera_manager.cropped_image)
+            cv2.imshow("Polygon Image", camera_manager.polygon_image)
+            #print("Poly Lines = ", camera_manager.polygon_lines)
+            angle_walls = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image, True)
+            #print ("angle_walls = ", angle_walls)
+            top_angle = image_algorithms.get_top_line_angle(camera_manager.polygon_lines)
+            #print("Top angle = ", top_angle)
+            #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
 
-                if camera_manager.binary_image[90, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None:
+            if camera_manager.binary_image[30, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None:
+                speed = 0
+                command = f"m85,0.".encode()
+                arduino.write(command)
+                break
+            else:
+                speed = 1000
+            command = f"m{angle_walls},{speed}.".encode()
+            
+
+            arduino.write(command)
+            arduino.flush()
+        
+            time.sleep(0.01)
+            key = cv2.waitKey(1)  # Let OpenCV update the window
+            if key == 27:  # Escape key to quit
+                if (speed != 0):
                     speed = 0
-                    command = f"m85,0.".encode()
-                    arduino.write(command)
-                    break
                 else:
-                    speed = 1000
-                command = f"m{angle_walls},{speed}.".encode()
-                
-
-                arduino.write(command)
-                arduino.flush()
-            
-                time.sleep(0.01)
-                key = cv2.waitKey(1)  # Let OpenCV update the window
-                if key == 27:  # Escape key to quit
-                    if (speed != 0):
-                        speed = 0
-                    else:
-                        break
-            
-            while True:
-                camera_manager.capture_image()
-                camera_manager.transform_image()
-                cv2.imshow("Cropped", camera_manager.cropped_image)
-                cv2.imshow("Polygon Image", camera_manager.polygon_image)
-                if camera_manager.binary_image[ImageTransformUtils.PIC_HEIGHT - 10, ImageTransformUtils.PIC_WIDTH - 100] == 0:
-                    command = f"m85,0.".encode()
-                    arduino.write(command)
                     break
-                command = f"m85,-1000.".encode()
+        
+        while True:
+            camera_manager.capture_image()
+            camera_manager.transform_image()
+            cv2.imshow("Cropped", camera_manager.cropped_image)
+            cv2.imshow("Polygon Image", camera_manager.polygon_image)
+            if camera_manager.binary_image[ImageTransformUtils.PIC_HEIGHT - 10, ImageTransformUtils.PIC_WIDTH - 100] == 0:
+                command = f"m85,0.".encode()
                 arduino.write(command)
-            time.sleep(0.2)
+                break
+            command = f"m85,-1000.".encode()
+            arduino.write(command)
+        time.sleep(0.2)
 
-            speed = 1000
-            command = f"t85,1000,1700.".encode()
-            arduino.write(command)
-            while arduino.read().decode('utf-8') != 'F':
-                time.sleep(0.005)
-            command = f"t48,-1000,1300.".encode()
-            arduino.write(command)
-            while arduino.read().decode('utf-8') != 'F':
-                time.sleep(0.005)
-            command = f"t85,-1000,650.".encode()
-            arduino.write(command)
-            while arduino.read().decode('utf-8') != 'F':
-                time.sleep(0.005)
-            command = f"t128,-1000,1200.".encode()
-            arduino.write(command)
-            while arduino.read().decode('utf-8') != 'F':
-                time.sleep(0.005)
-            command = f"m85,0.".encode()
-            arduino.write(command)
-            
-            break
-
+        speed = 1000
+        command = f"t85,1000,1700.".encode()
+        arduino.write(command)
+        while arduino.read().decode('utf-8') != 'F':
+            time.sleep(0.005)
+        command = f"t{85 - context_manager.get_direction().value * 37},-1000,1300.".encode()
+        arduino.write(command)
+        while arduino.read().decode('utf-8') != 'F':
+            time.sleep(0.005)
+        command = f"t85,-1000,650.".encode()
+        arduino.write(command)
+        while arduino.read().decode('utf-8') != 'F':
+            time.sleep(0.005)
+        command = f"t{85 + context_manager.get_direction().value * 37},-1000,1200.".encode()
+        arduino.write(command)
+        while arduino.read().decode('utf-8') != 'F':
+            time.sleep(0.005)
+        command = f"m85,0.".encode()
+        arduino.write(command)
 
     cv2.destroyAllWindows()
     arduino.write(b'm88,0.')
