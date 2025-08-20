@@ -8,7 +8,6 @@ from XX_2025_package.utils.enums import StartPosition
 from collections import namedtuple
  
 MIDDLE_X = 320
-START_WALL_HEIGHT_THRESHOLD = 34
 LEFT_OBSTACLE_X_THRESHOLD = 40
 RIGHT_OBSTACLE_X_THRESHOLD = ImageTransformUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
 MIN_ANGLE = 48
@@ -18,13 +17,17 @@ OBJECT_LINE_ANGLE_THRESHOLD = 45
 
 ChallengeParameters = namedtuple('ChallengeParameters', ['kp', 'kd', 'base_threshold', 'offsets'])
 CHALLENGE_CONFIG = {
-    1: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100, -30, 40  ]),
+    1: ChallengeParameters(kp = 0.2, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100, -30, 40  ]),
     2: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ]),
     3: ChallengeParameters(kp = 1.5 , kd = 1    , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-40            ]),
     4: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ])
 }
 
 class ImageAlgorithms:
+    START_WALL_HEIGHT_THRESHOLD = 34
+    BACK_ZONE_WALL_HEIGHT = 27
+    FRONT_ZONE_WALL_HEIGHT = 38
+
     def __init__(self, context_manager, camera_manager):
         self.context_manager = context_manager
         self.camera_manager = camera_manager
@@ -32,7 +35,7 @@ class ImageAlgorithms:
         self.old_angle = 0
         self.old_is_green = 0
 
-    def get_direction_from_lines(self, camera_object):
+    def get_direction_from_lines(self):
         """
         Determine the direction by looking at which of the blue or orange lines is longer (Challenge 1)
         I/O:
@@ -40,9 +43,11 @@ class ImageAlgorithms:
         Effects:
             Sets the direction in context_manager
         """
-        direction = Direction.LEFT if camera_object.length_blue > camera_object.length_orange else Direction.RIGHT
+        print(self.camera_manager.length_blue)
+        print(self.camera_manager.length_orange)
+        direction = Direction.LEFT if self.camera_manager.length_blue > self.camera_manager.length_orange else Direction.RIGHT
         self.context_manager.set_direction(direction)
-    
+
     def get_direction_from_parking(self, camera_object):
         """
         Determine the direction by looking at which half of the image has more white pixels (Challenge 2)
@@ -319,8 +324,8 @@ class ImageAlgorithms:
         #print("Obstacles at angle : ", angle_obstacles)
         return angle_obstacles
 
-    @staticmethod
-    def get_top_line_angle(poly_lines):
+    def get_top_line_angle(self):
+        poly_lines = self.camera_manager.polygon_lines
         for i in range(len(poly_lines)):
             pt1 = poly_lines[i][0]
             pt2 = poly_lines[(i+1) % len(poly_lines)][0]
@@ -351,7 +356,7 @@ class ImageAlgorithms:
     def get_starting_position(self):
         distance = self.get_back_wall_distance()
         
-        if distance < START_WALL_HEIGHT_THRESHOLD:
+        if distance < ImageAlgorithms.START_WALL_HEIGHT_THRESHOLD:
             return StartPosition.BACK
         else:
             return StartPosition.FRONT
@@ -364,19 +369,21 @@ class ImageAlgorithms:
         end = start + nbr_cols
         cols = range(start, end)
         
-        return np.mean(self.find_black_from_bottom(self.camera_manager.polygon_img, cols))
+        return np.mean(self.find_black_from_bottom(self.camera_manager.polygon_image, cols))
 
     
     def get_top_line_distance(self):
         if self.camera_manager.polygon_lines is None:
             return None
         
+        poly_lines = self.camera_manager.polygon_lines
+        
         # start value of infinity
         highest_y = float('inf')
         
-        for line in self.camera_manager.polygon_lines:
-            pt1 = line[0]
-            pt2 = line[1]
+        for i in range(len(poly_lines)):
+            pt1 = poly_lines[i][0]
+            pt2 = poly_lines[(i+1) % len(poly_lines)][0]
             
             line_y = min(pt1[1], pt2[1])
             

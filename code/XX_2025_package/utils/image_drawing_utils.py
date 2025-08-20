@@ -55,12 +55,12 @@ class ImageDrawingUtils:
         """
         cnt = ImageDrawingUtils.find_contour(img)
         if cnt is None:
-            return img, 360, None
+            return img, 0, None
         rect = cv2.minAreaRect(cnt)
         (w, h) = rect[1]
-        if ContextManager.CHALLENGE == 2 or 4:
+        if ContextManager.CHALLENGE == 2 or ContextManager.CHALLENGE == 4:
             if w < MIN_WIDTH or h < MIN_HEIGHT:
-                return img, 360, None
+                return img, 0, None
         max_width_height = max(rect[1][0], rect[1][1])
         box = cv2.boxPoints(rect)
         box = np.intp(box)
@@ -77,7 +77,7 @@ class ImageDrawingUtils:
                 ratio = white_count / total_count
                 # Require at least 50% white pixels
                 if ratio < 0.5:
-                    return img, 360, None
+                    return img, 0, None
         img_with_box = cv2.cvtColor(img.copy(), cv2.COLOR_GRAY2BGR)
         cv2.drawContours(img_with_box, [box], 0, (0, 255, 0), 2)
         if target_img is not None:

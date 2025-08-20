@@ -3,8 +3,8 @@ import cv2
 from XX_2025_package.utils.enums import Color
 
 COLOR_RANGES = {
-    Color.BLUE: (np.array([100, 100, 50]), np.array([130, 255, 255])),
-    Color.ORANGE: (np.array([10, 100, 50]), np.array([30, 255, 255])),
+    Color.BLUE: (np.array([100, 60, 50]), np.array([130, 255, 255])),
+    Color.ORANGE: (np.array([6, 60, 50]), np.array([30, 255, 255])),
     Color.ALL_COLORS: (np.array([0, 100, 50]), np.array([179, 255, 255])),
     Color.GREEN: (np.array([60, 100, 50]), np.array([80, 255, 255])),
     Color.RED: (np.array([175, 100, 50]), np.array([185, 255, 255])),

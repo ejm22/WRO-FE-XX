@@ -8,6 +8,7 @@ from XX_2025_package.classes.image_algoriths import ImageAlgorithms
 from XX_2025_package.classes.context_manager import ContextManager
 from XX_2025_package.classes.lap_tracker import LapTracker
 from XX_2025_package.utils.enums import Direction
+from XX_2025_package.utils.enums import StartPosition
 from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
 
 arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
@@ -39,22 +40,24 @@ if __name__ == "__main__":
 
     camera_manager.capture_image()
     camera_manager.transform_image()
-
     ################################################################
     ############################ Défi 1 ############################
     ################################################################
     
     if (ContextManager.CHALLENGE == 1):
+        parking_flag = False
         speed = 5000
         ## 1 ##
         # Find direction with blue and orange lines
 
-        image_algorithms.get_direction_from_lines(camera_manager)
+        image_algorithms.get_direction_from_lines()
         print("Direction : ", context_manager.get_direction())
+
+        
 
         ## 2 ##
         # Find starting area
-        start_position = image_algorithms.get_starting_position(camera_manager.polygon_image)
+        start_position = image_algorithms.get_starting_position()
         print("Start position: ", start_position)
         context_manager.set_start_position(start_position)
 
@@ -75,13 +78,28 @@ if __name__ == "__main__":
             else:
                 print("Arduino is busy, skipping command.")
             
-            camera_manager.display_image = camera_manager.polygon_image.copy()
-            ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {lap_tracker.get_lap_count()}", (10, 30), (0, 0, 255), 1)
+            camera_manager.display_image = camera_manager.cropped_image.copy()
+            ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {lap_tracker.lap_count}", (10, 30), (0, 0, 255))
             camera_manager.add_frame_to_video()
                         
 
-            if context_manager.has_completed_laps() and image_algorithms.get_back_wall_distance() > ImageTransformUtils.START_WALL_HEIGHT_THRESHOLD:
-                break
+            if context_manager.has_completed_laps():
+                speed = 2000
+                if (ImageAlgorithms.START_WALL_HEIGHT_THRESHOLD >= image_algorithms.get_top_line_distance() >= ImageAlgorithms.BACK_ZONE_WALL_HEIGHT
+                    and image_algorithms.get_top_line_angle() is not None):
+                    print(image_algorithms.get_top_line_angle())
+                    print(image_algorithms.get_top_line_distance())
+                    parking_flag = True
+            
+            if parking_flag:
+                if context_manager.get_start_position == StartPosition.BACK:
+                    break
+
+                elif (ImageAlgorithms.FRONT_ZONE_WALL_HEIGHT <= image_algorithms.get_top_line_distance()
+                    and image_algorithms.get_top_line_angle() is not None):
+                    break
+
+
 
             key = cv2.waitKey(1)  # Let OpenCV update the window
             if key == 27:  # Escape key to quit
@@ -158,7 +176,7 @@ if __name__ == "__main__":
                 #print("Poly Lines = ", camera_manager.polygon_lines)
                 angle_walls = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image)
                 #print ("angle_walls = ", angle_walls)
-                top_angle = image_algorithms.get_top_line_angle(camera_manager.polygon_lines)
+                top_angle = image_algorithms.get_top_line_angle()
                 #print("Top angle = ", top_angle)
                 #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
 
@@ -301,11 +319,10 @@ if __name__ == "__main__":
             #print("Poly Lines = ", camera_manager.polygon_lines)
             angle_walls = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image, True)
             #print ("angle_walls = ", angle_walls)
-            top_angle = image_algorithms.get_top_line_angle(camera_manager.polygon_lines)
+            top_angle = image_algorithms.get_top_line_angle()
             #print("Top angle = ", top_angle)
             #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
-
-            if np.any(camera_manager.cnt_orangeline[ImageTransformUtils.PIC_HEIGHT - 165: ImageTransformUtils.PIC_HEIGHT - 140, ImageTransformUtils.PIC_WIDTH // 2 - 20: ImageTransformUtils.PIC_WIDTH // 2 + 20]):
+            if (camera_manager.binary_image[90, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None and context_manager.get_direction() == Direction.RIGHT) or (np.any(camera_manager.cnt_orangeline[ImageTransformUtils.PIC_HEIGHT - 165: ImageTransformUtils.PIC_HEIGHT - 140, ImageTransformUtils.PIC_WIDTH // 2 - 20: ImageTransformUtils.PIC_WIDTH // 2 + 20]) and context_manager.get_direction() == Direction.LEFT):
                 speed = 0
                 command = f"m85,0.".encode()
                 arduino.write(command)
@@ -335,24 +352,24 @@ if __name__ == "__main__":
                 command = f"m85,0.".encode()
                 arduino.write(command)
                 break
-            command = f"m85,-1000.".encode()
+            command = f"m86,-1000.".encode()
             arduino.write(command)
         time.sleep(0.2)
 
         speed = 1000
-        command = f"t85,1000,1700.".encode()
+        command = f"t86,1000,{1800 - context_manager.get_direction().value * 100}.".encode()
         arduino.write(command)
         while arduino.read().decode('utf-8') != 'F':
             time.sleep(0.005)
-        command = f"t{85 - context_manager.get_direction().value * 37},-1000,1300.".encode()
+        command = f"t{86 - context_manager.get_direction().value * 38},-1000,1300.".encode()
         arduino.write(command)
         while arduino.read().decode('utf-8') != 'F':
             time.sleep(0.005)
-        command = f"t85,-1000,650.".encode()
+        command = f"t86,-1000,650.".encode()
         arduino.write(command)
         while arduino.read().decode('utf-8') != 'F':
             time.sleep(0.005)
-        command = f"t{85 + context_manager.get_direction().value * 37},-1000,1200.".encode()
+        command = f"t{86 + context_manager.get_direction().value * 38},-1000,1200.".encode()
         arduino.write(command)
         while arduino.read().decode('utf-8') != 'F':
             time.sleep(0.005)
