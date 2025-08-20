@@ -1,6 +1,7 @@
 import serial
 import cv2
 import time
+import numpy as np
 from XX_2025_package.classes.camera_manager import CameraManager
 from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
 from XX_2025_package.classes.image_algoriths import ImageAlgorithms
@@ -112,7 +113,7 @@ if __name__ == "__main__":
             camera_manager.capture_image()
             camera_manager.transform_image()
             lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
-            angle, camera_manager.display_image, is_green, _ = image_algorithms.find_obstacle_angle_and_draw_lines(camera_manager.display_image)
+            angle, camera_manager.display_image, is_green, _, _ = image_algorithms.find_obstacle_angle_and_draw_lines(camera_manager.display_image)
             if camera_manager.display_image is not None:
                 cv2.imshow("Display_image", camera_manager.display_image)
             #print("Angle objet : ", angle)
@@ -214,7 +215,7 @@ if __name__ == "__main__":
             
     if (ContextManager.CHALLENGE == 4):
         print("Hello")
-        speed = 2000
+        speed = 3000
         ## 1 ##
         # Find direction with parking
         image_algorithms.get_direction_from_parking(camera_manager)
@@ -230,21 +231,26 @@ if __name__ == "__main__":
         while True:
             camera_manager.capture_image()
             camera_manager.transform_image() 
-            angle, camera_manager.display_image, is_green, obstacle_height = image_algorithms.find_obstacle_angle_and_draw_lines(camera_manager.display_image)
-            angle_pink, camera_manager.display_image, pink_height, side = image_algorithms.find_pink_obstacle_angle(camera_manager.display_image)
+            angle, camera_manager.display_image, is_green, obstacle_x, obstacle_y = image_algorithms.find_obstacle_angle_and_draw_lines(camera_manager.display_image)
+            angle_pink, camera_manager.display_image, pink_x, pink_y, side = image_algorithms.find_pink_obstacle_angle(camera_manager.display_image)
             cv2.imshow("Obstacle Image", camera_manager.obstacle_image)
             cv2.imshow("Pink obstacle image", camera_manager.pink_mask)
-            if angle_pink is not None and pink_height is not None:
-                if obstacle_height is not None:
-                    if pink_height > obstacle_height:
+            is_pink = 0
+            if angle_pink is not None and pink_y is not None:
+                if obstacle_y is not None:
+                    if (pink_y + 5) > obstacle_y:
                         print("PINK 1")
                         angle = angle_pink
                         is_green = side
+                        is_pink = 1
+                        speed = 1500
                 else:
                     print("PINK 2")
                     angle = angle_pink
                     is_green = side
-            angle_obstacles = image_algorithms.calculate_servo_angle_from_obstacle(angle, is_green)
+                    is_pink = 1
+                    speed = 1500
+            angle_obstacles = image_algorithms.calculate_servo_angle_from_obstacle(angle, is_green, is_pink)
             if camera_manager.display_image is not None:
                 cv2.imshow("Display_image", camera_manager.display_image)
             angle_walls = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image)
@@ -320,7 +326,7 @@ if __name__ == "__main__":
             arduino.write(command)
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)
-            command = f"t48,-1000,1350.".encode()
+            command = f"t48,-1000,1300.".encode()
             arduino.write(command)
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)
@@ -328,7 +334,7 @@ if __name__ == "__main__":
             arduino.write(command)
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)
-            command = f"t128,-1000,1300.".encode()
+            command = f"t128,-1000,1200.".encode()
             arduino.write(command)
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)

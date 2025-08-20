@@ -20,7 +20,7 @@ ChallengeParameters = namedtuple('ChallengeParameters', ['kp', 'kd', 'base_thres
 CHALLENGE_CONFIG = {
     1: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100, -30, 40  ]),
     2: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ]),
-    3: ChallengeParameters(kp = 0.75, kd = 1    , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-40            ]),
+    3: ChallengeParameters(kp = 1.5 , kd = 1    , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-40            ]),
     4: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ])
 }
 
@@ -216,10 +216,14 @@ class ImageAlgorithms:
             target_img: colored image in which we draw
             return: line's angle, target_img, and whether the object is green or not
         """
+
+        # Zero the last 30 rows
+        #self.camera_manager.obstacle_image[-30:, :] = 0
+    
         _, _, rect = ImageDrawingUtils.find_rect(self.camera_manager.obstacle_image, self.camera_manager.polygon_image)
         # Check if a rectangle was found
         if rect is None:
-            return None, target_img, None, None
+            return None, target_img, None, None, None
         # Get the center of the rectangle
         x_center = rect[0][0]
         y_center = rect[0][1]
@@ -227,14 +231,14 @@ class ImageAlgorithms:
         if y_center > ImageTransformUtils.PIC_HEIGHT - 60:
             if y_center > ImageTransformUtils.PIC_HEIGHT - 30:
                 # Object is too low, ignore it
-                return None, target_img, None, None
+                return None, target_img, None, None, None
             else:
                 # Object is quite close, use previous adjustment
-                return self.old_angle, None, self.old_is_green, y_center
+                return self.old_angle, None, self.old_is_green, x_center, y_center
         # Check if the object is too high
         if y_center < ImageTransformUtils.PIC_HEIGHT - 240:# was 60
             # Object is too high, ignore it
-            return None, target_img, None, None
+            return None, target_img, None, None, None
         
         # Draw the point at which we check if the inner wall is too close
         if self.context_manager.get_direction() == Direction.RIGHT:
@@ -243,7 +247,7 @@ class ImageAlgorithms:
             ImageDrawingUtils.draw_circle(target_img, (200, ImageTransformUtils.PIC_HEIGHT - 130), 3)
         # Check if the inner wall is too close
         if self.check_inner_wall_crash(y_center):
-            return None, target_img, None, None
+            return None, target_img, None, None, None
 
         # Check if the obstacle is green or red
         is_green = ImageColorUtils.is_rect_green(self.camera_manager.hsv_image, rect)
@@ -259,45 +263,47 @@ class ImageAlgorithms:
         angle = 90 + math.degrees(rad_angle)
         self.old_angle = angle
         self.old_is_green = is_green
-        return angle, target_img, is_green, y_center
+        return angle, target_img, is_green, x_center, y_center
 
     def find_pink_obstacle_angle(self, target_img):
         direction = self.context_manager.get_direction()
         _, _, rect = ImageDrawingUtils.find_rect(self.camera_manager.pink_mask, self.camera_manager.polygon_image)
         # Check if a rectangle was found
         if rect is None:
-            return None, target_img, None, None
+            return None, target_img, None, None, None
         # Get the center of the rectangle
         x_center = rect[0][0]
         y_center = rect[0][1]
         # Check if the object is too low
         if y_center > ImageTransformUtils.PIC_HEIGHT - 30:
-            return None, target_img, None, None
+            return None, target_img, None, None, None
         # Check if the object is too high
         if y_center < ImageTransformUtils.PIC_HEIGHT - 230:# was 60
             # Object is too high, ignore it
-            return None, target_img, None, None
+            return None, target_img, None, None, None
 
         # Create and draw a line from the center of the object to the left or right side of the image
         # Line needs to be at x degrees (the angle threshold) to be able to pass around the obstacle
         if direction == Direction.LEFT:
             left = True
-            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.PIC_HEIGHT))
-            rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - ImageTransformUtils.PIC_WIDTH)
+            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
+            rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - RIGHT_OBSTACLE_X_THRESHOLD)
         else:
             left = False
-            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (0, ImageTransformUtils.PIC_HEIGHT))
-            rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - 0)
+            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (LEFT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
+            rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - LEFT_OBSTACLE_X_THRESHOLD)
         # Calculate the angle in degrees
         angle = 90 + math.degrees(rad_angle)
-        self.old_angle = angle
-        return angle, target_img, y_center, left
+        return angle, target_img, x_center, y_center, left
 
     @staticmethod
-    def calculate_servo_angle_from_obstacle(object_angle, is_green):
+    def calculate_servo_angle_from_obstacle(object_angle, is_green, pink = 0):
         if object_angle is None:
             return None
-        kp = 1.5
+        if pink == 0:
+            kp = 1.5
+        else:
+            kp = 3
         if is_green:
             servo_angle = STRAIGHT_ANGLE - ((object_angle + OBJECT_LINE_ANGLE_THRESHOLD) * kp) # green obstacle
         else:
