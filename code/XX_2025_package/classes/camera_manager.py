@@ -59,6 +59,9 @@ class CameraManager:
         main={"format":'RGB888',"size": (ImageTransformUtils.CAMERA_PIC_WIDTH, ImageTransformUtils.CAMERA_PIC_HEIGHT)}))
         self.picam2.configure(config)
         
+        self.conficure_video_output()
+        
+    def configure_video_output(self):
         output_folder = os.path.join(os.path.dirname(__file__), "../video")
         os.makedirs(output_folder, exist_ok=True)
         
