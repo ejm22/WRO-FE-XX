@@ -45,7 +45,7 @@ class ImageDrawingUtils:
         polygon = cv2.approxPolyDP(cnt, epsilon, True)
         mask = np.zeros_like(binary_img)
         cv2.fillPoly(mask, [polygon], (255, 255, 255))
-        target_img = cv2.bitwise_and(binary_img, mask)        
+        target_img = cv2.bitwise_and(binary_img, mask)
         return target_img, polygon
     
     @staticmethod
@@ -123,5 +123,9 @@ class ImageDrawingUtils:
         #cv2.imshow("Lines,", img)
 
     @staticmethod
-    def draw_circle(img, center, radius):
-        cv2.circle(img, center, radius, color = (255, 0, 0), thickness = 3)
+    def draw_circle(img, center, radius, color = (255, 255, 255)):
+        cv2.circle(img, center, radius, color, thickness = 3)
+
+    @staticmethod
+    def draw_contour(img, contour, color = (255, 255, 255)):
+        cv2.drawContours(img, [contour], -1, color, 2)

@@ -185,6 +185,14 @@ class ImageAlgorithms:
             threshold, kp, kd = self.calculate_wall_threshold_kp_kd(3)
         else:
             threshold, kp, kd = self.calculate_wall_threshold_kp_kd()
+        threshold_y = min(threshold, ImageTransformUtils.PIC_HEIGHT)
+        if direction == Direction.LEFT:
+            threshold_x = max(0, threshold - threshold_y)
+        else:
+            threshold_x = 640 - max(0, threshold - threshold_y)
+        ImageDrawingUtils.draw_contour(self.camera_manager.display_image, self.camera_manager.polygon_lines, (0, 0, 255))
+        ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (threshold_x, threshold_y), 3, (255, 255, 0))
+        ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (avg_x, avg_y), 3, (0, 255, 0))
         # Get proportional adjustment
         p_adjust = avg_y + avg_x - threshold
         # Get differential adjustment
@@ -247,9 +255,9 @@ class ImageAlgorithms:
         
         # Draw the point at which we check if the inner wall is too close
         if self.context_manager.get_direction() == Direction.RIGHT:
-            ImageDrawingUtils.draw_circle(target_img, (ImageTransformUtils.PIC_WIDTH - 200, ImageTransformUtils.PIC_HEIGHT - 130), 3)
+            ImageDrawingUtils.draw_circle(target_img, (ImageTransformUtils.PIC_WIDTH - 200, ImageTransformUtils.PIC_HEIGHT - 130), 3, (255, 0, 0))
         else:
-            ImageDrawingUtils.draw_circle(target_img, (200, ImageTransformUtils.PIC_HEIGHT - 130), 3)
+            ImageDrawingUtils.draw_circle(target_img, (200, ImageTransformUtils.PIC_HEIGHT - 130), 3, (255, 0, 0))
         # Check if the inner wall is too close
         if self.check_inner_wall_crash(y_center):
             return None, target_img, None, None, None
