@@ -47,11 +47,8 @@ if __name__ == "__main__":
     if (ContextManager.CHALLENGE == 1):
         parking_flag = False
         start_time = 0
-        if (context_manager.is_last_quarter()):
-            speed = 4000
+        speed = 5500
 
-        else:
-            speed = 5500
         ## 1 ##
         # Find direction with blue and orange lines
 
@@ -69,6 +66,8 @@ if __name__ == "__main__":
         ## 3 ##
         # Complete 3 laps
         while True:
+            if (context_manager.is_last_quarter()):
+                speed = 4000          
             arduino.flushInput()
             camera_manager.capture_image()
             camera_manager.transform_image()
@@ -89,7 +88,7 @@ if __name__ == "__main__":
                         
 
             if context_manager.has_completed_laps():
-                speed = 1000
+                speed = 2000
                 if start_time == 0:
                     start_time = time.time()
                 if time.time() - start_time >= 0.5:

@@ -25,7 +25,7 @@ CHALLENGE_CONFIG = {
 
 class ImageAlgorithms:
     START_WALL_HEIGHT_THRESHOLD = 34
-    BACK_ZONE_WALL_HEIGHT = 26
+    BACK_ZONE_WALL_HEIGHT = 30
     FRONT_ZONE_WALL_HEIGHT = 40
 
     def __init__(self, context_manager, camera_manager):

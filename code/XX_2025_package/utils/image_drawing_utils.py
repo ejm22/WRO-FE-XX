@@ -41,7 +41,7 @@ class ImageDrawingUtils:
         #binary_img = ImageUtils.dilate(binary_img)
         cnt = ImageDrawingUtils.find_contour(binary_img, 1)
         if cnt is None: return target_img, None
-        epsilon = 0.008*cv2.arcLength(cnt, True)  # was 0.01
+        epsilon = 0.004*cv2.arcLength(cnt, True)  # was 0.01
         polygon = cv2.approxPolyDP(cnt, epsilon, True)
         mask = np.zeros_like(binary_img)
         cv2.fillPoly(mask, [polygon], (255, 255, 255))

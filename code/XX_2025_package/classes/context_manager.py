@@ -3,6 +3,7 @@ from XX_2025_package.utils.enums import Direction
 
 class ContextManager:
     CHALLENGE = 1
+    LAP_GOAL = 1
 
     def __init__(self):
         self._direction = Direction.LEFT
@@ -35,10 +36,10 @@ class ContextManager:
         self._start_position = start_position
     
     def has_completed_laps(self):
-        return self._lap_count >= 3
+        return self._lap_count >= self.LAP_GOAL
     
     def get_start_position(self):
         return self._start_position
     
     def is_last_quarter(self):
-        return self.has_completed_laps() or (self._lap_count == 2 and self._quarter_lap_count == 3)
+        return self._lap_count == self.LAP_GOAL - 1 and self._quarter_lap_count == 3
