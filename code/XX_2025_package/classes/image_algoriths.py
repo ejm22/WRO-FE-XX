@@ -332,7 +332,7 @@ class ImageAlgorithms:
         #print("Obstacles at angle : ", angle_obstacles)
         return angle_obstacles
 
-    def get_top_line_angle(self):
+    def get_top_line_angle(self, use_cutoff):
         poly_lines = self.camera_manager.polygon_lines
         for i in range(len(poly_lines)):
             pt1 = poly_lines[i][0]
@@ -340,7 +340,7 @@ class ImageAlgorithms:
             dx = pt2[0] - pt1[0]
             dy = pt2[1] - pt1[1]
             angle = np.degrees(np.arctan2(dy,dx))
-            if (angle > 178) or (angle < -178):
+            if use_cutoff is False or ((angle > 178) or (angle < -178)):
                 #print("Top wall angle = ", angle)
                 return angle
         return None
@@ -363,6 +363,9 @@ class ImageAlgorithms:
     
     def get_starting_position(self):
         distance = self.get_back_wall_distance()
+        highest_y = self.get_top_line_distance()
+        self.context_manager.set_parking_distance(highest_y)
+
         
         if distance < ImageAlgorithms.START_WALL_HEIGHT_THRESHOLD:
             return StartPosition.BACK
