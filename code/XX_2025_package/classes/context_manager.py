@@ -39,3 +39,6 @@ class ContextManager:
     
     def get_start_position(self):
         return self._start_position
+    
+    def is_last_quarter(self):
+        return self.has_completed_laps() or (self._lap_count == 2 and self._quarter_lap_count == 3)

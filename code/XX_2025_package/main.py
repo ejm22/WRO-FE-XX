@@ -47,7 +47,11 @@ if __name__ == "__main__":
     if (ContextManager.CHALLENGE == 1):
         parking_flag = False
         start_time = 0
-        speed = 4000
+        if (context_manager.is_last_quarter()):
+            speed = 4000
+
+        else:
+            speed = 5500
         ## 1 ##
         # Find direction with blue and orange lines
 
