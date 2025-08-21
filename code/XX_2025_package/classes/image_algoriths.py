@@ -333,14 +333,17 @@ class ImageAlgorithms:
         return angle_obstacles
 
     def get_top_line_angle(self, use_cutoff):
+        is_in_middle = False
         poly_lines = self.camera_manager.polygon_lines
         for i in range(len(poly_lines)):
             pt1 = poly_lines[i][0]
             pt2 = poly_lines[(i+1) % len(poly_lines)][0]
             dx = pt2[0] - pt1[0]
             dy = pt2[1] - pt1[1]
+            if pt2[0] < ImageTransformUtils.PIC_WIDTH // 2 < pt1[0] or pt1[0] < ImageTransformUtils.PIC_WIDTH // 2 < pt2[0]:
+                is_in_middle = True
             angle = np.degrees(np.arctan2(dy,dx))
-            if use_cutoff is False or ((angle > 178) or (angle < -178)):
+            if use_cutoff is False or (((angle > 178) or (angle < -178)) and is_in_middle):
                 #print("Top wall angle = ", angle)
                 return angle
         return None
