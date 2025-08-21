@@ -66,8 +66,9 @@ if __name__ == "__main__":
         ## 3 ##
         # Complete 3 laps
         while True:
+            camera_manager.display_image = camera_manager.cropped_image.copy()
             if (context_manager.is_last_quarter()):
-                speed = 2000          
+                speed = 3000          
             arduino.flushInput()
             camera_manager.capture_image()
             camera_manager.transform_image()
@@ -82,13 +83,12 @@ if __name__ == "__main__":
             else:
                 print("Arduino is busy, skipping command.")
             
-            camera_manager.display_image = camera_manager.cropped_image.copy()
             ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {context_manager.get_lap_count()}", (10, 30), (0, 0, 255))
             camera_manager.add_frame_to_video()
                         
 
             if context_manager.has_completed_laps():
-                speed = 1000
+                speed = 1500
                 if start_time == 0:
                     start_time = time.time()
                 if time.time() - start_time >= 0.5:

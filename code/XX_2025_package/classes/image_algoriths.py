@@ -168,6 +168,7 @@ class ImageAlgorithms:
         avg_x = np.mean(x_vals)
         # Adjust if follows right wall
         if direction == Direction.RIGHT : avg_x = 640 - avg_x
+        if avg_y >= 249.0 : avg_y = ImageTransformUtils.PIC_HEIGHT
         return avg_x, avg_y
 
     def calculate_servo_angle_from_walls(self, img, challenge_3 = False):
@@ -187,12 +188,12 @@ class ImageAlgorithms:
             threshold, kp, kd = self.calculate_wall_threshold_kp_kd()
         threshold_y = min(threshold, ImageTransformUtils.PIC_HEIGHT)
         if direction == Direction.LEFT:
-            threshold_x = max(0, threshold - threshold_y)
+            threshold_x = threshold - threshold_y
         else:
-            threshold_x = 640 - max(0, threshold - threshold_y)
+            threshold_x = 640 - (threshold - threshold_y)
         ImageDrawingUtils.draw_contour(self.camera_manager.display_image, self.camera_manager.polygon_lines, (0, 0, 255))
         ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (threshold_x, threshold_y), 3, (255, 255, 0))
-        ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (avg_x, avg_y), 3, (0, 255, 0))
+        ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (int(640 - avg_x), int(avg_y)), 3, (0, 255, 0))
         # Get proportional adjustment
         p_adjust = avg_y + avg_x - threshold
         # Get differential adjustment
@@ -340,12 +341,22 @@ class ImageAlgorithms:
             pt2 = poly_lines[(i+1) % len(poly_lines)][0]
             dx = pt2[0] - pt1[0]
             dy = pt2[1] - pt1[1]
-            if pt2[0] < ImageTransformUtils.PIC_WIDTH // 2 < pt1[0] or pt1[0] < ImageTransformUtils.PIC_WIDTH // 2 < pt2[0]:
+            if (pt2[0] < (ImageTransformUtils.PIC_WIDTH // 2 + self.context_manager.get_direction().value * 50) < pt1[0] 
+                or pt1[0] < (ImageTransformUtils.PIC_WIDTH // 2 + self.context_manager.get_direction().value * 50) < pt2[0]):
                 is_in_middle = True
             angle = np.degrees(np.arctan2(dy,dx))
-            if use_cutoff is False or (((angle > 178) or (angle < -178)) and is_in_middle):
-                #print("Top wall angle = ", angle)
-                return angle
+            if self.context_manager.CHALLENGE == 1:
+                if ((angle > 170) or (angle < -170)) and is_in_middle:
+                    print("pt2 x : ", pt2[0])
+                    print("pt1 x : ", pt1[0])
+                    #print("Top wall angle = ", angle)
+                    return angle
+            else:
+                if ((angle > 178) or (angle < -178)) and is_in_middle:
+                    print("pt2 x : ", pt2[0])
+                    print("pt1 x : ", pt1[0])
+                    #print("Top wall angle = ", angle)
+                    return angle
         return None
 
     @staticmethod
