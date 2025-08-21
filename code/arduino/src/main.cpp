@@ -51,9 +51,11 @@ void setup() {
 
 void loop() {
     if (speed == 0 && abs(stepper.getCurrentVelocityInStepsPerSecond()) < 100) {
-      digitalWrite(ENABLE_PIN, HIGH); // Disable stepper when speed is 0
-    } else digitalWrite(ENABLE_PIN, LOW); // Enable stepper when speed is not 0
-    stepper.processMovement();
+        digitalWrite(ENABLE_PIN, HIGH); // Disable stepper when speed is 0
+    } else {
+        digitalWrite(ENABLE_PIN, LOW); // Enable stepper when speed is not 0
+        stepper.processMovement();
+    }
     serialReceiver.processSerial();
     if (stepper.motionComplete() && serialReceiver.waitingForTarget) {
         Serial.println("F");
