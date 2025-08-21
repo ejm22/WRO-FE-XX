@@ -1,5 +1,5 @@
 from XX_2025_package.utils.enums import Direction
-
+from XX_2025_package.utils.enums import StartPosition
 
 class ContextManager:
     CHALLENGE = 1
@@ -10,6 +10,7 @@ class ContextManager:
         self._lap_count = 0
         self._quarter_lap_count = 0
         self._start_position = None
+        self._parking_distance = 0
         # add more later
         
     def set_direction(self, direction: Direction):
@@ -32,8 +33,20 @@ class ContextManager:
     def get_quarter_lap_count(self):
         return self._quarter_lap_count
     
+    def get_parking_distance(self):
+        offset = 0
+        if self.get_start_position() == StartPosition.BACK:
+            offset = 1 
+        else: 
+            offset = 3
+        return self._parking_distance - offset
+    
     def set_start_position(self, start_position):
         self._start_position = start_position
+
+    def set_parking_distance(self, distance):
+        print(f"Parking distance set to {distance}")
+        self._parking_distance = distance
     
     def has_completed_laps(self):
         return self._lap_count >= self.LAP_GOAL

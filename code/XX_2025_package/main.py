@@ -67,7 +67,7 @@ if __name__ == "__main__":
         # Complete 3 laps
         while True:
             if (context_manager.is_last_quarter()):
-                speed = 4000          
+                speed = 2000          
             arduino.flushInput()
             camera_manager.capture_image()
             camera_manager.transform_image()
@@ -88,22 +88,23 @@ if __name__ == "__main__":
                         
 
             if context_manager.has_completed_laps():
-                speed = 2000
+                speed = 1000
                 if start_time == 0:
                     start_time = time.time()
                 if time.time() - start_time >= 0.5:
-                    if (ImageAlgorithms.START_WALL_HEIGHT_THRESHOLD >= image_algorithms.get_top_line_distance() >= ImageAlgorithms.BACK_ZONE_WALL_HEIGHT
-                        and image_algorithms.get_top_line_angle() is not None):
+                    if (context_manager.get_parking_distance() + 5 >= image_algorithms.get_top_line_distance() >= context_manager.get_parking_distance()
+                        and image_algorithms.get_top_line_angle(False) is not None):
                         print(image_algorithms.get_top_line_distance())
-                        parking_flag = True
+                        break
+                        # parking_flag = True
             
-            if parking_flag:
-                if context_manager.get_start_position() == StartPosition.BACK:
-                    break
+            # if parking_flag:
+            #     if context_manager.get_start_position() == StartPosition.BACK:
+            #         break
 
-                elif (ImageAlgorithms.FRONT_ZONE_WALL_HEIGHT <= image_algorithms.get_top_line_distance()
-                    and image_algorithms.get_top_line_angle() is not None):
-                    break
+            #     elif (ImageAlgorithms.FRONT_ZONE_WALL_HEIGHT <= image_algorithms.get_top_line_distance()
+            #         and image_algorithms.get_top_line_angle() is not None):
+            #         break
 
             key = cv2.waitKey(1)  # Let OpenCV update the window
             if key == 27:  # Escape key to quit
@@ -180,7 +181,7 @@ if __name__ == "__main__":
                 #print("Poly Lines = ", camera_manager.polygon_lines)
                 angle_walls = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image)
                 #print ("angle_walls = ", angle_walls)
-                top_angle = image_algorithms.get_top_line_angle()
+                top_angle = image_algorithms.get_top_line_angle(True)
                 #print("Top angle = ", top_angle)
                 #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
 
@@ -323,7 +324,7 @@ if __name__ == "__main__":
             #print("Poly Lines = ", camera_manager.polygon_lines)
             angle_walls = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image, True)
             #print ("angle_walls = ", angle_walls)
-            top_angle = image_algorithms.get_top_line_angle()
+            top_angle = image_algorithms.get_top_line_angle(True)
             #print("Top angle = ", top_angle)
             #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
             if (camera_manager.binary_image[90, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None and context_manager.get_direction() == Direction.RIGHT) or (np.any(camera_manager.cnt_orangeline[ImageTransformUtils.PIC_HEIGHT - 165: ImageTransformUtils.PIC_HEIGHT - 140, ImageTransformUtils.PIC_WIDTH // 2 - 20: ImageTransformUtils.PIC_WIDTH // 2 + 20]) and context_manager.get_direction() == Direction.LEFT):
