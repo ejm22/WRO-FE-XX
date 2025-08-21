@@ -46,7 +46,8 @@ if __name__ == "__main__":
     
     if (ContextManager.CHALLENGE == 1):
         parking_flag = False
-        speed = 5000
+        start_time = 0
+        speed = 4000
         ## 1 ##
         # Find direction with blue and orange lines
 
@@ -79,27 +80,27 @@ if __name__ == "__main__":
                 print("Arduino is busy, skipping command.")
             
             camera_manager.display_image = camera_manager.cropped_image.copy()
-            ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {lap_tracker.lap_count}", (10, 30), (0, 0, 255))
+            ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {context_manager.get_lap_count()}", (10, 30), (0, 0, 255))
             camera_manager.add_frame_to_video()
                         
 
             if context_manager.has_completed_laps():
-                speed = 2000
-                if (ImageAlgorithms.START_WALL_HEIGHT_THRESHOLD >= image_algorithms.get_top_line_distance() >= ImageAlgorithms.BACK_ZONE_WALL_HEIGHT
-                    and image_algorithms.get_top_line_angle() is not None):
-                    print(image_algorithms.get_top_line_angle())
-                    print(image_algorithms.get_top_line_distance())
-                    parking_flag = True
+                speed = 1000
+                if start_time == 0:
+                    start_time = time.time()
+                if time.time() - start_time >= 0.5:
+                    if (ImageAlgorithms.START_WALL_HEIGHT_THRESHOLD >= image_algorithms.get_top_line_distance() >= ImageAlgorithms.BACK_ZONE_WALL_HEIGHT
+                        and image_algorithms.get_top_line_angle() is not None):
+                        print(image_algorithms.get_top_line_distance())
+                        parking_flag = True
             
             if parking_flag:
-                if context_manager.get_start_position == StartPosition.BACK:
+                if context_manager.get_start_position() == StartPosition.BACK:
                     break
 
                 elif (ImageAlgorithms.FRONT_ZONE_WALL_HEIGHT <= image_algorithms.get_top_line_distance()
                     and image_algorithms.get_top_line_angle() is not None):
                     break
-
-
 
             key = cv2.waitKey(1)  # Let OpenCV update the window
             if key == 27:  # Escape key to quit
