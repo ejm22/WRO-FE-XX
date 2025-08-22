@@ -88,8 +88,10 @@ void SerialReceiver::decryptMovementOrder() {
 }
 
 void SerialReceiver::decryptNewTarget() {
-    int newTarget = long(-inputString.substring(0, inputString.length()).toInt());
+    long int newTarget = long(-inputString.substring(0, inputString.length()).toInt());
     // Serial.println("New target position: " + String(newTarget));
+    if (newTarget < 1000000)
+        waitingForTarget = true;
     stepper.setTargetPositionRelativeInSteps(newTarget);
     inputString = ""; // clear the string for the next command
 }

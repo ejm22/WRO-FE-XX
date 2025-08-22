@@ -45,6 +45,7 @@ void setup() {
     stepper.setTargetPositionInSteps(0);
     stepper.setAccelerationInStepsPerSecondPerSecond(ACCELERATION);
     stepper.setSpeedInStepsPerSecond(speed);
+    serialReceiver.waitingForTarget = false;
     pinMode(ENABLE_PIN, OUTPUT);
     digitalWrite(ENABLE_PIN, LOW);
 }
