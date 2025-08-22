@@ -29,6 +29,7 @@ public:
     SerialReceiver(Servo &servoRef, FlexyStepper &stepperRef, int &angleRef, int &speedRef, long int &targetPositionRef);
     void processSerial();
     void decryptMovementOrder();
+    void decryptNewTarget();
     bool waitingForTarget = false; // Flag to indicate if waiting for target position
 };
 
