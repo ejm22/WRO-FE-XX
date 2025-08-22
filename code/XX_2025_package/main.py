@@ -37,7 +37,8 @@ if __name__ == "__main__":
         if (level_value > 5) and (level_value < 11):
             print("BATTERY LOW")
             exit (1)
-
+    command = f"10000000!".encode()
+    arduino.write(command)
     camera_manager.capture_image()
     camera_manager.transform_image()
     ################################################################
@@ -45,17 +46,17 @@ if __name__ == "__main__":
     ################################################################
     
     if (ContextManager.CHALLENGE == 1):
+        check_corner_flag = False
         parking_flag = False
         start_time = 0
-        speed = 5500
+        start_time2 = 0
+        speed = 4000
+        extra_move = 0
 
         ## 1 ##
         # Find direction with blue and orange lines
-
         image_algorithms.get_direction_from_lines()
         print("Direction : ", context_manager.get_direction())
-
-        
 
         ## 2 ##
         # Find starting area
@@ -67,45 +68,54 @@ if __name__ == "__main__":
         # Complete 3 laps
         while True:
             camera_manager.display_image = camera_manager.cropped_image.copy()
-            if (context_manager.is_last_quarter()):
-                speed = 3000          
+            
             arduino.flushInput()
             camera_manager.capture_image()
             camera_manager.transform_image()
             lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
-            cv2.imshow("Cropped", camera_manager.cropped_image)
-            cv2.imshow("New Image", camera_manager.polygon_image)
             if arduino.out_waiting == 0:
-                angle = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image)
+                angle, is_corner = image_algorithms.calculate_servo_angle_from_walls()
+                if is_corner:
+                    print("Corner !")
                 command = f"m{angle},{speed}.".encode()
                 arduino.write(command)
                 arduino.flush()
             else:
                 print("Arduino is busy, skipping command.")
-            
             ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {context_manager.get_lap_count()}", (10, 30), (0, 0, 255))
             camera_manager.add_frame_to_video()
-                        
+            cv2.imshow("Display", camera_manager.display_image)
+            if (context_manager.is_last_quarter() or context_manager.has_completed_laps()):
+                speed = 4000
+                if start_time2 == 0:
+                    start_time2 = time.time()
+                if (time.time() - start_time2 >= 1) and is_corner and not check_corner_flag:
+                    check_corner_flag = True
+                    final_corner_position = image_algorithms.check_last_corner_position()
+                    print("Here's the final corner ! The outside wall is : ", final_corner_position)
+                    if context_manager.get_start_position() == StartPosition.FRONT:
+                        extra_move = 3200
+                    if final_corner_position == 'C':
+                        command = f"{6400 + extra_move}!".encode()
+                        arduino.write(command)
+                        speed = 1500
+                    else:
+                        command = f"{3900 + extra_move}!".encode()
+                        arduino.write(command)
+                        speed = 1500
 
             if context_manager.has_completed_laps():
-                speed = 1500
-                if start_time == 0:
-                    start_time = time.time()
-                if time.time() - start_time >= 0.5:
-                    if (context_manager.get_parking_distance() + 5 >= image_algorithms.get_top_line_distance() >= context_manager.get_parking_distance()
-                        and image_algorithms.get_top_line_angle(False) is not None):
-                        print(image_algorithms.get_top_line_distance())
-                        break
-                        # parking_flag = True
+                if arduino.read().decode('utf-8') == 'F':
+                    break
+                time.sleep(0.005)
+            #    if start_time == 0:
+            #        start_time = time.time()
+            #    if time.time() - start_time >= 0.5:
+            #        if (context_manager.get_parking_distance() + 5 >= image_algorithms.get_top_line_distance() >= context_manager.get_parking_distance()
+            #            and image_algorithms.get_top_line_angle(False) is not None):
+            #            print(image_algorithms.get_top_line_distance())
+            #            break
             
-            # if parking_flag:
-            #     if context_manager.get_start_position() == StartPosition.BACK:
-            #         break
-
-            #     elif (ImageAlgorithms.FRONT_ZONE_WALL_HEIGHT <= image_algorithms.get_top_line_distance()
-            #         and image_algorithms.get_top_line_angle() is not None):
-            #         break
-
             key = cv2.waitKey(1)  # Let OpenCV update the window
             if key == 27:  # Escape key to quit
                 if (speed != 0):
@@ -122,6 +132,7 @@ if __name__ == "__main__":
     ################################################################
 
     if (ContextManager.CHALLENGE == 2):
+        arduino.write(b"10000000!")
         speed = 3000
         ## 1 ##
         # Find direction with parking
@@ -130,19 +141,34 @@ if __name__ == "__main__":
         ## 2 ##
         # Analyze starting area (optional)
         # Leave parking spot
-
+        if context_manager.get_direction() == Direction.LEFT:
+            command = f"t120,{speed},1200.".encode()
+            arduino.write(command)
+        else:
+            print("Move right")
+            command = f"t50,{speed},1200.".encode()
+            arduino.write(command)
+        print("Wait to complete")
+        while arduino.read().decode('utf-8') != 'F':
+            time.sleep(0.005)
+        command = f"t85,{speed},1000.".encode()
+        arduino.write(command)
+        while arduino.read().decode('utf-8') != 'F':
+            time.sleep(0.005)
+        print("Complete")
         ## 3 ##
         # Complete 3 laps
+        arduino.write(b"10000000!")
         while True:
             camera_manager.capture_image()
             camera_manager.transform_image()
             lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
             angle, camera_manager.display_image, is_green, _, _ = image_algorithms.find_obstacle_angle_and_draw_lines(camera_manager.display_image)
             if camera_manager.display_image is not None:
-                ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {lap_tracker.get_lap_count()}", (10, 30), (0, 0, 255), 1)
+                ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {context_manager.get_lap_count()}", (10, 30), (0, 0, 255))
                 cv2.imshow("Display_image", camera_manager.display_image)
             #print("Angle objet : ", angle)
-            angle_walls = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image)
+            angle_walls, _ = image_algorithms.calculate_servo_angle_from_walls()
             angle_obstacles = image_algorithms.calculate_servo_angle_from_obstacle(angle, is_green)
             servo_angle = image_algorithms.choose_output_angle(angle_walls, angle_obstacles)
 
@@ -165,83 +191,9 @@ if __name__ == "__main__":
 
         ## 5 ##
         # Parallel park in the parking area
-
-    if (ContextManager.CHALLENGE == 3):
-       
-        print("Challenge 3")
-        while True:
-            speed = 1000
-            while True:
-                arduino.flushInput()
-                camera_manager.capture_image()
-                camera_manager.transform_image()
-                context_manager.set_direction(Direction.RIGHT)
-                cv2.imshow("Cropped", camera_manager.cropped_image)
-                cv2.imshow("Polygon Image", camera_manager.polygon_image)
-                #print("Poly Lines = ", camera_manager.polygon_lines)
-                angle_walls = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image)
-                #print ("angle_walls = ", angle_walls)
-                top_angle = image_algorithms.get_top_line_angle(True)
-                #print("Top angle = ", top_angle)
-                #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
-
-                if camera_manager.binary_image[85, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None:
-                    speed = 0
-                    command = f"m85,0.".encode()
-                    arduino.write(command)
-                    break
-                else:
-                    speed = 1000
-                command = f"m{angle_walls},{speed}.".encode()
-                
-
-                arduino.write(command)
-                arduino.flush()
             
-                time.sleep(0.01)
-                key = cv2.waitKey(1)  # Let OpenCV update the window
-                if key == 27:  # Escape key to quit
-                    if (speed != 0):
-                        speed = 0
-                    else:
-                        break
-            
-            while True:
-                camera_manager.capture_image()
-                camera_manager.transform_image()
-                cv2.imshow("Cropped", camera_manager.cropped_image)
-                cv2.imshow("Polygon Image", camera_manager.polygon_image)
-                if camera_manager.binary_image[ImageTransformUtils.PIC_HEIGHT - 10, ImageTransformUtils.PIC_WIDTH - 100] == 0:
-                    command = f"m85,0.".encode()
-                    arduino.write(command)
-                    break
-                command = f"m85,-1000.".encode()
-                arduino.write(command)
-            time.sleep(0.2)
-
-            speed = 1000
-            command = f"t85,1000,1750.".encode()
-            arduino.write(command)
-            while arduino.read().decode('utf-8') != 'F':
-                time.sleep(0.005)
-            command = f"t48,-1000,1350.".encode()
-            arduino.write(command)
-            while arduino.read().decode('utf-8') != 'F':
-                time.sleep(0.005)
-            command = f"t85,-1000,650.".encode()
-            arduino.write(command)
-            while arduino.read().decode('utf-8') != 'F':
-                time.sleep(0.005)
-            command = f"t128,-1000,1300.".encode()
-            arduino.write(command)
-            while arduino.read().decode('utf-8') != 'F':
-                time.sleep(0.005)
-            command = f"m85,0.".encode()
-            arduino.write(command)
-            
-            break
-            
-    if (ContextManager.CHALLENGE == 4):
+    if (ContextManager.CHALLENGE == 2):
+        arduino.write(b"10000000!")
         print("Hello")
         speed = 3000
         ## 1 ##
@@ -289,7 +241,7 @@ if __name__ == "__main__":
             angle_obstacles = image_algorithms.calculate_servo_angle_from_obstacle(angle, is_green, is_pink)
             if camera_manager.display_image is not None:
                 cv2.imshow("Display_image", camera_manager.display_image)
-            angle_walls = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image)
+            angle_walls, _ = image_algorithms.calculate_servo_angle_from_walls()
             servo_angle = image_algorithms.choose_output_angle(angle_walls, angle_obstacles)
 
             command = f"m{servo_angle},{speed}.".encode()
@@ -322,7 +274,7 @@ if __name__ == "__main__":
             cv2.imshow("Cropped", camera_manager.cropped_image)
             cv2.imshow("Polygon Image", camera_manager.polygon_image)
             #print("Poly Lines = ", camera_manager.polygon_lines)
-            angle_walls = image_algorithms.calculate_servo_angle_from_walls(camera_manager.polygon_image, True)
+            angle_walls, _ = image_algorithms.calculate_servo_angle_from_walls(True)
             #print ("angle_walls = ", angle_walls)
             top_angle = image_algorithms.get_top_line_angle(True)
             #print("Top angle = ", top_angle)
@@ -347,7 +299,7 @@ if __name__ == "__main__":
                     speed = 0
                 else:
                     break
-        
+        arduino.write(b"-10000000!")
         while True:
             camera_manager.capture_image()
             camera_manager.transform_image()

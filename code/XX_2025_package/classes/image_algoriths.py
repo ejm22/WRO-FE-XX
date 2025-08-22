@@ -14,10 +14,11 @@ MIN_ANGLE = 48
 MAX_ANGLE = 128
 STRAIGHT_ANGLE = 85
 OBJECT_LINE_ANGLE_THRESHOLD = 45
+NBR_COLS = 10
 
 ChallengeParameters = namedtuple('ChallengeParameters', ['kp', 'kd', 'base_threshold', 'offsets'])
 CHALLENGE_CONFIG = {
-    1: ChallengeParameters(kp = 0.2, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100, -30, 40  ]),
+    1: ChallengeParameters(kp = 0.18, kd = .25, base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100, -30, 40  ]),
     2: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ]),
     3: ChallengeParameters(kp = 1.5 , kd = 1    , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-40            ]),
     4: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ])
@@ -148,22 +149,27 @@ class ImageAlgorithms:
         kd = config.kd
         return threshold, kp, kd
 
-    def find_wall_to_follow(self, img, nbr_cols = 10):
+    def find_wall_to_follow(self, inverted = False):
         """
         Find the wall to follow based on the black pixels in the image
         I/O:
             img: binary image (polygon image)
-            nbr_cols: number of columns to consider for the calculation (default is 10)
+            NBR_COLS: number of columns to consider for the calculation (default is 10)
             return: position of neareast wall with y_vals and x_vals
         """
         direction = self.context_manager.get_direction()
+        if inverted:
+            if direction == Direction.LEFT: 
+                direction = Direction.RIGHT
+            else: 
+                direction = Direction.LEFT
         if direction == Direction.LEFT:
-            cols = range(0, nbr_cols)
+            cols = range(0, NBR_COLS)
         else:
-            cols = range(ImageTransformUtils.PIC_WIDTH - nbr_cols, ImageTransformUtils.PIC_WIDTH)
-        rows = range(ImageTransformUtils.PIC_HEIGHT - 3*nbr_cols, ImageTransformUtils.PIC_HEIGHT - 2*nbr_cols)
-        y_vals = ImageAlgorithms.find_black_from_bottom(img, cols)
-        x_vals = ImageAlgorithms.find_black_sides(img, direction, rows)
+            cols = range(ImageTransformUtils.PIC_WIDTH - NBR_COLS, ImageTransformUtils.PIC_WIDTH)
+        rows = range(ImageTransformUtils.PIC_HEIGHT - 3*NBR_COLS, ImageTransformUtils.PIC_HEIGHT - 2*NBR_COLS)
+        y_vals = ImageAlgorithms.find_black_from_bottom(self.camera_manager.polygon_image, cols)
+        x_vals = ImageAlgorithms.find_black_sides(self.camera_manager.polygon_image, direction, rows)
         avg_y = np.mean(y_vals)
         avg_x = np.mean(x_vals)
         # Adjust if follows right wall
@@ -171,16 +177,17 @@ class ImageAlgorithms:
         if avg_y >= 249.0 : avg_y = ImageTransformUtils.PIC_HEIGHT
         return avg_x, avg_y
 
-    def calculate_servo_angle_from_walls(self, img, challenge_3 = False):
+    def calculate_servo_angle_from_walls(self, challenge_3 = False):
         """
         Calculate the servo's angle
         I/O:
             img: binary image (polygon image)
             return: servo angle to follow the wall
         """
+        is_corner = False
         direction = self.context_manager.get_direction()
         # Get position of nearest wall from find_wall_to_follow()
-        avg_x, avg_y = self.find_wall_to_follow(img)
+        avg_x, avg_y = self.find_wall_to_follow()
         # Get threshold, kp and kd values based on the challenge
         if challenge_3:
             threshold, kp, kd = self.calculate_wall_threshold_kp_kd(3)
@@ -189,15 +196,22 @@ class ImageAlgorithms:
         threshold_y = min(threshold, ImageTransformUtils.PIC_HEIGHT)
         if direction == Direction.LEFT:
             threshold_x = threshold - threshold_y
+            new_avg_x = avg_x
         else:
             threshold_x = 640 - (threshold - threshold_y)
+            new_avg_x = 640 - avg_x
         ImageDrawingUtils.draw_contour(self.camera_manager.display_image, self.camera_manager.polygon_lines, (0, 0, 255))
-        ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (threshold_x, threshold_y), 3, (255, 255, 0))
-        ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (int(640 - avg_x), int(avg_y)), 3, (0, 255, 0))
+        ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (threshold_x, threshold_y), 10, (255, 0, 0))
+        ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (int(new_avg_x), int(avg_y)), 7, (0, 255, 255))
         # Get proportional adjustment
         p_adjust = avg_y + avg_x - threshold
+        # Get current - previous diff
+        p_compare = p_adjust - self.old_p_adjust
+        if p_compare < (-1 * (ImageTransformUtils.PIC_HEIGHT // 2.5)):
+            print("p_compare is : ", p_compare)
+            is_corner = True
         # Get differential adjustment
-        d_adjust = (p_adjust - self.old_p_adjust) * kd
+        d_adjust = (p_compare) * kd
         # Get output angle
         angle =  STRAIGHT_ANGLE + direction.value * (int((p_adjust) * kp) + d_adjust)
         # Save p_adjust for the next iteration
@@ -207,8 +221,15 @@ class ImageAlgorithms:
             angle = MIN_ANGLE
         elif angle > MAX_ANGLE:
             angle = MAX_ANGLE
-        return int(angle)
+        return int(angle), is_corner
     
+    def check_last_corner_position(self):
+        _, avg_y = self.find_wall_to_follow(True)
+        if avg_y > ImageTransformUtils.PIC_HEIGHT // 2:
+            return 'C'  # Close
+        else:
+            return 'F'  # Far
+
     def check_inner_wall_crash(self, object_height):
         """
         Determines if the robot is too close to the inner wall while detecting an obstacle in a further section
@@ -388,10 +409,10 @@ class ImageAlgorithms:
         
         
     def get_back_wall_distance(self):
-        nbr_cols = 10
+        NBR_COLS = 10
         mid_x = ImageTransformUtils.PIC_WIDTH // 2
-        start = mid_x - (nbr_cols // 2)
-        end = start + nbr_cols
+        start = mid_x - (NBR_COLS // 2)
+        end = start + NBR_COLS
         cols = range(start, end)
         
         return np.mean(self.find_black_from_bottom(self.camera_manager.polygon_image, cols))

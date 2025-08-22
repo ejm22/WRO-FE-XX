@@ -2,7 +2,7 @@ from XX_2025_package.utils.enums import Direction
 from XX_2025_package.utils.enums import StartPosition
 
 class ContextManager:
-    CHALLENGE = 1
+    CHALLENGE = 2
     LAP_GOAL = 1
 
     def __init__(self):

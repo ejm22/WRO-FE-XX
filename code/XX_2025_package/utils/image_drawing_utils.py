@@ -41,7 +41,7 @@ class ImageDrawingUtils:
         #binary_img = ImageUtils.dilate(binary_img)
         cnt = ImageDrawingUtils.find_contour(binary_img, 1)
         if cnt is None: return target_img, None
-        epsilon = 0.004*cv2.arcLength(cnt, True)  # was 0.01
+        epsilon = 0.001*cv2.arcLength(cnt, True)  # was 0.004
         polygon = cv2.approxPolyDP(cnt, epsilon, True)
         mask = np.zeros_like(binary_img)
         cv2.fillPoly(mask, [polygon], (255, 255, 255))
@@ -83,37 +83,6 @@ class ImageDrawingUtils:
         if target_img is not None:
             cv2.drawContours(target_img, [box], 0, (168, 116, 251), 2)
         return img_with_box, max_width_height, rect
-    
-    @staticmethod
-    def get_top_line_coords(binary_img):
-        cnt = ImageDrawingUtils.find_contour(binary_img)
-        epsilon = 0.01*cv2.arcLength(cnt, True)
-        approx = cv2.approxPolyDP(cnt, epsilon, True)
-        for i in range(len(approx)):
-            pt1 = approx[i][0]
-            pt2 = approx[(i+1) % len(approx)][0]
-            dx = pt2[0] - pt1[0]
-            dy = pt2[1] - pt1[1]
-            angle = np.degrees(np.arctan2(dy,dx))
-            if abs(angle) > 175:
-                return [pt1.tolist(), pt2.tolist()]
-        return None
-
-    @staticmethod
-    def get_corner_line_coords(binary_img):
-        cnt = ImageDrawingUtils.find_contour(binary_img)
-        epsilon = 0.01*cv2.arcLength(cnt, True)
-        approx = cv2.approxPolyDP(cnt, epsilon, True)
-        for i in range(len(approx)):
-            pt1 = approx[i][0]
-            pt2 = approx[(i+1) % len(approx)][0]
-            dx = pt2[0] - pt1[0]
-            dy = pt2[1] - pt1[1]
-            angle = np.degrees(np.arctan2(dy,dx))
-            #print("Angle corner = ", angle)
-            if (angle > 50) & (angle < 85):
-                return [pt1.tolist(), pt2.tolist()]
-        return None
     
     @staticmethod
     def draw_line(img, pt1, pt2):
