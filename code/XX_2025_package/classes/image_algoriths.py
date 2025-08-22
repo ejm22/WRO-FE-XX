@@ -12,7 +12,7 @@ LEFT_OBSTACLE_X_THRESHOLD = 40
 RIGHT_OBSTACLE_X_THRESHOLD = ImageTransformUtils.PIC_WIDTH - LEFT_OBSTACLE_X_THRESHOLD
 MIN_ANGLE = 48
 MAX_ANGLE = 128
-STRAIGHT_ANGLE = 85
+STRAIGHT_ANGLE = 86
 OBJECT_LINE_ANGLE_THRESHOLD = 45
 NBR_COLS = 10
 
@@ -20,7 +20,7 @@ ChallengeParameters = namedtuple('ChallengeParameters', ['kp', 'kd', 'base_thres
 CHALLENGE_CONFIG = {
     1: ChallengeParameters(kp = 0.18, kd = .25, base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100, -30, 40  ]),
     2: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ]),
-    3: ChallengeParameters(kp = 1.5 , kd = 1    , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-40            ]),
+    3: ChallengeParameters(kp = 1.5 , kd = 1    , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-30            ]),
     4: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ])
 }
 
@@ -72,7 +72,7 @@ class ImageAlgorithms:
         """
         y_vals = []
         for x in col_range:
-            for y in reversed(range(ImageTransformUtils.PIC_HEIGHT - 30)):
+            for y in reversed(range(ImageTransformUtils.PIC_HEIGHT - 20)):
                 # Start x pixels from the bottom so it skips inconsistencies in the polygon's bottom row
                 if img[y,x] == 0:
                     y_vals.append(y)
@@ -174,7 +174,7 @@ class ImageAlgorithms:
         avg_x = np.mean(x_vals)
         # Adjust if follows right wall
         if direction == Direction.RIGHT : avg_x = 640 - avg_x
-        if avg_y >= 249.0 : avg_y = ImageTransformUtils.PIC_HEIGHT
+        if avg_y >= 259.0 : avg_y = ImageTransformUtils.PIC_HEIGHT
         return avg_x, avg_y
 
     def calculate_servo_angle_from_walls(self, challenge_3 = False):

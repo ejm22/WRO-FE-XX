@@ -19,13 +19,11 @@ arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
 if __name__ == "__main__":
     ## 0 ##
     # Initialize program, camera, etc
-
     context_manager = ContextManager()
     camera_manager = CameraManager()
     lap_tracker = LapTracker(context_manager)
     image_algorithms = ImageAlgorithms(context_manager, camera_manager)
-    
-    time.sleep(1)
+    #time.sleep(1)
     camera_manager.start_camera()
     arduino.write(b'v')
     time.sleep(0.1)
@@ -68,8 +66,6 @@ if __name__ == "__main__":
         # Complete 3 laps
         while True:
             camera_manager.display_image = camera_manager.cropped_image.copy()
-            
-            arduino.flushInput()
             camera_manager.capture_image()
             camera_manager.transform_image()
             lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
@@ -103,11 +99,11 @@ if __name__ == "__main__":
                         command = f"{3900 + extra_move}!".encode()
                         arduino.write(command)
                         speed = 1500
-
-            if context_manager.has_completed_laps():
-                if arduino.read().decode('utf-8') == 'F':
-                    break
-                time.sleep(0.005)
+            if arduino.in_waiting > 0:
+                if context_manager.has_completed_laps():
+                    if arduino.read().decode('utf-8') == 'F':
+                        break
+                    time.sleep(0.005)
             #    if start_time == 0:
             #        start_time = time.time()
             #    if time.time() - start_time >= 0.5:
@@ -151,7 +147,7 @@ if __name__ == "__main__":
         print("Wait to complete")
         while arduino.read().decode('utf-8') != 'F':
             time.sleep(0.005)
-        command = f"t85,{speed},1000.".encode()
+        command = f"t86,{speed},1000.".encode()
         arduino.write(command)
         while arduino.read().decode('utf-8') != 'F':
             time.sleep(0.005)
@@ -192,6 +188,10 @@ if __name__ == "__main__":
         ## 5 ##
         # Parallel park in the parking area
             
+    ################################################################
+    ############################ Défi 3 et 4 #######################
+    ################################################################
+
     if (ContextManager.CHALLENGE == 2):
         arduino.write(b"10000000!")
         print("Hello")
@@ -207,12 +207,6 @@ if __name__ == "__main__":
         else:
             pink_pixel_x = 70
             pink_pixel_backwards_x = 100
-            
-        ## 2 ##
-        # Analyze starting area (optional)
-        # Leave parking spot
-
-        ## 3 ##
         
         ## 4 ##
         # Approach the parking area 
@@ -262,13 +256,14 @@ if __name__ == "__main__":
         # Parallel park in the parking area
         print("Challenge 3")
         speed = 1000
+        arduino.write(b"2000!")
+        arduino_flag = False
         if context_manager.get_direction() == Direction.LEFT:
             context_manager.set_direction(Direction.RIGHT)
         else:
             context_manager.set_direction(Direction.LEFT)
             good_to_check = False
         while True:
-            arduino.flushInput()
             camera_manager.capture_image()
             camera_manager.transform_image()
             cv2.imshow("Cropped", camera_manager.cropped_image)
@@ -279,16 +274,21 @@ if __name__ == "__main__":
             top_angle = image_algorithms.get_top_line_angle(True)
             #print("Top angle = ", top_angle)
             #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
-            if (camera_manager.binary_image[90, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None and context_manager.get_direction() == Direction.RIGHT) or (np.any(camera_manager.cnt_orangeline[ImageTransformUtils.PIC_HEIGHT - 165: ImageTransformUtils.PIC_HEIGHT - 140, ImageTransformUtils.PIC_WIDTH // 2 - 20: ImageTransformUtils.PIC_WIDTH // 2 + 20]) and context_manager.get_direction() == Direction.LEFT):
+            if arduino.in_waiting > 0:
+                if arduino.read().decode('utf-8') == 'F':
+                    print("Done")
+                    arduino.write(b"10000000!")
+                    arduino_flag = True
+            if (arduino_flag and camera_manager.binary_image[140, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None and context_manager.get_direction() == Direction.RIGHT) or (arduino_flag and np.any(camera_manager.cnt_orangeline[ImageTransformUtils.PIC_HEIGHT - 100: ImageTransformUtils.PIC_HEIGHT - 65, ImageTransformUtils.PIC_WIDTH // 2 - 20: ImageTransformUtils.PIC_WIDTH // 2 + 20]) and context_manager.get_direction() == Direction.LEFT):
                 speed = 0
-                command = f"m85,0.".encode()
+                command = f"m86,0.".encode()
                 arduino.write(command)
                 break
             else:
                 speed = 1000
             command = f"m{angle_walls},{speed}.".encode()
             
-
+            camera_manager.add_frame_to_video()
             arduino.write(command)
             arduino.flush()
         
@@ -306,7 +306,7 @@ if __name__ == "__main__":
             cv2.imshow("Cropped", camera_manager.cropped_image)
             cv2.imshow("Polygon Image", camera_manager.polygon_image)
             if camera_manager.binary_image[ImageTransformUtils.PIC_HEIGHT - 10, pink_pixel_backwards_x] == 0:
-                command = f"m85,0.".encode()
+                command = f"m86,0.".encode()
                 arduino.write(command)
                 break
             command = f"m86,-1000.".encode()
@@ -314,7 +314,7 @@ if __name__ == "__main__":
         time.sleep(0.2)
 
         speed = 1000
-        command = f"t86,1000,{1800 - context_manager.get_direction().value * 100}.".encode()
+        command = f"t86,1000,1700.".encode()
         arduino.write(command)
         while arduino.read().decode('utf-8') != 'F':
             time.sleep(0.005)
@@ -326,12 +326,22 @@ if __name__ == "__main__":
         arduino.write(command)
         while arduino.read().decode('utf-8') != 'F':
             time.sleep(0.005)
-        command = f"t{86 + context_manager.get_direction().value * 38},-1000,1200.".encode()
+        command = f"t{86 + context_manager.get_direction().value * 38},-1000,1275.".encode()
         arduino.write(command)
         while arduino.read().decode('utf-8') != 'F':
             time.sleep(0.005)
         command = f"m85,0.".encode()
         arduino.write(command)
-
+    
+    if (ContextManager.CHALLENGE == 5):
+        while True:
+            command = f"t86,1000,10000.".encode()
+            arduino.write(command)
+            while arduino.read().decode('utf-8') != 'F':
+                time.sleep(0.005)
+            command = f"t86,-1000,10000.".encode()
+            arduino.write(command)
+            while arduino.read().decode('utf-8') != 'F':
+                time.sleep(0.005)
     cv2.destroyAllWindows()
     arduino.write(b'm88,0.')
