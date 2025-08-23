@@ -194,18 +194,17 @@ if __name__ == "__main__":
 
     if (ContextManager.CHALLENGE == 2):
         arduino.write(b"10000000!")
-        print("Hello")
+        print("Going to parking")
         speed = 3000
         ## 1 ##
-        # Find direction with parking
-        image_algorithms.get_direction_from_parking(camera_manager)
         print("Direction : ", context_manager.get_direction())
-        pink_pixel_y = ImageTransformUtils.PIC_HEIGHT - 80
+        pink_pixel_y = ImageTransformUtils.PIC_HEIGHT - 10
+        pink_pixel_backwards_y = ImageTransformUtils.PIC_HEIGHT - 10
         if context_manager.get_direction() == Direction.LEFT:
-            pink_pixel_x = ImageTransformUtils.PIC_WIDTH - 70
+            pink_pixel_x = ImageTransformUtils.PIC_WIDTH - 200
             pink_pixel_backwards_x = ImageTransformUtils.PIC_WIDTH - 100
         else:
-            pink_pixel_x = 70
+            pink_pixel_x = 200
             pink_pixel_backwards_x = 100
         
         ## 4 ##
@@ -221,13 +220,13 @@ if __name__ == "__main__":
             if angle_pink is not None and pink_y is not None:
                 if obstacle_y is not None:
                     if (pink_y + 5) > obstacle_y:
-                        print("PINK 1")
+                        #print("PINK 1")
                         angle = angle_pink
                         is_green = side
                         is_pink = 1
                         speed = 1500
                 else:
-                    print("PINK 2")
+                    #print("PINK 2")
                     angle = angle_pink
                     is_green = side
                     is_pink = 1
@@ -237,15 +236,15 @@ if __name__ == "__main__":
                 cv2.imshow("Display_image", camera_manager.display_image)
             angle_walls, _ = image_algorithms.calculate_servo_angle_from_walls()
             servo_angle = image_algorithms.choose_output_angle(angle_walls, angle_obstacles)
-
+            ImageDrawingUtils.draw_circle(camera_manager.display_image, (pink_pixel_x, pink_pixel_y), 5, (255, 0, 255))
             command = f"m{servo_angle},{speed}.".encode()
             arduino.write(command)
             arduino.flush()
             
             camera_manager.add_frame_to_video()
-
-            if camera_manager.pink_mask[pink_pixel_y, pink_pixel_x] == 255:
-                break
+            if pink_x is not None and pink_y is not None:
+                if (context_manager.get_direction() == Direction.RIGHT and pink_x < 150 and pink_y > ImageTransformUtils.PIC_HEIGHT - 100) or (context_manager.get_direction() == Direction.LEFT and pink_x > ImageTransformUtils.PIC_WIDTH - 150 and pink_y > ImageTransformUtils.PIC_HEIGHT - 100):
+                    break
             key = cv2.waitKey(1)  # Let OpenCV update the window
             if key == 27:  # Escape key to quit
                 break
@@ -305,7 +304,7 @@ if __name__ == "__main__":
             camera_manager.transform_image()
             cv2.imshow("Cropped", camera_manager.cropped_image)
             cv2.imshow("Polygon Image", camera_manager.polygon_image)
-            if camera_manager.binary_image[ImageTransformUtils.PIC_HEIGHT - 10, pink_pixel_backwards_x] == 0:
+            if camera_manager.binary_image[pink_pixel_backwards_y, pink_pixel_backwards_x] == 0:
                 command = f"m86,0.".encode()
                 arduino.write(command)
                 break
@@ -314,7 +313,7 @@ if __name__ == "__main__":
         time.sleep(0.2)
 
         speed = 1000
-        command = f"t86,1000,1700.".encode()
+        command = f"t86,1000,{1800 - context_manager.get_direction().value * 100}.".encode()
         arduino.write(command)
         while arduino.read().decode('utf-8') != 'F':
             time.sleep(0.005)

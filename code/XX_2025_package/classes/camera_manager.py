@@ -117,8 +117,8 @@ class CameraManager:
             self.orangeline_image = ImageTransformUtils.keep_color(self.hsv_image, Color.ORANGE)
             self.clean_blueline_image = cv2.bitwise_and(self.blueline_image, self.blueline_image, mask = self.polygon_image)
             self.clean_orangeline_image = cv2.bitwise_and(self.orangeline_image, self.orangeline_image, mask = self.polygon_image)
-            self.cnt_blueline, self.length_blue, _ = ImageDrawingUtils.find_rect(self.clean_blueline_image)
-            self.cnt_orangeline, self.length_orange, _ = ImageDrawingUtils.find_rect(self.clean_orangeline_image)
+            self.cnt_blueline, self.length_blue, _, _ = ImageDrawingUtils.find_rect(self.clean_blueline_image)
+            self.cnt_orangeline, self.length_orange, _, _ = ImageDrawingUtils.find_rect(self.clean_orangeline_image)
 
             #self.pink_image = cv2.bitwise_and(self.polygon_image, self.polygon_image, mask = self.pink_mask)
             self.combined_mask = cv2.bitwise_or(ImageTransformUtils.keep_color(self.hsv_image.copy(), Color.GREEN), ImageTransformUtils.keep_color(self.hsv_image.copy(), Color.RED))

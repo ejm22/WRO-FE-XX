@@ -29,17 +29,20 @@ class ImageDrawingUtils:
         if white == 1:
             target_pt = (ImageTransformUtils.PIC_WIDTH / 2, ImageTransformUtils.PIC_HEIGHT - 10)
             contours = [cnt for cnt in contours if cv2.pointPolygonTest(cnt, target_pt, False) >= 0]
-            
         if not contours:
-            return
+            return None, None
         biggest_contour = max(contours, key=cv2.contourArea)
-        return biggest_contour
-    
+        contours = [cnt for cnt in contours if not np.array_equal(cnt, biggest_contour)]
+        if not contours:
+            return biggest_contour, None
+        second_biggest_contour = max(contours, key=cv2.contourArea)
+        return biggest_contour, second_biggest_contour
+
     @staticmethod
     def draw_polygon(binary_img, target_img):
         #cv2.imshow("drawpolygon", binary_img)
         #binary_img = ImageUtils.dilate(binary_img)
-        cnt = ImageDrawingUtils.find_contour(binary_img, 1)
+        cnt, _ = ImageDrawingUtils.find_contour(binary_img, 1)
         if cnt is None: return target_img, None
         epsilon = 0.001*cv2.arcLength(cnt, True)  # was 0.004
         polygon = cv2.approxPolyDP(cnt, epsilon, True)
@@ -53,16 +56,22 @@ class ImageDrawingUtils:
         """
         Finds a rectangle in the image. Can add target_img to draw it on an image
         """
-        cnt = ImageDrawingUtils.find_contour(img)
+        cnt, cnt2 = ImageDrawingUtils.find_contour(img)
         if cnt is None:
-            return img, 0, None
-        rect = cv2.minAreaRect(cnt)
-        (w, h) = rect[1]
+            return img, 0, None, None
+        rect1 = cv2.minAreaRect(cnt)
+        rect2 = None
+        if cnt2 is not None:
+            rect2 = cv2.minAreaRect(cnt2)
+            (w2, h2) = rect2[1]
+            if w2 < MIN_WIDTH or h2 < MIN_HEIGHT:
+                rect2 = None
+        (w1, h1) = rect1[1]
         if ContextManager.CHALLENGE == 2 or ContextManager.CHALLENGE == 4:
-            if w < MIN_WIDTH or h < MIN_HEIGHT:
-                return img, 0, None
-        max_width_height = max(rect[1][0], rect[1][1])
-        box = cv2.boxPoints(rect)
+            if w1 < MIN_WIDTH or h1 < MIN_HEIGHT:
+                return img, 0, None, None
+        max_width_height = max(rect1[1][0], rect1[1][1])
+        box = cv2.boxPoints(rect1)
         box = np.intp(box)
         if binary_img is not None:
             x_coords = [pt[0] for pt in box]
@@ -77,12 +86,12 @@ class ImageDrawingUtils:
                 ratio = white_count / total_count
                 # Require at least 50% white pixels
                 if ratio < 0.5:
-                    return img, 0, None
+                    return img, 0, None, None
         img_with_box = cv2.cvtColor(img.copy(), cv2.COLOR_GRAY2BGR)
         cv2.drawContours(img_with_box, [box], 0, (0, 255, 0), 2)
         if target_img is not None:
             cv2.drawContours(target_img, [box], 0, (168, 116, 251), 2)
-        return img_with_box, max_width_height, rect
+        return img_with_box, max_width_height, rect1, rect2
     
     @staticmethod
     def draw_line(img, pt1, pt2):
