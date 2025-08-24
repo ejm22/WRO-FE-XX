@@ -2,10 +2,10 @@ from XX_2025_package.utils.enums import Direction
 from XX_2025_package.utils.enums import StartPosition
 
 class ContextManager:
-    CHALLENGE = 2
     LAP_GOAL = 1
 
     def __init__(self):
+        self.challenge = 1
         self._direction = Direction.LEFT
         self._lap_count = 0
         self._quarter_lap_count = 0
@@ -32,6 +32,11 @@ class ContextManager:
     
     def get_quarter_lap_count(self):
         return self._quarter_lap_count
+    
+    def set_challenge(self, challenge):
+        if (challenge != 1 and challenge != 2):
+            print(f"Warning: Challenge must be 1 or 2, not {challenge}")
+        self.challenge = challenge
     
     def get_parking_distance(self):
         offset = 0

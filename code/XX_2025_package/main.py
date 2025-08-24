@@ -44,12 +44,26 @@ if __name__ == "__main__":
 
     ## 1 ##
     # Wait for start button to be pressed
+    while True:
+        if arduino.in_waiting > 0:
+            data = arduino.read().decode('utf-8')
+            if data == '1':
+                context_manager.set_challenge(1)
+                print("Challenge 1 selected")
+                break
+                
+            elif data == '2':
+                context_manager.set_challenge(2)
+                print("Challenge 2 selected")
+                break
+            
+            time.sleep(0.005)
 
     ################################################################
     ############################ Défi 1 ############################
     ################################################################
     
-    if (ContextManager.CHALLENGE == 1):
+    if (ContextManager.challenge == 1):
         check_corner_flag = False
         parking_flag = False
         start_time = 0
@@ -126,7 +140,7 @@ if __name__ == "__main__":
     ############################ Défi 2 ############################
     ################################################################
 
-    if (ContextManager.CHALLENGE == 2):
+    if (ContextManager.challenge == 2):
         arduino.write(b"10000000!")
         speed = 3000
         last_color = image_algorithms.last_color
@@ -192,7 +206,7 @@ if __name__ == "__main__":
     ############################ Défi 3 et 4 #######################
     ################################################################
     
-    if (ContextManager.CHALLENGE == 2):
+    if (ContextManager.challenge == 2):
         arduino.write(b"10000000!")
         print("Going to parking")
         speed = 3000
@@ -342,7 +356,7 @@ if __name__ == "__main__":
     ################################################################
     #################### Code for movement tests ###################
     ################################################################
-    if (ContextManager.CHALLENGE == 5):
+    if (ContextManager.challenge == 5):
         while True:
             command = f"t86,1000,10000.".encode()
             arduino.write(command)
