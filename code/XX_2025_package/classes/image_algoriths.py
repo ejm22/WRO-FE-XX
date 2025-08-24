@@ -444,8 +444,7 @@ class ImageAlgorithms:
     
     def get_starting_position(self):
         distance = self.get_back_wall_distance()
-        highest_y = self.get_top_line_distance()
-        self.context_manager.set_parking_distance(highest_y)
+        self.context_manager.set_parking_distance(distance)
 
         
         if distance < ImageAlgorithms.START_WALL_HEIGHT_THRESHOLD:

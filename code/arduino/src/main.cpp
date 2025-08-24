@@ -66,13 +66,13 @@ void setup() {
 }
 
 void loop() {
+    processStartButton();
     if (speed == 0 && abs(stepper.getCurrentVelocityInStepsPerSecond()) < 100) {
         digitalWrite(ENABLE_PIN, HIGH); // Disable stepper when speed is 0
     } else {
         digitalWrite(ENABLE_PIN, LOW); // Enable stepper when speed is not 0
         stepper.processMovement();
     }
-    processStartButton();
     serialReceiver.processSerial();
     if (stepper.motionComplete() && serialReceiver.waitingForTarget) {
         Serial.println("F");
@@ -94,17 +94,14 @@ int getSelectedChallenge() {
 void processStartButton() {
     int challenge = getSelectedChallenge();
     
-    // Check start button
-    if (challenge != 0) {
-        bool currentButtonState = (digitalRead(START_BTN_PIN) == LOW);
-        
-        if (currentButtonState && !buttonPressed && 
-            (millis() - lastDebounceTime) > debounceDelay) {
-            buttonPressed = true;
-            lastDebounceTime = millis();
-                Serial.println(String(challenge));
-        } else if (!currentButtonState) {
-            buttonPressed = false;
-        }
+    bool currentButtonState = (digitalRead(START_BTN_PIN) == LOW);
+    
+    if (currentButtonState && !buttonPressed && 
+        (millis() - lastDebounceTime) > debounceDelay) {
+        buttonPressed = true;
+        lastDebounceTime = millis();
+            Serial.println(String(challenge));
+    } else if (!currentButtonState) {
+        buttonPressed = false;
     }
 }
