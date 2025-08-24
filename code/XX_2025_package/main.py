@@ -19,8 +19,7 @@ arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
 # 1 mm per 6.412 steps
 
 if __name__ == "__main__":
-    ## 0 ##
-    # Initialize program, camera, etc
+    # 0. Initialize program, camera, etc
     context_manager = ContextManager()
     camera_manager = CameraManager()
     lap_tracker = LapTracker(context_manager)
@@ -128,13 +127,10 @@ if __name__ == "__main__":
         arduino.write(b"10000000!")
         speed = 3000
         last_color = image_algorithms.last_color
-        ## 1 ##
-        # Find direction with parking
+        # 1. Find direction with parking
         image_algorithms.get_direction_from_parking(camera_manager)
         print("Direction : ", context_manager.get_direction())
-        ## 2 ##
-        # Analyze starting area (optional)
-        # Leave parking spot
+        # 2. Leave parking spot
         if context_manager.get_direction() == Direction.LEFT:
             command = f"t120,{speed},1200.".encode()
             arduino.write(command)
@@ -176,15 +172,11 @@ if __name__ == "__main__":
 
             if (context_manager.has_completed_laps()):
                 break
-
-            key = cv2.waitKey(1)  # Let OpenCV update the window
-            if key == 27:  # Escape key to quit
+            # Let OpenCV update the window
+            key = cv2.waitKey(1)
+            # Press escape key to quit (when testing)
+            if key == 27:
                 break
-        ## 4 ##
-        # Approach the parking area
-
-        ## 5 ##
-        # Parallel park in the parking area
             
     ################################################################
     ############################ Défi 3 et 4 #######################
@@ -192,10 +184,7 @@ if __name__ == "__main__":
     
     if (ContextManager.CHALLENGE == 2):
         arduino.write(b"10000000!")
-        print("Going to parking")
         speed = 3000
-        ## 1 ##
-        print("Direction : ", context_manager.get_direction())
         pink_pixel_y = ImageTransformUtils.PIC_HEIGHT - 10
         pink_pixel_backwards_y = ImageTransformUtils.PIC_HEIGHT - 10
         if context_manager.get_direction() == Direction.LEFT:
