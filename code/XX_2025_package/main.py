@@ -33,6 +33,20 @@ if __name__ == "__main__":
 
     ## 1 ##
     # Wait for start button to be pressed
+    while True:
+        if arduino.in_waiting > 0:
+            data = arduino.read().decode('utf-8')
+            if data == '1':
+                context_manager.set_challenge(1)
+                print("Challenge 1 selected")
+                break
+                
+            elif data == '2':
+                context_manager.set_challenge(2)
+                print("Challenge 2 selected")
+                break
+            
+            time.sleep(0.005)
 
     ################################################################
     ############################ Défi 1 ############################
