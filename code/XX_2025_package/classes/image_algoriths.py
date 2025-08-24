@@ -201,8 +201,11 @@ class ImageAlgorithms:
         else:
             threshold_x = 640 - (threshold - threshold_y)
             new_avg_x = 640 - avg_x
+        # Draw polygon on display image
         ImageDrawingUtils.draw_contour(self.camera_manager.display_image, self.camera_manager.polygon_lines, (0, 0, 255))
+        # Draw circle for threshold of wall following
         ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (threshold_x, threshold_y), 10, (255, 0, 0))
+        # Draw circle for current position of the wall
         ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (int(new_avg_x), int(avg_y)), 7, (0, 255, 255))
         # Get proportional adjustment
         p_adjust = avg_y + avg_x - threshold
@@ -225,6 +228,12 @@ class ImageAlgorithms:
         return int(angle), is_corner
     
     def check_last_corner_position(self):
+        """
+        Check whether the last corner is close or far from the middle
+        I/O:
+            return: 'C' if close to the corner, 'F' if far from the corner
+        """
+        # Get the average y position of the outer wall
         _, avg_y = self.find_wall_to_follow(True)
         if avg_y > ImageTransformUtils.PIC_HEIGHT // 2:
             return 'C'  # Close
@@ -238,9 +247,10 @@ class ImageAlgorithms:
             object_height: height of the detected object's center
             return: True if the robot is too close to the inner wall, False otherwise
         """
+        # Make sure there's an object, otherwise return True (to follow walls)
         if object_height is None:
             return True
-
+        # Set 3 detection points
         if self.context_manager.get_direction() == Direction.RIGHT:
             detection_points = [
                 (ImageTransformUtils.PIC_HEIGHT - 130, ImageTransformUtils.PIC_WIDTH - 200),
@@ -253,53 +263,45 @@ class ImageAlgorithms:
                 (ImageTransformUtils.PIC_HEIGHT - 100, 175),
                 (ImageTransformUtils.PIC_HEIGHT - 70, 150 )
             ]
-        result = False
+        # Check if any detection point is on the wall, if so, return True
         for y, x in detection_points:
             ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (x, y), 3, (255, 0, 0))
-            result = result or (self.camera_manager.polygon_image[y, x] == 0)
-        
-        return result and (object_height < ImageTransformUtils.PIC_HEIGHT - 170)
+            if self.camera_manager.polygon_image[y, x] == 0 and object_height < ImageTransformUtils.PIC_HEIGHT - 170:
+                return True
+        return False
     
-        #if self.context_manager.get_direction() == Direction.RIGHT:
-        #    return (object_height < ImageTransformUtils.PIC_HEIGHT - 170) and (self.camera_manager.polygon_image[ImageTransformUtils.PIC_HEIGHT - 130, ImageTransformUtils.PIC_WIDTH - 200] == 0)
-        #else:
-        #    return (object_height < ImageTransformUtils.PIC_HEIGHT - 170) and (self.camera_manager.polygon_image[ImageTransformUtils.PIC_HEIGHT - 130, 200] == 0)
-
-
     def check_outer_wall_crash(self):
         """
-        Determines if the robot is too close to the outer wall while detecting an obstacle in a further section
+        Determines if the robot is too close to the outer wall
         I/O:
-            crash_detect_x: x-coordinate of the crash detection point
-            crash_detect_y: y-coordinate of the crash detection point
-            return: True if the robot is too close to the outer wall, False otherwise
+            return: True if the robot is too close to the outer wall
         """
-        # Draw the point at which we check if outer wall is too close
-        
+        # Get the crash detection point
         crash_detect_x = ImageTransformUtils.PIC_WIDTH // 2
         crash_detect_y = ImageTransformUtils.PIC_HEIGHT - 160
+        # Draw the point at which we check if outer wall is too close
         ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (crash_detect_x, crash_detect_y), 3, (255, 0, 0))
+        # Return True if the outer wall is detected
         return (self.camera_manager.polygon_image[crash_detect_y, crash_detect_x] == 0)
 
-    def find_obstacle_angle_and_draw_lines(self, target_img):
+    def find_obstacle_angle_and_draw_lines(self):
         """
         Find the obstacle, draw a line between its center and a reference, return the line's angle
         I/O:
             target_img: colored image in which we draw
-            return: line's angle, target_img, and whether the object is green or not
+            return: line's angle, whether the object is green or not, the obstacle's x_center, the obstacle's y_center
         """
-        
-        # Check if the facing outer wall is too close
+        # Check if the outer wall in front is too close
         if self.check_outer_wall_crash():
             if self.context_manager.get_direction() == Direction.RIGHT:
-                return 1000, target_img, None, None, None
+                return 1000, None, None, None
             else:
-                return -1000, target_img, None, None, None
-    
-        _, _, rect, rect2 = ImageDrawingUtils.find_rect(self.camera_manager.obstacle_image, self.camera_manager.polygon_image)
+                return -1000, None, None, None
+        # Get the biggest rectangle from find_rect() - in the future, we could use the 4th output to use the second biggest obstacle
+        _, _, rect, _ = ImageDrawingUtils.find_rect(self.camera_manager.obstacle_image, self.camera_manager.polygon_image)
         # Check if a rectangle was found
         if rect is None:
-            return None, target_img, None, None, None
+            return None, None, None, None
         # Get the center of the rectangle
         x_center = rect[0][0]
         y_center = rect[0][1]
@@ -307,42 +309,34 @@ class ImageAlgorithms:
         if y_center > ImageTransformUtils.PIC_HEIGHT - 60:
             if y_center > ImageTransformUtils.PIC_HEIGHT - 30:
                 # Object is too low, ignore it
-                return None, target_img, None, None, None
+                return None, None, None, None
             else:
                 # Object is quite close, use previous adjustment
-                return self.old_angle, None, self.old_is_green, x_center, y_center
+                return self.old_angle, self.old_is_green, x_center, y_center
         # Check if the object is too high
         if y_center < ImageTransformUtils.PIC_HEIGHT - 240:# was 60
             # Object is too high, ignore it
-            return None, target_img, None, None, None
-        
-        # Draw the point at which we check if the inner wall is too close
-        #if self.context_manager.get_direction() == Direction.RIGHT:
-        #    ImageDrawingUtils.draw_circle(target_img, (ImageTransformUtils.PIC_WIDTH - 200, ImageTransformUtils.PIC_HEIGHT - 130), 3, (255, 0, 0))
-        #else:
-        #    ImageDrawingUtils.draw_circle(target_img, (200, ImageTransformUtils.PIC_HEIGHT - 130), 3, (255, 0, 0))
+            return None, None, None, None
         # Check if the inner wall is too close
         if self.check_inner_wall_crash(y_center):
-            return None, target_img, None, None, None
-
-
+            return None, None, None, None
         # Check if the obstacle is green or red
         is_green = ImageColorUtils.is_rect_green(self.camera_manager.hsv_image, rect)
         # Create and draw a line from the center of the object to the left or right side of the image
         # Line needs to be at x degrees (the angle threshold) to be able to pass around the obstacle
         if is_green:
             self.last_color = 1
-            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
+            ImageDrawingUtils.draw_line(self.camera_manager.display_image, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
             rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - RIGHT_OBSTACLE_X_THRESHOLD)
         else:
             self.last_color = 0
-            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (LEFT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
+            ImageDrawingUtils.draw_line(self.camera_manager.display_image, (x_center, y_center), (LEFT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
             rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - LEFT_OBSTACLE_X_THRESHOLD)
         # Calculate the angle in degrees
         angle = 90 + math.degrees(rad_angle)
         self.old_angle = angle
         self.old_is_green = is_green
-        return angle, target_img, is_green, x_center, y_center
+        return angle, is_green, x_center, y_center
 
     def find_pink_obstacle_angle(self, target_img):
         direction = self.context_manager.get_direction()

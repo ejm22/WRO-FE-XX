@@ -11,6 +11,8 @@ from XX_2025_package.utils.enums import Direction
 from XX_2025_package.utils.enums import StartPosition
 from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
 
+MOVE_TO_FRONT_ZONE = 3200
+
 arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1)
 
 # 0.1559 mm per 1 step
@@ -39,6 +41,10 @@ if __name__ == "__main__":
     arduino.write(command)
     camera_manager.capture_image()
     camera_manager.transform_image()
+
+    ## 1 ##
+    # Wait for start button to be pressed
+
     ################################################################
     ############################ Défi 1 ############################
     ################################################################
@@ -49,7 +55,6 @@ if __name__ == "__main__":
         start_time = 0
         start_time2 = 0
         speed = 4000
-        extra_move = 0
 
         ## 1 ##
         # Find direction with blue and orange lines
@@ -69,18 +74,18 @@ if __name__ == "__main__":
             camera_manager.capture_image()
             camera_manager.transform_image()
             lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
-            if arduino.out_waiting == 0:
-                angle, is_corner = image_algorithms.calculate_servo_angle_from_walls()
-                if is_corner:
-                    print("Corner !")
-                command = f"m{angle},{speed}.".encode()
-                arduino.write(command)
-                arduino.flush()
-            else:
-                print("Arduino is busy, skipping command.")
+            angle, is_corner = image_algorithms.calculate_servo_angle_from_walls()
+            if is_corner:
+                print("Corner !")
+            command = f"m{angle},{speed}.".encode()
+            arduino.write(command)
+            arduino.flush()
             ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {context_manager.get_lap_count()}", (10, 30), (0, 0, 255))
             camera_manager.add_frame_to_video()
             cv2.imshow("Display", camera_manager.display_image)
+
+            ## 4 ##
+            # Check last corner and stop the robot in the correct zone
             if (context_manager.is_last_quarter() or context_manager.has_completed_laps()):
                 speed = 4000
                 if start_time2 == 0:
@@ -89,8 +94,12 @@ if __name__ == "__main__":
                     check_corner_flag = True
                     final_corner_position = image_algorithms.check_last_corner_position()
                     print("Here's the final corner ! The outside wall is : ", final_corner_position)
+                    # Add extra_move based on start position
                     if context_manager.get_start_position() == StartPosition.FRONT:
-                        extra_move = 3200
+                        extra_move = MOVE_TO_FRONT_ZONE
+                    else:
+                        extra_move = 0
+                    # Adjust move based on final corner position
                     if final_corner_position == 'C':
                         command = f"{6400 + extra_move}!".encode()
                         arduino.write(command)
@@ -104,24 +113,14 @@ if __name__ == "__main__":
                     if arduino.read().decode('utf-8') == 'F':
                         break
                     time.sleep(0.005)
-            #    if start_time == 0:
-            #        start_time = time.time()
-            #    if time.time() - start_time >= 0.5:
-            #        if (context_manager.get_parking_distance() + 5 >= image_algorithms.get_top_line_distance() >= context_manager.get_parking_distance()
-            #            and image_algorithms.get_top_line_angle(False) is not None):
-            #            print(image_algorithms.get_top_line_distance())
-            #            break
-            
-            key = cv2.waitKey(1)  # Let OpenCV update the window
-            if key == 27:  # Escape key to quit
+            # Let OpenCV update the window
+            key = cv2.waitKey(1)  
+            # Press escape key to quit (when testing)
+            if key == 27:
                 if (speed != 0):
                     speed = 0
                 else:
                     break
-
-
-        ## 4 ##
-        # Stop the robot in the correct zone
 
     ################################################################
     ############################ Défi 2 ############################
@@ -130,6 +129,7 @@ if __name__ == "__main__":
     if (ContextManager.CHALLENGE == 2):
         arduino.write(b"10000000!")
         speed = 3000
+        last_color = image_algorithms.last_color
         ## 1 ##
         # Find direction with parking
         image_algorithms.get_direction_from_parking(camera_manager)
@@ -159,7 +159,7 @@ if __name__ == "__main__":
             camera_manager.capture_image()
             camera_manager.transform_image()
             lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
-            angle, camera_manager.display_image, is_green, _, _ = image_algorithms.find_obstacle_angle_and_draw_lines(camera_manager.display_image)
+            angle, is_green, _, _ = image_algorithms.find_obstacle_angle_and_draw_lines(camera_manager.display_image)
             if camera_manager.display_image is not None:
                 ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {context_manager.get_lap_count()}", (10, 30), (0, 0, 255))
                 cv2.imshow("Display_image", camera_manager.display_image)
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     ################################################################
     ############################ Défi 3 et 4 #######################
     ################################################################
-    last_color = image_algorithms.last_color
+    
     if (ContextManager.CHALLENGE == 2):
         arduino.write(b"10000000!")
         print("Going to parking")
@@ -212,8 +212,8 @@ if __name__ == "__main__":
         while True:
             camera_manager.capture_image()
             camera_manager.transform_image() 
-            angle, camera_manager.display_image, is_green, obstacle_x, obstacle_y = image_algorithms.find_obstacle_angle_and_draw_lines(camera_manager.display_image)
-            angle_pink, camera_manager.display_image, pink_x, pink_y, side = image_algorithms.find_pink_obstacle_angle(camera_manager.display_image)
+            angle, is_green, obstacle_x, obstacle_y = image_algorithms.find_obstacle_angle_and_draw_lines(camera_manager.display_image)
+            angle_pink, pink_x, pink_y, side = image_algorithms.find_pink_obstacle_angle(camera_manager.display_image)
             cv2.imshow("Obstacle Image", camera_manager.obstacle_image)
             cv2.imshow("Pink obstacle image", camera_manager.pink_mask)
             is_pink = 0
@@ -339,6 +339,9 @@ if __name__ == "__main__":
         command = f"m85,0.".encode()
         arduino.write(command)
     
+    ################################################################
+    #################### Code for movement tests ###################
+    ################################################################
     if (ContextManager.CHALLENGE == 5):
         while True:
             command = f"t86,1000,10000.".encode()
