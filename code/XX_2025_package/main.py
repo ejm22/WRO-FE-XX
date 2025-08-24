@@ -32,8 +32,6 @@ if __name__ == "__main__":
         command = f"10000000!".encode()
         arduino.write(command)
         arduino.flush()
-        camera_manager.capture_image()
-        camera_manager.transform_image()
 
         ## 1 ##
         # Wait for start button to be pressed
@@ -56,13 +54,14 @@ if __name__ == "__main__":
                     if (allow_stop_run):
                         stop_run = True
                         break
-                
                 time.sleep(0.005)
 
         if stop_run:
             break
-
         allow_stop_run = True
+        time.sleep(1)
+        camera_manager.capture_image()
+        camera_manager.transform_image()
 
         ################################################################
         ############################ Défi 1 ############################
@@ -71,7 +70,7 @@ if __name__ == "__main__":
         if (ContextManager.CHALLENGE == 1):
             check_corner_flag = False
             start_time = 0
-            speed = 4000
+            speed = 5500
 
             # 1. Find direction with blue and orange lines
             image_algorithms.get_direction_from_lines()
@@ -84,7 +83,6 @@ if __name__ == "__main__":
 
             # 3. Complete 3 laps
             while True:
-                camera_manager.display_image = camera_manager.cropped_image.copy()
                 camera_manager.capture_image()
                 camera_manager.transform_image()
                 lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
