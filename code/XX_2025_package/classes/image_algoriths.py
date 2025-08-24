@@ -338,12 +338,12 @@ class ImageAlgorithms:
         self.old_is_green = is_green
         return angle, is_green, x_center, y_center
 
-    def find_pink_obstacle_angle(self, target_img):
+    def find_pink_obstacle_angle(self):
         direction = self.context_manager.get_direction()
         _, _, rect, rect2 = ImageDrawingUtils.find_rect(self.camera_manager.pink_mask, self.camera_manager.polygon_image)
         # Check if a rectangle was found
         if rect is None:
-            return None, target_img, None, None, None
+            return None, None, None, None
         # Get the center of the rectangle
         x_center = rect[0][0]
         y_center = rect[0][1]
@@ -357,25 +357,25 @@ class ImageAlgorithms:
                 y_center = y_center2
         # Check if the object is too low
         if y_center > ImageTransformUtils.PIC_HEIGHT - 30:
-            return None, target_img, None, None, None
+            return None, None, None, None
         # Check if the object is too high
         if y_center < ImageTransformUtils.PIC_HEIGHT - 230:# was 60
             # Object is too high, ignore it
-            return None, target_img, None, None, None
+            return None, None, None, None
 
         # Create and draw a line from the center of the object to the left or right side of the image
         # Line needs to be at x degrees (the angle threshold) to be able to pass around the obstacle
         if direction == Direction.LEFT:
             left = True
-            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.PIC_HEIGHT))
+            ImageDrawingUtils.draw_line(self.camera_manager.display_image, (x_center, y_center), (ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.PIC_HEIGHT))
             rad_angle = math.atan2(y_center - (ImageTransformUtils.PIC_HEIGHT), x_center - (ImageTransformUtils.PIC_WIDTH - 20))
         else:
             left = False
-            ImageDrawingUtils.draw_line(target_img, (x_center, y_center), (0, ImageTransformUtils.PIC_HEIGHT))
+            ImageDrawingUtils.draw_line(self.camera_manager.display_image, (x_center, y_center), (0, ImageTransformUtils.PIC_HEIGHT))
             rad_angle = math.atan2(y_center - (ImageTransformUtils.PIC_HEIGHT), x_center - 20)
         # Calculate the angle in degrees
         angle = 90 + math.degrees(rad_angle)
-        return angle, target_img, x_center, y_center, left
+        return angle, x_center, y_center, left
 
     @staticmethod
     def calculate_servo_angle_from_obstacle(object_angle, is_green, pink = 0):
