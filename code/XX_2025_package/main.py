@@ -63,7 +63,7 @@ if __name__ == "__main__":
     ############################ Défi 1 ############################
     ################################################################
     
-    if (ContextManager.challenge == 1):
+    if (ContextManager.CHALLENGE == 1):
         check_corner_flag = False
         parking_flag = False
         start_time = 0
@@ -140,7 +140,7 @@ if __name__ == "__main__":
     ############################ Défi 2 ############################
     ################################################################
 
-    if (ContextManager.challenge == 2):
+    if (ContextManager.CHALLENGE == 2):
         arduino.write(b"10000000!")
         speed = 3000
         last_color = image_algorithms.last_color
@@ -206,7 +206,7 @@ if __name__ == "__main__":
     ############################ Défi 3 et 4 #######################
     ################################################################
     
-    if (ContextManager.challenge == 2):
+    if (ContextManager.CHALLENGE == 2):
         arduino.write(b"10000000!")
         print("Going to parking")
         speed = 3000
@@ -356,7 +356,7 @@ if __name__ == "__main__":
     ################################################################
     #################### Code for movement tests ###################
     ################################################################
-    if (ContextManager.challenge == 5):
+    if (ContextManager.CHALLENGE == 5):
         while True:
             command = f"t86,1000,10000.".encode()
             arduino.write(command)

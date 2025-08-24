@@ -67,7 +67,7 @@ class ImageDrawingUtils:
             if w2 < MIN_WIDTH or h2 < MIN_HEIGHT:
                 rect2 = None
         (w1, h1) = rect1[1]
-        if ContextManager.challenge == 2 or ContextManager.challenge == 4:
+        if ContextManager.CHALLENGE == 2 or ContextManager.CHALLENGE == 4:
             if w1 < MIN_WIDTH or h1 < MIN_HEIGHT:
                 return img, 0, None, None
         max_width_height = max(rect1[1][0], rect1[1][1])
