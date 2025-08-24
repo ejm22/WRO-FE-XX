@@ -27,18 +27,9 @@ if __name__ == "__main__":
     image_algorithms = ImageAlgorithms(context_manager, camera_manager)
     #time.sleep(1)
     camera_manager.start_camera()
-    arduino.write(b'v')
-    time.sleep(0.1)
-    line=arduino.readline().decode().strip()
-    if line:
-        print(line)
-        level_text = line.replace("Battery voltage: ", "")
-        level_value = float(level_text)
-        if (level_value > 5) and (level_value < 11):
-            print("BATTERY LOW")
-            exit (1)
     command = f"10000000!".encode()
     arduino.write(command)
+    arduino.flush()
     camera_manager.capture_image()
     camera_manager.transform_image()
 
@@ -46,6 +37,7 @@ if __name__ == "__main__":
     # Wait for start button to be pressed
     while True:
         if arduino.in_waiting > 0:
+            print("INFOOOOOOO")
             data = arduino.read().decode('utf-8')
             if data == '1':
                 context_manager.set_challenge(1)
