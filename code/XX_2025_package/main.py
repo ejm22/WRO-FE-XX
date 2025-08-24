@@ -191,7 +191,7 @@ if __name__ == "__main__":
     ################################################################
     ############################ Défi 3 et 4 #######################
     ################################################################
-
+    last_color = image_algorithms.last_color
     if (ContextManager.CHALLENGE == 2):
         arduino.write(b"10000000!")
         print("Going to parking")
@@ -224,13 +224,13 @@ if __name__ == "__main__":
                         angle = angle_pink
                         is_green = side
                         is_pink = 1
-                        speed = 1500
+                        speed = 2000
                 else:
                     #print("PINK 2")
                     angle = angle_pink
                     is_green = side
                     is_pink = 1
-                    speed = 1500
+                    speed = 2000
             angle_obstacles = image_algorithms.calculate_servo_angle_from_obstacle(angle, is_green, is_pink)
             if camera_manager.display_image is not None:
                 cv2.imshow("Display_image", camera_manager.display_image)
@@ -298,6 +298,7 @@ if __name__ == "__main__":
                     speed = 0
                 else:
                     break
+
         arduino.write(b"-10000000!")
         while True:
             camera_manager.capture_image()
@@ -313,11 +314,17 @@ if __name__ == "__main__":
         time.sleep(0.2)
 
         speed = 1000
-        command = f"t86,1000,{1800 - context_manager.get_direction().value * 100}.".encode()
+        command = f"t86,1000,{1750 - context_manager.get_direction().value * 50}.".encode()
         arduino.write(command)
         while arduino.read().decode('utf-8') != 'F':
             time.sleep(0.005)
-        command = f"t{86 - context_manager.get_direction().value * 38},-1000,1300.".encode()
+        print(context_manager.get_direction())
+        if context_manager.get_direction() == Direction.LEFT and last_color == 0:
+            print("Last was red")
+            command = f"t{86 - context_manager.get_direction().value * 38},-1000,1400.".encode()
+        else:
+            print("Last was green or going left")
+            command = f"t{86 - context_manager.get_direction().value * 38},-1000,1300.".encode()
         arduino.write(command)
         while arduino.read().decode('utf-8') != 'F':
             time.sleep(0.005)
