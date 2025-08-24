@@ -82,7 +82,6 @@ void loop() {
 }
 
 int getSelectedChallenge() {
-    delay(500);
     if (digitalRead(CHALLENGE_1_PIN) == LOW) {
         return 1;
     } else if (digitalRead(CHALLENGE_2_PIN) == LOW) {
