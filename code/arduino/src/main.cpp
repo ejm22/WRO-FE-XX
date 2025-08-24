@@ -14,6 +14,10 @@ const int DIR_PIN = 2;       // Pin for stepper motor direction
 const int STEP_PIN = 9;      // Pin for stepper motor control
 const int ENABLE_PIN = 10;   // Pin for enabling/disabling the stepper motor
 const int ANGLE_PIN = 11;    // Pin for servo control
+const int START_BTN_PIN = 3; // Pin for start button
+const int CHALLENGE_1_PIN = 4; // Pin for challenge 1 button
+const int CHALLENGE_2_PIN = 5; // Pin for challenge 2 button
+
 const int ACCELERATION = 2000; // Acceleration for the stepper motor
 
 const float WHEEL_DIAMETER = 55.6; // Wheel diameter in mm
@@ -30,11 +34,18 @@ int angle = 88;             // initial angle for the servo
 int speed = 0;              // initial speed for the stepper
 long int targetPosition = -10000000;    // target position for the stepper
 
+bool buttonPressed = false; // Flag to indicate if the button is pressed already
+unsigned long lastDebounceTime = 0; // the last time the output pin was toggled
+const unsigned long debounceDelay = 50; // the debounce time for the start button
+
 String inputString = "";    // a string to hold incoming data
 
 Servo servo;                // Create a Servo object
 FlexyStepper stepper;       // Create a FlexyStepper object
 SerialReceiver serialReceiver(servo, stepper, angle, speed, targetPosition);
+
+void processStartButton();
+int getSelectedChallenge();
 
 void setup() {
     Serial.begin(115200);
@@ -48,6 +59,10 @@ void setup() {
     serialReceiver.waitingForTarget = false;
     pinMode(ENABLE_PIN, OUTPUT);
     digitalWrite(ENABLE_PIN, LOW);
+
+    pinMode(START_BTN_PIN, INPUT_PULLUP);
+    pinMode(CHALLENGE_1_PIN, INPUT_PULLUP);
+    pinMode(CHALLENGE_2_PIN, INPUT_PULLUP);
 }
 
 void loop() {
@@ -57,10 +72,40 @@ void loop() {
         digitalWrite(ENABLE_PIN, LOW); // Enable stepper when speed is not 0
         stepper.processMovement();
     }
+    processStartButton();
     serialReceiver.processSerial();
     if (stepper.motionComplete() && serialReceiver.waitingForTarget) {
         Serial.println("F");
         serialReceiver.waitingForTarget = false; // Reset waiting for target flag
         speed = 0; // Stop the stepper motor
+    }
+}
+
+int getSelectedChallenge() {
+    delay(500);
+    if (digitalRead(CHALLENGE_1_PIN) == LOW) {
+        return 1;
+    } else if (digitalRead(CHALLENGE_2_PIN) == LOW) {
+        return 2;
+    } else {
+        return 0; // No challenge selected
+    }
+}
+
+void processStartButton() {
+    int challenge = getSelectedChallenge();
+    
+    // Check start button
+    if (challenge != 0) {
+        bool currentButtonState = (digitalRead(START_BTN_PIN) == LOW);
+        
+        if (currentButtonState && !buttonPressed && 
+            (millis() - lastDebounceTime) > debounceDelay) {
+            buttonPressed = true;
+            lastDebounceTime = millis();
+                Serial.println(String(challenge));
+        } else if (!currentButtonState) {
+            buttonPressed = false;
+        }
     }
 }
