@@ -22,7 +22,7 @@ This GitHub contains the documentation and every detail of team Double-X's robot
 #### Choice of Form Factor
 
 #### Choice of Wheels
-
+We decided to use Spike Prime wheels. They have a 56mm outer diameter and 14mm thickness, which is ideal since they don't use much space. Big wheels would make the robot faster and difficult to control, and would take too much space when turning. Smaller wheels would make the base design very complex and would limit the components we could use since everything would be barely above the ground. The Spike Prime wheels also have lots of grip on vinyl surfaces.
 #### Choice of Steering System
 ##### Version 1 : Parallel Beams (Lego-based)
 Talk about drifting problem
