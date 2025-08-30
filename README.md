@@ -8,6 +8,8 @@ This GitHub contains the documentation and every detail of team Double-X's robot
 ### Emile Jacques
 
 ## The Robot (Slef)
+Have you ever had methods in your class needing the 'self' input to access the object ? If so, we are absolutely sure you've at least misstyped it once. Which is what we did throughout the entire project. With the amount of times Emile typed 'Slef', we had to give this name to our robot haha.
+
 ### Pictures
 
 ## Performance Videos
