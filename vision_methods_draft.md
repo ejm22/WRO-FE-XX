@@ -12,18 +12,6 @@ Relevant code:
 - Main loop and serial control: [code/XX_2025_package/main.py](code/XX_2025_package/main.py)
 - Transform utilities: [code/XX_2025_package/utils/image_transform_utils.py](code/XX_2025_package/utils/image_transform_utils.py)
 
-Key symbols:
-- [`ImageAlgorithms.calculate_servo_angle_from_walls`](code/XX_2025_package/classes/image_algoriths.py)
-- [`ImageAlgorithms.find_wall_to_follow`](code/XX_2025_package/classes/image_algoriths.py)
-- [`ImageAlgorithms.find_black_from_bottom`](code/XX_2025_package/classes/image_algoriths.py)
-- [`ImageAlgorithms.find_black_sides`](code/XX_2025_package/classes/image_algoriths.py)
-- [`ImageAlgorithms.find_obstacle_angle_and_draw_lines`](code/XX_2025_package/classes/image_algoriths.py)
-- [`ImageAlgorithms.calculate_servo_angle_from_obstacle`](code/XX_2025_package/classes/image_algoriths.py)
-- [`ImageAlgorithms.check_inner_wall_crash`](code/XX_2025_package/classes/image_algoriths.py)
-- [`ImageAlgorithms.check_outer_wall_crash`](code/XX_2025_package/classes/image_algoriths.py)
-- [`ImageAlgorithms.choose_output_angle`](code/XX_2025_package/classes/image_algoriths.py)
-- [`ImageTransformUtils`](code/XX_2025_package/utils/image_transform_utils.py)
-
 ## 1) Image pipeline (inputs used by algorithms)
 
 The camera pipeline produces these images used by the algorithms:
