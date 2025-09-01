@@ -63,3 +63,6 @@ Have you ever had methods in your class needing the 'self' input to access the o
 ---
 
 ## Software & Logic Overview
+
+- **Communication:** Serial communication via USB cable between Arduino and Pi (using custom protocol).\
+  [More details](code/communication_draft.md)
