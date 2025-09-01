@@ -45,18 +45,18 @@ Have you ever had methods in your class needing the 'self' input to access the o
 
 ## Mechanical Overview
 
-- **Wheels:** Spike Prime wheels (56mm diameter, 14mm thick) for compactness and grip.  
-  [More details](mech/README_mech.md#11-wheel-choice)
-- **Steering:** Ackermann geometry, 3D-printed after Lego prototyping.  
-  [More details](mech/README_mech.md#12-steering-system)
-- **Differential:** Compact Lego-built differential for rear wheels.  
-  [More details](mech/README_mech.md#13-differential-rear-wheels)
 - **Dimensions:** Max width ~150mm, length 285mm for tight turns and component fit.  
   [More details](mech/README_mech.md#14-dimensions-choice)
 - **3D-Printed Structure:** Three-layer design (base, middle, top) for easy assembly and access.  
   [More details](mech/README_mech.md#3-final-3d-printed-structure)
 - **Custom Mounts:** Holders for servo, stepper, switches, camera, and stepper coupler.  
   [More details](mech/README_mech.md#4-mounting-and-coupling)
+- **Steering:** Ackermann geometry, 3D-printed after Lego prototyping.  
+  [More details](mech/README_mech.md#12-steering-system)
+- **Wheels:** Spike Prime wheels (56mm diameter, 14mm thick) for compactness and grip.  
+  [More details](mech/README_mech.md#11-wheel-choice)
+- **Differential:** Compact Lego-built differential for rear wheels.  
+  [More details](mech/README_mech.md#13-differential-rear-wheels)
 
 ---
 
@@ -84,4 +84,4 @@ Have you ever had methods in your class needing the 'self' input to access the o
 - **Communication:** Serial communication via USB cable between Arduino and Pi (using custom protocol).\
   [More details](code/communication_draft.md)
 - **Raspberry Pi Environment Setup:** Downloading utilities on your Pi, creating a virtual environment (venv), and installing dependencies.\
-  [More details](code/raspberry-pi-setup.md)
+  [More details](code/raspberry_pi_setup.md)
