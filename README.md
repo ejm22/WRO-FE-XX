@@ -58,6 +58,14 @@ Have you ever had methods in your class needing the 'self' input to access the o
 - **Differential:** Compact Lego-built differential for rear wheels.  
   [More details](mech/README_mech.md#13-differential-rear-wheels)
 
+#### Here's a general view of the robot in SolidWorks. The second picture is an exploded view of it, so you can see the detachable pieces.
+<table>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/f869d26d-9c80-4198-b2c2-2d27d61f7edf" alt="Michael Bruneau" width="1000" height="1000" /></td>
+    <td><img src="https://github.com/user-attachments/assets/625d4757-f4b7-4a0e-b886-05c6d8cfa581" alt="Emile Jacques" width="1000" height="1000" /></td>
+  </tr>
+</table>
+
 ---
 
 ## Electrical & Electronic Overview
@@ -85,3 +93,11 @@ Have you ever had methods in your class needing the 'self' input to access the o
   [More details](code/communication_draft.md)
 - **Raspberry Pi Environment Setup:** Downloading utilities on your Pi, creating a virtual environment (venv), and installing dependencies.\
   [More details](code/raspberry_pi_setup.md)
+
+## Building Instructions
+- **3D Printing Parts**
+Using any 3D printer, start by 3D printing the necessary parts for the assembly. Every part needed has a STL file which you can use with any printer. If you're adventurous and want to modify a part, open the STEP file in your favorite CAD software. If you're unsure of what part you're printing, make sure to open the PNG file which contains a picture of the part.
+[Click here to open this folder](mech/CAD_3D_Printed_Pieces)
+- **Assemble the Robot**
+Mechanically assembling the robot is quite straight-forward. The tricky part comes with the electrical connections. Make sure you follow correctly the following electrical drawings.
+[Electrical Drawings](elec/ElectricPlanning.pdf)
