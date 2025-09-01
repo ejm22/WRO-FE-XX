@@ -15,7 +15,7 @@ We chose Spike Prime wheels (56mm diameter, 14mm thickness) for their compactnes
 ###### **1.3 Differential (Rear Wheels)** 
 A differential built out of Lego pieces individually bought on BrickLink allows the rear wheels to turn at different speeds for smooth cornering. Printing our own gears would have a low value/complexity ratio, so we built it with Lego pieces. It is very compact and works perfectly fine.
 ###### **1.4 Dimensions Choice**
-We linked both the direction and differential wheel systems together. Considering all the components we would need to fit (Pi, Arduino, stepper motor, ...), we decided to keep an approximate 50mm margin for the width, so max 150mm. A robot that has a big length/width ratio has a big turning radius (like a Formula 1 car). After testing different sizes, we decided to make the robot about 285mm long. This make the turning radius small enough to leave barely any room while turning around a pillar. 
+We linked both the direction and differential wheel systems together. Considering all the components we would need to fit (Pi, Arduino, stepper motor, ...), we decided to keep a minimum approximate 50mm margin for the width, so max 150mm. A robot that has a big length/width ratio has a big turning radius (like a Formula 1 car). After testing different sizes, we decided to make the robot about 285mm long and 135mm wide. This makes the turning radius small enough to leave barely any room while turning around a pillar. 
 
 ---
 
