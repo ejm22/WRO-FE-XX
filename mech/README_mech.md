@@ -8,7 +8,7 @@ We chose Spike Prime wheels (56mm diameter, 14mm thickness) for their compactnes
 - **Prototype:** Parallel beam Lego steering (two beams linked at ends) was tested. It suffered from drifting during turns due to both wheels turning at the same radius.
 - **Ackermann Steering:** Lego-based Ackermann system was built to solve drifting. Final version is 3D-printed to fit the custom base plate.
 
-![Direction Rods for Steering](/mech/CAD_3D_Printed_Pieces/DirectionRods3.png)
+![Direction Rods for Steering](CAD_3D_Printed_Pieces/DirectionRods3.png)
 
 ###### **1.3 Differential (Rear Wheels)** 
 A Lego-built differential allows the rear wheels to turn at different speeds for smooth cornering. Printing our own gears would have a low value/complexity ratio, so we built it with Lego pieces. It is very compact and works perfectly fine.
