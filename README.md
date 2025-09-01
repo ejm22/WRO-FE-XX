@@ -100,4 +100,4 @@ Using any 3D printer, start by 3D printing the necessary parts for the assembly.
 [Click here to open this folder](mech/CAD_3D_Printed_Pieces)
 - **Assemble the Robot**
 Mechanically assembling the robot is quite straight-forward. The tricky part comes with the electrical connections. Make sure you follow correctly the following electrical drawings.
-[Electrical Drawings](elec/ElectricPlanning.pdf)
+[Electrical Drawings](elec/Electric_Planning.pdf)
