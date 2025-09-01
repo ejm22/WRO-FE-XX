@@ -10,9 +10,9 @@
 #include "utils/voltage_utils.h"
 #include "classes/serial_reciever.h"
 
-const int DIR_PIN = 2;       // Pin for stepper motor direction
+const int DIR_PIN = 10;       // Pin for stepper motor direction
 const int STEP_PIN = 9;      // Pin for stepper motor control
-const int ENABLE_PIN = 10;   // Pin for enabling/disabling the stepper motor
+const int ENABLE_PIN = 2;   // Pin for enabling/disabling the stepper motor
 const int ANGLE_PIN = 11;    // Pin for servo control
 const int START_BTN_PIN = 3; // Pin for start button
 const int CHALLENGE_1_PIN = 4; // Pin for challenge 1 button

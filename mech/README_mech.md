@@ -1,78 +1,57 @@
 ### Mechanical Design Approach
-
+[All PNG, STP and STL files are in this directory](./CAD_3D_Printed_Pieces/)
 #### 1\. Basic Mechanical Choices
 
 ###### **1.1 Wheel Choice**
+We chose Spike Prime wheels (56mm diameter, 14mm thickness) for their compactness, grip on vinyl, and familiarity. Larger wheels would make the robot harder to control and take too much space; smaller wheels would complicate the design and lower ground clearance.
+<img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/c5ac25da-1d0f-453b-8c17-f5e84693a9d4" />
 
-We decided to use Spike Prime wheels. They have a 56mm outer diameter and 14mm thickness, which is ideal since they don't use much space. Big wheels would make the robot faster and difficult to control, and would take too much space when turning. Smaller wheels would make the base design very complex and would limit the components we could use since everything would be barely above the ground. The Spike Prime wheels also have lots of grip on vinyl surfaces. 
+###### **1.2 Steering System** 
+- **Prototype:** Parallel beam Lego steering (two beams linked at ends) was tested. It suffered from drifting during turns due to both wheels turning at the same radius.
+- **Ackermann Steering:** Lego-based Ackermann system was built to solve drifting. Final version is 3D-printed to fit the custom base plate.
 
+<img width="700" height="400" alt="image" src="https://github.com/user-attachments/assets/f464be3b-9783-44a1-b989-7284e19a2d47" />
 
-
-###### **1.2 Wheel System 1 : Direction** 
-
-We decided to build a Lego prototype of a parallel direction. It uses two 13 hole beams linked at both ends by H-pieces which have axles leading to the wheels. One of the beams would be fully connected to the base, the other would be moved by the moving piece connected both beams *(See image below)*. The Ackermann direction is usually better, but in this case, the value/complexity ratio isn't high enough.
-
-
-
-###### **1.3 Wheel System 2 : Differential** 
-
-The differential is useful to have the rear wheels going at different speeds while turning. Printing our own gears would have a low value/complexity ratio, so we built it with Lego pieces. It is very compact and works perfectly fine.
-
-
-
+###### **1.3 Differential (Rear Wheels)** 
+A differential built out of Lego pieces individually bought on BrickLink allows the rear wheels to turn at different speeds for smooth cornering. Printing our own gears would have a low value/complexity ratio, so we built it with Lego pieces. It is very compact and works perfectly fine.
 ###### **1.4 Dimensions Choice**
+We linked both the direction and differential wheel systems together. Considering all the components we would need to fit (Pi, Arduino, stepper motor, ...), we decided to keep a minimum approximate 50mm margin for the width, so max 150mm. A robot that has a big length/width ratio has a big turning radius (like a Formula 1 car). After testing different sizes, we decided to make the robot about 285mm long and 135mm wide. This makes the turning radius small enough to leave barely any room while turning around a pillar. 
 
-We linked both the direction and differential wheel system together to decide the best length and width. We had to consider all the components we would need to fit (Pi, Arduino, stepper motor, ...). We decided to keep an approximate 50mm margin for the width, so max 150mm. A robot that has a big length/width ratio has a big turning radius (like a Formula 1 car) so we decided to make the robot about 220mm long. This make the turning radius small enough to leave barely any room while turning around a pillar. 
+---
 
+#### 2\. Structural Prototypes
 
+- **Lego Prototype:** Used 15-hole beams, L-beams, and frames to connect steering and differential systems.
+- **Motor Positioning:** Stepper motor centrally located, axle connected to differential.
+- **Wheel Space:** Front kept thin for steering range.
+- **First Layer:** Held drive motor, DC/DC converter, and servo.
 
-#### 2\. Structure Prototype
+---
 
-###### **2.1 Pieces for Prototype**
+#### 3\. Final 3D-Printed Structure
 
-The prototype for the structure was made out of Lego pieces. We connected the direction and differential wheel systems with 15-hole beams, L beams and frames. 
+- **Base Plate:** Holds wheel systems, stepper, DC/DC, and servo.
+<img width="700" height="400" alt="BasePlaqueV4" src="https://github.com/user-attachments/assets/ed26cf6f-1e57-44ea-9111-e2258d0c9bfd" />
 
+___
 
+- **Middle Plate:** Holds battery pack, Arduino, terminal blocks, stepper driver (on breadboard), and switches.
+<img width="700" height="400" alt="MiddlePlaqueV4" src="https://github.com/user-attachments/assets/753e8e88-8ea8-4e7f-975f-84e3ff07923b" />
 
-###### **2.2 Motor Positioning** 
+___
 
-A space in the middle would fit a motor, with its axle connecting with the differential entry. 
+- **Top Plate:** Holds Raspberry Pi 5, Pi Camera, and driver terminal block.
+<img width="700" height="400" alt="TopPlaqueV4" src="https://github.com/user-attachments/assets/31292077-ac72-448d-aec0-7736a08eae95" />
 
+---
 
+#### 4\. Mounting and Coupling
 
-###### **2.3 Wheel Space**
+- Custom holders for servo, stepper, switches, and camera.
+<img width="700" height="400" alt="image" src="https://github.com/user-attachments/assets/835408aa-e0ad-429c-b7e4-860bc8e3e62b" />
 
-The front of the base had to be thin, so the wheels can turn freely.
+___
 
-
-
-###### **2.4 Electronic Components' Layout**
-
-The Lego-built base represented the first layer of components. This layer would fit the rear-drive motor, the DC/DC converter and the servo motor (direction). 
-
-
-
-#### 3\. Structure
-
-Each following piece is 3D printed in the Prusa Core One in PLA.
-
-###### **3.1 Base Plate**
-
-The base plate holds both wheel systems, the stepper motor, the DC/DC converter and the servo motor. 
-
-
-
-###### **3.2 Middle Plate** 
-
-The middle plate holds the battery pack, the Arduino Uno, the 5V and 12V terminal blocks, the stepper motor driver, its breadboard, and the two power switches. 
-
-
-
-###### **3.3 Top Plate**
-
-The top plate hold the Raspberry Pi 5, the Pi Camera 3, and the driver's terminal block. 
-
-
-
-
+- Stepper coupler connects motor to the differential.
+<img width="700" height="400" alt="image" src="https://github.com/user-attachments/assets/3c08f9e3-0631-4f10-9adb-55721ab2cb71" />
 
