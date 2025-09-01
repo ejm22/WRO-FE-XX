@@ -95,9 +95,20 @@ Have you ever had methods in your class needing the 'self' input to access the o
   [More details](code/raspberry_pi_setup.md)
 
 ## Building Instructions
-- **3D Printing Parts**
-Using any 3D printer, start by 3D printing the necessary parts for the assembly. Every part needed has a STL file which you can use with any printer. If you're adventurous and want to modify a part, open the STEP file in your favorite CAD software. If you're unsure of what part you're printing, make sure to open the PNG file which contains a picture of the part.
+- **3D Printing Parts**\
+Using any 3D printer, start by 3D printing the necessary parts for the assembly. Every part needed has a STL file which you can use with any printer. If you're adventurous and want to modify a part, open the STEP file in your favorite CAD software. If you're unsure of what part you're printing, make sure to open the PNG file which contains a picture of the part.\
 [Click here to open this folder](mech/CAD_3D_Printed_Pieces)
-- **Assemble the Robot**
-Mechanically assembling the robot is quite straight-forward. The tricky part comes with the electrical connections. Make sure you follow correctly the following electrical drawings.
+- **Adjust the Driver**\
+The DRV8825 has a tiny screw to adjust the maximum current output. This isn't a big problem since the NEMA 17 stepper motor requires barely a few hundred mA, but it's good practice to set a limit. Use the DRV8825 Adjuster we custom-built to set this limit ! You can recreate this adjuster using the following drawing.\
+[DRV8825 Adjuster Drawing](elec/Driver_Calibration_Circuit.pdf)
+<table>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/516265fb-f433-4207-b433-87d9a1175ea5" alt="Michael Bruneau" width="300" height="400" /></td>
+    <td><img src="https://github.com/user-attachments/assets/6ecc068c-e378-4e1c-9c0c-3960c86872ee" alt="Emile Jacques" width="300" height="400" /></td>
+  </tr>
+</table>
+
+- **Assemble the Robot**\
+Mechanically assembling the robot is quite straight-forward. The tricky part comes with the electrical connections. Make sure you follow correctly the following electrical drawings.\
+*Take notes, the drawings are quite small ! Make sure to download the PDF files to be able to zoom.*\
 [Electrical Drawings](elec/Electric_Planning.pdf)
