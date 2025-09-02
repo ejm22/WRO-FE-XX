@@ -32,7 +32,7 @@ Our code for motor control is written in C++ and runs on the Arduino. The logic 
 
 ### Stepper Motor Control (Drive)
 
-We use the FlexyStepper library, but the command logic is our own. The driver is **enabled** only when movement is required; otherwise, it is disabled to prevent overheating.
+A stepper motor functions by receiving pulses which activate and deactivate magnets, turning the motor. When decelerating, a stepper can't keep its precision if it stops receiving steps, hence why we need to gradually lower the speed. We use the FlexyStepper library, because it can manage those decelerations. The command logic is our own. The driver is **enabled** only when movement is required; otherwise, it is disabled to prevent overheating.
 
 ```cpp
 #include <FlexyStepper.h>
@@ -104,7 +104,7 @@ A major issue we encountered is **driver overheating**. The DRV8825 gets extreme
 - The demanded speed is zero and the actual speed is low enough.
 - No commands are received for a while.
 
-Below are thermal images showing the overheating issue (in a tab format):
+Below are thermal images showing the results of our code:
 
 <table>
   <tr>
@@ -117,14 +117,15 @@ Below are thermal images showing the overheating issue (in a tab format):
   </tr>
 </table>
 
-*Each image shows the temperature spike when the driver is left enabled, and how disabling it quickly brings the temperature down.*
+*Images show that the driver temperature is around 40 degrees Celsius, which is very normal. We do not have pictures, but it would previously be so hot that touching the driver could cause serious burns*
 
 ---
 
 ## 6. References
 
 - [FlexyStepper Library Documentation](https://github.com/Stan-Reifel/FlexyStepper)
-- [DRV8825 Datasheet](https://www.ti.com/product/DRV8825)
+- [DRV8825 Datasheet](https://www.ti.com/lit/ds/symlink/drv8825.pdf?HQS=dis-dk-null-digikeymode-dsf-pf-null-wwe&ts=1752710261679)
+- [Driver Circuit Used on our Robot: How to Adjust Current Limit](https://www.makerguides.com/drv8825-stepper-motor-driver-arduino-tutorial/)
 - *Main Arduino code: [`code/arduino/src/main.cpp`](../code/arduino/src/main.cpp)*
 
 ---
