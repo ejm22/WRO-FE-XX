@@ -43,10 +43,14 @@ Have you ever had methods in your class needing the 'self' input to access the o
 
 ---
 
-## Mechanical Overview
+## Mobility Management
 
-- **Dimensions:** Max width ~150mm, length 285mm for tight turns and component fit.  
+- **Dimensions:** width 135mm, length 285mm for tight turns and component fit.  
   [More details](mech/README_mech.md#14-dimensions-choice)
+- **Drive Motor:** NEMA 17 stepper (precise, no encoder needed).  
+  [More details](elec/README_elec.md#13-motor-choice)
+- **Steering Motor:** Standard servo motor for simple, precise steering.  
+  [More details](elec/README_elec.md#14-direction-control--servo-motor)
 - **3D-Printed Structure:** Three-layer design (base, middle, top) for easy assembly and access.  
   [More details](mech/README_mech.md#3-final-3d-printed-structure)
 - **Custom Mounts:** Holders for servo, stepper, switches, camera, and stepper coupler.  
@@ -66,14 +70,14 @@ Have you ever had methods in your class needing the 'self' input to access the o
   </tr>
 </table>
 
+### Controlling the Motors
+This following document explains the C++ code used by the Arduino to control both the stepper and servo motors.  
+
+
 ---
 
 ## Electrical & Electronic Overview
 
-- **Drive Motor:** NEMA 17 stepper (precise, no encoder needed).  
-  [More details](elec/README_elec.md#13-motor-choice)
-- **Steering:** Standard servo motor for simple, precise steering.  
-  [More details](elec/README_elec.md#14-direction-control--servo-motor)
 - **Controller:** Raspberry Pi 5 (vision+logic, master) + Arduino Uno R3 (motor driver, slave).  
   [More details](elec/README_elec.md#21-main-components-choice)
 - **Power:** 4s1p 18650 Li-ion (14.4V) pack, DC/DC converter to 5V, terminal blocks for safe distribution.  
