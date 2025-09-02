@@ -72,7 +72,7 @@ Have you ever had methods in your class needing the 'self' input to access the o
 
 ### Controlling the Motors
 This following document explains the C++ code used by the Arduino to control both the stepper and servo motors.  
-
+[Motor Control](code/motor_control.md)
 
 ---
 
