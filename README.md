@@ -49,18 +49,35 @@ Have you ever had methods in your class needing the 'self' input to access the o
   [More details](mech/README_mech.md#14-dimensions-choice)
 - **Drive Motor:** NEMA 17 stepper (precise, no encoder needed).  
   [More details](elec/README_elec.md#13-motor-choice)
-- **Steering Motor:** Standard servo motor for simple, precise steering.  
+- **Steering Motor:** Standard servo motor for simple, precise steering.
   [More details](elec/README_elec.md#14-direction-control--servo-motor)
-- **3D-Printed Structure:** Three-layer design (base, middle, top) for easy assembly and access.  
+- **3D-Printed Structure:** Three-layer design (base, middle, top) for easy assembly and access.
+<img src="https://github.com/user-attachments/assets/85e35aba-d1d7-4a9b-9ccd-64304d10f4f9" width="700" height="400">
+
+<img src="https://github.com/user-attachments/assets/a77fad93-acb5-4cf7-8e73-98f99a5fe356" width="700" height="400">
+
+<img src="https://github.com/user-attachments/assets/81fb3c33-7f9e-419c-99c4-76afcae5621d" width="700" height="400">
+
+<img src="https://github.com/user-attachments/assets/0c307909-5943-4f71-b58f-66a1c21ec9f9" width="700" height="400">
+
+<img src="https://github.com/user-attachments/assets/2bacd053-ec0a-4207-bb49-d4b5b8f2829f" width="700" height="400">
+
   [More details](mech/README_mech.md#3-final-3d-printed-structure)
 - **Custom Mounts:** Holders for servo, stepper, switches, camera, and stepper coupler.  
   [More details](mech/README_mech.md#4-mounting-and-coupling)
-- **Steering:** Ackermann geometry, 3D-printed after Lego prototyping.  
+- **Steering:** Initially parallel beams, now Ackermann geometry, 3D-printed after Lego prototyping. 
+<img width="700" height="700" alt="image" src="https://github.com/user-attachments/assets/e486c290-8327-4dbd-909b-308bcbb0f6b9" />
+
+<img width="700" height="400" alt="image" src="https://github.com/user-attachments/assets/e70a31a5-b710-4278-98e4-82efa7d4b4ed" />
+
   [More details](mech/README_mech.md#12-steering-system)
 - **Wheels:** Spike Prime wheels (56mm diameter, 14mm thick) for compactness and grip.  
   [More details](mech/README_mech.md#11-wheel-choice)
 - **Differential:** Compact Lego-built differential for rear wheels.  
   [More details](mech/README_mech.md#13-differential-rear-wheels)
+
+- **Iterations:** As you can see in the following image, this was an iterative project with many versions of each part. 
+<img width="1329" height="746" alt="image" src="https://github.com/user-attachments/assets/23bc6291-90cc-4661-bfed-2bcdd2166c82" />
 
 #### Here's a general view of the robot in SolidWorks. The second picture is an exploded view of it, so you can see the detachable pieces.
 <table>
