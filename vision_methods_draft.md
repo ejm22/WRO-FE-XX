@@ -18,7 +18,40 @@ The camera pipeline produces these images used by the algorithms:
 - polygon_image: binary map of the drivable corridor (walls are black=0, free space is white=255)
 - display_image: BGR frame used for debug overlays (text, lines, circles)
 - obstacle_image / pink_obstacle_image: binary masks for color obstacles
-- hsv_image: HSV frame for color analysis
+- blueline_image & orangeline_image : HSV frame for color analysis
+
+<table>
+  <tr>
+    <td align="center">
+      <strong>Display Image Open Challenge</strong><br>
+      <img src="https://github.com/user-attachments/assets/924e428f-c0ea-4ef4-959d-12420b2773ab" width="700">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>Display Image Obstacle Challenge</strong><br>
+      <img src="https://github.com/user-attachments/assets/f61b0e58-9b93-4888-8548-6ec4ca5e9cb8" width="700">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>Polygon Image</strong><br>
+      <img src="https://github.com/user-attachments/assets/c8e8c91d-449f-45dc-88c7-7d1e1df058a3" width="700">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>Obstacle Image</strong><br>
+      <img src="https://github.com/user-attachments/assets/35c2a820-98f5-4030-97ef-c1d3fdaa19da" width="700">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>Lines Image</strong><br>
+      <img src="https://github.com/user-attachments/assets/186cd617-33ae-475b-ba15-ccbb2e6fb1e4" width="700">
+    </td>
+  </tr>
+</table>
 
 See [`CameraManager`](code/XX_2025_package/classes/camera_manager.py) and [`ImageTransformUtils`](code/XX_2025_package/utils/image_transform_utils.py).
 
