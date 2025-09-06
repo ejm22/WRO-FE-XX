@@ -4,13 +4,7 @@ from XX_2025_package.utils.enums import Direction
 from XX_2025_package.utils.image_color_utils import ImageColorUtils
 from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
 from XX_2025_package.utils.enums import Color
-from XX_2025_package.classes.logger import Logger
 import time
-
-LINE_COORDS = {
-    Direction.RIGHT: (ImageTransformUtils.PIC_HEIGHT - 1, 0),
-    Direction.LEFT: (ImageTransformUtils.PIC_HEIGHT - 1, ImageTransformUtils.PIC_WIDTH - 1)
-}
 
 class LapState(Enum):
     INITIAL_STATE = 0
@@ -25,6 +19,12 @@ class LapTracker:
         self.time_stamp = 0
 
     def process_image(self, blue_img, orange_img):
+        """
+        Process the given blue and orange mask images to track lap progress, using a state machine.
+        I/O:
+            blue_img: binary image mask for blue color
+            orange_img: binary image mask for orange color
+        """
         if self.context_manager.get_direction() is not None:
             finds_blue = np.any(blue_img[ImageTransformUtils.PIC_HEIGHT - 130: ImageTransformUtils.PIC_HEIGHT - 30, ImageTransformUtils.PIC_WIDTH // 2 - 20: ImageTransformUtils.PIC_WIDTH // 2 + 20])
             finds_orange = np.any(orange_img[ImageTransformUtils.PIC_HEIGHT - 130: ImageTransformUtils.PIC_HEIGHT - 30, ImageTransformUtils.PIC_WIDTH // 2 - 20: ImageTransformUtils.PIC_WIDTH // 2 + 20])
@@ -42,6 +42,11 @@ class LapTracker:
 
 
     def _process_color(self, detected_color):
+        """
+        Process the detected color based on the current direction and state.
+        I/O:
+            detected_color: Color enum indicating the detected color (BLUE or ORANGE)
+        """
         direction = self.context_manager.get_direction()
         if direction == Direction.LEFT:
             self._process_left_direction(detected_color)
@@ -50,6 +55,11 @@ class LapTracker:
             
     
     def _process_left_direction(self, detected_color):
+        """
+        Changes state depending on color detected.
+        I/O:
+            detected_color: Color enum indicating the detected color (BLUE or ORANGE)
+        """
         if self._state == LapState.INITIAL_STATE:
             self._state = LapState.LOOKING_FOR_BLUE
 
@@ -73,6 +83,11 @@ class LapTracker:
             
 
     def _process_right_direction(self, detected_color):
+        """
+        Changes state depending on color detected.
+        I/O:
+            detected_color: Color enum indicating the detected color (BLUE or ORANGE)
+        """
         if self._state == LapState.INITIAL_STATE:
             self._state = LapState.LOOKING_FOR_ORANGE
     

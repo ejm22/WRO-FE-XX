@@ -186,7 +186,7 @@ if __name__ == "__main__":
         for i in range (41, -41, -6):
             camera_manager.draw_arc(camera_manager.cropped_image, i)
         #    time.sleep(.5)
-        cv2.imshow("Lol", camera_manager.obstacle_image)
+        cv2.imshow("test", camera_manager.obstacle_image)
 
         time.sleep(0.01)
         key = cv2.waitKey(1)  # Let OpenCV update the window

@@ -15,6 +15,14 @@ COLOR_RANGES = {
 class ImageColorUtils:
     @staticmethod
     def calculate_color_mask(hsv_img, color):
+        """
+        Generate a binary mask for the specified color in an HSV image.
+
+        I/O:
+            hsv_img (np.ndarray): The input HSV image.
+            color (Color): The color to detect (must be a key in COLOR_RANGES).
+            returns: np.ndarray: A binary mask where the specified color is white (255) and all else is black (0).
+        """
         lower = COLOR_RANGES[color][0].copy()
         upper = COLOR_RANGES[color][1].copy()
         if upper[0] > 179:

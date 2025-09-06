@@ -3,6 +3,9 @@ import numpy as np
 from XX_2025_package.classes.camera_manager import CameraManager
 
 class HSVRangeHighlighter:
+    """
+    A utility class to adjust and highlight specific HSV ranges in an image using OpenCV trackbars.
+    """
     def __init__(self, window_name="HSV Range Highlighter"):
         self.window_name = window_name
         cv2.namedWindow(self.window_name)
@@ -45,17 +48,12 @@ class HSVRangeHighlighter:
 
         cv2.destroyAllWindows()
 
-# 📷 Example usage
 if __name__ == "__main__":
 
     camera_manager = CameraManager()
     camera_manager.start_camera()
     camera_manager.capture_image() 
     camera_manager.transform_image()
-    
-    #image = cv2.imread("img/Image_1.jpg")
-    #if image is None:
-    #    raise ValueError("Image not found. Check the path.")
 
     hsv = cv2.cvtColor(camera_manager.raw_image, cv2.COLOR_BGR2HSV)
     highlighter = HSVRangeHighlighter()

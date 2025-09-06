@@ -230,18 +230,15 @@ if __name__ == "__main__":
                 if angle_pink is not None and pink_y is not None:
                     if obstacle_y is not None:
                         if (pink_y + 5) > obstacle_y:
-                            #print("PINK 1")
                             angle = angle_pink
                             is_green = side
                             is_pink = 1
                             speed = 2000
                     else:
-                        #print("PINK 2")
                         angle = angle_pink
                         is_green = side
-                        is_pink = 1
                         speed = 2000
-                angle_obstacles = image_algorithms.calculate_servo_angle_from_obstacle(angle, is_green, is_pink)
+                angle_obstacles = image_algorithms.calculate_servo_angle_from_obstacle(angle, is_green)
                 if camera_manager.display_image is not None:
                     cv2.imshow("Display_image", camera_manager.display_image)
                 angle_walls, _ = image_algorithms.calculate_servo_angle_from_walls()
@@ -280,9 +277,8 @@ if __name__ == "__main__":
                 #print("Poly Lines = ", camera_manager.polygon_lines)
                 angle_walls, _ = image_algorithms.calculate_servo_angle_from_walls(True)
                 #print ("angle_walls = ", angle_walls)
-                top_angle = image_algorithms.get_top_line_angle(True)
+                top_angle = image_algorithms.get_top_line_angle()
                 #print("Top angle = ", top_angle)
-                #servo_angle = ImageAlgorithms.calculate_servo_angle_parking(angle_walls, top_angle)
                 if arduino.in_waiting > 0:
                     if arduino.read().decode('utf-8') == 'F':
                         print("Done")

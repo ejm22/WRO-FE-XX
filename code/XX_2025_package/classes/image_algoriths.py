@@ -337,8 +337,24 @@ class ImageAlgorithms:
         self.old_angle = angle
         self.old_is_green = is_green
         return angle, is_green, x_center, y_center
+    
 
     def find_pink_obstacle_angle(self):
+        """
+        Detect the largest pink obstacle and calculate the avoidance angle.
+
+        This method finds the largest pink obstacle in the image, optionally considers a second obstacle
+        if it is more relevant based on the robot's direction, and computes the angle needed to steer
+        around it. The angle is calculated by drawing a line from the obstacle's center to the appropriate
+        side of the image, depending on the current wall-following direction.
+
+        Returns:
+            tuple: (angle, x_center, y_center, left)
+                - angle (float): The calculated avoidance angle in degrees, or None if no valid obstacle is found.
+                - x_center (int): The x-coordinate of the obstacle's center.
+                - y_center (int): The y-coordinate of the obstacle's center.
+                - left (bool): True if the robot should pass the obstacle on the left, False otherwise.
+        """
         direction = self.context_manager.get_direction()
         _, _, rect, rect2 = ImageDrawingUtils.find_rect(self.camera_manager.pink_mask, self.camera_manager.polygon_image)
         # Check if a rectangle was found
@@ -378,7 +394,14 @@ class ImageAlgorithms:
         return angle, x_center, y_center, left
 
     @staticmethod
-    def calculate_servo_angle_from_obstacle(object_angle, is_green, pink = 0):
+    def calculate_servo_angle_from_obstacle(object_angle, is_green):
+        """
+        Calculate the servo angle based on the obstacle's angle and color
+        I/O:
+            object_angle: angle of the line from the obstacle to the reference point
+            is_green: boolean indicating if the obstacle is green (True) or red (False)
+            return: servo angle to avoid the obstacle
+        """
         if object_angle is None:
             return None
         kp = 1.5
@@ -395,14 +418,23 @@ class ImageAlgorithms:
     @staticmethod
     def choose_output_angle(angle_walls, angle_obstacles):
         if angle_obstacles is None:
-            #print("Walls at angle : ", angle_walls)
             return angle_walls
-        #print("Obstacles at angle : ", angle_obstacles)
         return angle_obstacles
 
-    def get_top_line_angle(self, use_cutoff):
+    def get_top_line_angle(self):
+        """
+        Calculate the angle of the top (back) wall line segment that crosses the middle of the image.
+
+        This method iterates through the polygon lines detected in the image, finds the line segment that crosses
+        the horizontal middle (with a direction-dependent offset), and returns its angle in degrees.
+
+        Returns:
+            float or None: The angle in degrees of the top line crossing the middle, or None if not found.
+        """
         is_in_middle = False
         poly_lines = self.camera_manager.polygon_lines
+        
+        # finding the back wall line
         for i in range(len(poly_lines)):
             pt1 = poly_lines[i][0]
             pt2 = poly_lines[(i+1) % len(poly_lines)][0]
@@ -412,37 +444,23 @@ class ImageAlgorithms:
                 or pt1[0] < (ImageTransformUtils.PIC_WIDTH // 2 + self.context_manager.get_direction().value * 50) < pt2[0]):
                 is_in_middle = True
             angle = np.degrees(np.arctan2(dy,dx))
+            
+            # different cut-off depending on the challenge
             if self.context_manager.CHALLENGE == 1:
                 if ((angle > 170) or (angle < -170)) and is_in_middle:
-                    #print("pt2 x : ", pt2[0])
-                    #print("pt1 x : ", pt1[0])
-                    #print("Top wall angle = ", angle)
                     return angle
             else:
                 if ((angle > 178) or (angle < -178)) and is_in_middle:
-                    #print("pt2 x : ", pt2[0])
-                    #print("pt1 x : ", pt1[0])
-                    #print("Top wall angle = ", angle)
                     return angle
         return None
 
-    @staticmethod
-    def calculate_servo_angle_parking(wall_angle):
-        if wall_angle  is None:
-            return None
-        #servo_angle = math.pow(object_angle * 0.1, 2) * 0.5
-        if wall_angle > 0:
-            servo_angle = STRAIGHT_ANGLE - (wall_angle -180) * 10
-        else:
-            servo_angle = STRAIGHT_ANGLE - (wall_angle +180) * 10
-
-        if servo_angle < MIN_ANGLE:
-            servo_angle = MIN_ANGLE
-        elif servo_angle > MAX_ANGLE:
-            servo_angle = MAX_ANGLE
-        return int(servo_angle)
     
     def get_starting_position(self):
+        """
+        Determine the starting position (front or back) by measuring the distance to the back wall.
+        I/O:
+            return: StartPosition enum indicating FRONT or BACK
+        """
         distance = self.get_back_wall_distance()
         self.context_manager.set_parking_distance(distance)
 
@@ -454,6 +472,11 @@ class ImageAlgorithms:
         
         
     def get_back_wall_distance(self):
+        """
+        Estimate the distance to the back wall by averaging the y-values of black pixels in the middle columns.
+        I/O:
+            return: estimated distance to the back wall
+        """
         NBR_COLS = 10
         mid_x = ImageTransformUtils.PIC_WIDTH // 2
         start = mid_x - (NBR_COLS // 2)
@@ -461,26 +484,3 @@ class ImageAlgorithms:
         cols = range(start, end)
         
         return np.mean(self.find_black_from_bottom(self.camera_manager.polygon_image, cols))
-
-    
-    def get_top_line_distance(self):
-        if self.camera_manager.polygon_lines is None:
-            return None
-        
-        poly_lines = self.camera_manager.polygon_lines
-        
-        # start value of infinity
-        highest_y = float('inf')
-        
-        for i in range(len(poly_lines)):
-            pt1 = poly_lines[i][0]
-            pt2 = poly_lines[(i+1) % len(poly_lines)][0]
-            
-            line_y = min(pt1[1], pt2[1])
-            
-            if line_y < highest_y:
-                highest_y = line_y
-
-        print(highest_y)
-        
-        return highest_y

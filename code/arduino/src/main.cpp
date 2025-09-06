@@ -81,6 +81,7 @@ void loop() {
     }
 }
 
+
 int getSelectedChallenge() {
     if (digitalRead(CHALLENGE_1_PIN) == LOW) {
         return 1;

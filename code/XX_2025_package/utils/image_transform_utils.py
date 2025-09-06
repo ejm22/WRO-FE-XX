@@ -13,6 +13,9 @@ MATRIX_SIZE = 5                 # size of the kernel for morphological operation
 
 
 class ImageTransformUtils:
+    """
+    A utility class for various image transformation operations.
+    """
 
     CAMERA_PIC_WIDTH = 640                 # reduced image width
     CAMERA_PIC_HEIGHT = 360                # reduced image height
@@ -37,6 +40,7 @@ class ImageTransformUtils:
     def erode(img):
         kernel = np.ones((3,3), np.uintp)
         eroded_image = cv2.erode(img, kernel, iterations=2)
+        return eroded_image
 
     @staticmethod
     def remove_color(hsv_img, target_img, color):

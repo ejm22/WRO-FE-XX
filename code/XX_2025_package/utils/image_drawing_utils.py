@@ -25,6 +25,13 @@ class ImageDrawingUtils:
     
     @staticmethod
     def find_contour(img, white = 0):
+        """
+        Finds the biggest and second biggest contour in a binary image.
+        I/O:
+            img: binary image
+            white: if 1, only contours containing the bottom center point are considered
+            returns: biggest contour, second biggest contour (or None if not found)
+        """
         contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if white == 1:
             target_pt = (ImageTransformUtils.PIC_WIDTH / 2, ImageTransformUtils.PIC_HEIGHT - 10)
@@ -40,8 +47,13 @@ class ImageDrawingUtils:
 
     @staticmethod
     def draw_polygon(binary_img, target_img):
-        #cv2.imshow("drawpolygon", binary_img)
-        #binary_img = ImageUtils.dilate(binary_img)
+        """
+        Finds a polygon in the binary image and draws it on the target image.
+        I/O:
+            binary_img: binary image to find the polygon in
+            target_img: image to draw the polygon on
+            returns: target_img with polygon drawn, polygon points (or None if not found)
+        """
         cnt, _ = ImageDrawingUtils.find_contour(binary_img, 1)
         if cnt is None: return target_img, None
         epsilon = 0.001*cv2.arcLength(cnt, True)  # was 0.004
