@@ -35,19 +35,76 @@ We linked both the direction and differential wheel systems together. Considerin
 #### 3\. Final 3D-Printed Structure
 
 - **Base Plate:** Holds wheel systems, stepper, DC/DC, and servo.
-<img width="700" height="400" alt="BasePlaqueV4" src="https://github.com/user-attachments/assets/ed26cf6f-1e57-44ea-9111-e2258d0c9bfd" />
+<table>
+  <tr>
+    <td align="center">
+      <strong>BasePlaqueV4 CAD</strong><br>
+      <img src="https://github.com/user-attachments/assets/ed26cf6f-1e57-44ea-9111-e2258d0c9bfd" width="700" height="400">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>BasePlaqueV4 Installation</strong><br>
+      <img src="https://github.com/user-attachments/assets/85e35aba-d1d7-4a9b-9ccd-64304d10f4f9" width="700" height="400">
+    </td>
+  </tr>
+</table>
 
 ___
 
 - **Middle Plate:** Holds battery pack, Arduino, terminal blocks, stepper driver (on breadboard), and switches.
-<img width="700" height="400" alt="MiddlePlaqueV4" src="https://github.com/user-attachments/assets/753e8e88-8ea8-4e7f-975f-84e3ff07923b" />
+<table>
+  <tr>
+    <td align="center">
+      <strong>MiddlePlaqueV4 CAD</strong><br>
+      <img src="https://github.com/user-attachments/assets/753e8e88-8ea8-4e7f-975f-84e3ff07923b" width="700" height="400">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>MiddlePlaqueV4 Installation</strong><br>
+      <img src="https://github.com/user-attachments/assets/a77fad93-acb5-4cf7-8e73-98f99a5fe356" width="700" height="400">
+    </td>
+  </tr>
+</table>
 
 ___
 
 - **Top Plate:** Holds Raspberry Pi 5, Pi Camera, and driver terminal block.
-<img width="700" height="400" alt="TopPlaqueV4" src="https://github.com/user-attachments/assets/31292077-ac72-448d-aec0-7736a08eae95" />
+
+<table>
+  <tr>
+    <td align="center">
+      <strong>TopPlaqueV4 CAD</strong><br>
+      <img src="https://github.com/user-attachments/assets/31292077-ac72-448d-aec0-7736a08eae95" width="700" height="400">
+    </td>
+  </tr>
+</table>
 
 ___
+
+- **3D Views of Complete Product**
+
+<table>
+  <tr>
+    <td align="center">
+      <strong>Left Side View</strong><br>
+      <img src="https://github.com/user-attachments/assets/81fb3c33-7f9e-419c-99c4-76afcae5621d" width="700" height="400">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>Top View</strong><br>
+      <img src="https://github.com/user-attachments/assets/0c307909-5943-4f71-b58f-66a1c21ec9f9" width="700" height="400">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>Bottom View</strong><br>
+      <img src="https://github.com/user-attachments/assets/2bacd053-ec0a-4207-bb49-d4b5b8f2829f" width="700" height="400">
+    </td>
+  </tr>
+</table>
 
 - **Iterations:** As you can see in the following image, this was an iterative project with many versions of each part. 
 <img width="1329" height="746" alt="image" src="https://github.com/user-attachments/assets/23bc6291-90cc-4661-bfed-2bcdd2166c82" />
