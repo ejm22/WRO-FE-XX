@@ -8,9 +8,12 @@ We chose Spike Prime wheels (56mm diameter, 14mm thickness) for their compactnes
 
 ###### **1.2 Steering System** 
 - **Prototype:** Parallel beam Lego steering (two beams linked at ends) was tested. It suffered from drifting during turns due to both wheels turning at the same radius.
-- **Ackermann Steering:** Lego-based Ackermann system was built to solve drifting. Final version is 3D-printed to fit the custom base plate.
+<img width="700" height="700" alt="image" src="https://github.com/user-attachments/assets/e486c290-8327-4dbd-909b-308bcbb0f6b9" />
 
+- **Ackermann Steering:** Lego-based Ackermann system was built to solve drifting. Final version is 3D-printed to fit the custom base plate.
 <img width="700" height="400" alt="image" src="https://github.com/user-attachments/assets/f464be3b-9783-44a1-b989-7284e19a2d47" />
+
+<img width="700" height="400" alt="image" src="https://github.com/user-attachments/assets/e70a31a5-b710-4278-98e4-82efa7d4b4ed" />
 
 ###### **1.3 Differential (Rear Wheels)** 
 A differential built out of Lego pieces individually bought on BrickLink allows the rear wheels to turn at different speeds for smooth cornering. Printing our own gears would have a low value/complexity ratio, so we built it with Lego pieces. It is very compact and works perfectly fine.
@@ -25,6 +28,7 @@ We linked both the direction and differential wheel systems together. Considerin
 - **Motor Positioning:** Stepper motor centrally located, axle connected to differential.
 - **Wheel Space:** Front kept thin for steering range.
 - **First Layer:** Held drive motor, DC/DC converter, and servo.
+<img width="700" height="400" alt="image" src="https://github.com/user-attachments/assets/c30e563b-5177-4f33-b9d7-738bdfb9febb" />
 
 ---
 
@@ -42,6 +46,11 @@ ___
 
 - **Top Plate:** Holds Raspberry Pi 5, Pi Camera, and driver terminal block.
 <img width="700" height="400" alt="TopPlaqueV4" src="https://github.com/user-attachments/assets/31292077-ac72-448d-aec0-7736a08eae95" />
+
+___
+
+- **Iterations:** As you can see in the following image, this was an iterative project with many versions of each part. 
+<img width="1329" height="746" alt="image" src="https://github.com/user-attachments/assets/23bc6291-90cc-4661-bfed-2bcdd2166c82" />
 
 ---
 
