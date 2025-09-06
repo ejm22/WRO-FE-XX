@@ -108,12 +108,16 @@ Below are thermal images showing the results of our code:
 
 <table>
   <tr>
-    <td><img src="DRIVER_TEMP_IMAGE_1_URL" alt="Driver Temp 1" width="350"></td>
-    <td><img src="DRIVER_TEMP_IMAGE_2_URL" alt="Driver Temp 2" width="350"></td>
+    <td align="center">
+      <strong>Stepper Driver and Servo Motor Temperatures</strong><br>
+      <img src="https://github.com/user-attachments/assets/2324285f-1a4a-4348-b22a-1da7814990e9" width="700" height="400">
+    </td>
   </tr>
   <tr>
-    <td><img src="DRIVER_TEMP_IMAGE_3_URL" alt="Driver Temp 3" width="350"></td>
-    <td><img src="DRIVER_TEMP_IMAGE_4_URL" alt="Driver Temp 4" width="350"></td>
+    <td align="center">
+      <strong>Robot Temperature Overview</strong><br>
+      <img src="https://github.com/user-attachments/assets/a86ac9c4-c1d0-466d-ac09-9e88162d640d" width="700" height="400">
+    </td>
   </tr>
 </table>
 
