@@ -102,7 +102,7 @@ This following document explains the C++ code used by the Arduino to control bot
 Make sure you have all components ready before starting: 3D-printed parts, motors, drivers, electronics, screws, and connectors. A complete detailed table with quantities, sources, and usage is included below for reference.\
 [Click here to open the parts list](XX_Parts_Lists.pdf)
 - **3D Printing Parts**\
-Using any 3D printer, start by 3D printing the necessary parts for the assembly. Every part needed has a STL file which you can use with any printer. If you're adventurous and want to modify a part, open the STEP file in your favorite CAD software. If you're unsure of what part you're printing, make sure to open the PNG file which contains a picture of the part.\
+Using any 3D printer, start by 3D printing the necessary parts for the assembly. We used a Prusa Core 1. Every part needed has a STL file which you can use with any printer. If you're adventurous and want to modify a part, open the STEP file in your favorite CAD software. If you're unsure of what part you're printing, make sure to open the PNG file which contains a picture of the part.\
 [Click here to open this folder](mech/CAD_3D_Printed_Pieces)
 - **Adjust the Driver**\
 The DRV8825 has a tiny screw to adjust the maximum current output. This isn't a big problem since the NEMA 17 stepper motor requires barely a few hundred mA, but it's good practice to set a limit. Use the DRV8825 Adjuster we custom-built to set this limit ! You can recreate this adjuster using the following drawing.\
