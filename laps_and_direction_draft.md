@@ -56,20 +56,6 @@ Window used for detection in [`LapTracker.process_image`](code/XX_2025_package/c
 - Rows: PIC_HEIGHT − 130 to PIC_HEIGHT − 30
 - Columns: ±20 pixels around the center x
 
-```python
-def process_image(self, blue_img, orange_img):
-    if self.context_manager.get_direction() is not None:
-        h0, h1 = ImageTransformUtils.PIC_HEIGHT - 130, ImageTransformUtils.PIC_HEIGHT - 30
-        w0, w1 = ImageTransformUtils.PIC_WIDTH // 2 - 20, ImageTransformUtils.PIC_WIDTH // 2 + 20
-        finds_blue = np.any(blue_img[h0:h1, w0:w1])
-        finds_orange = np.any(orange_img[h0:h1, w0:w1])
-
-        if self.context_manager.get_direction() == Direction.LEFT:
-            self._process_left_direction(Color.BLUE if finds_blue else (Color.ORANGE if finds_orange else None))
-        else:
-            self._process_right_direction(Color.ORANGE if finds_orange else (Color.BLUE if finds_blue else None))
-```
-
 State machine (LEFT direction) in [`LapTracker._process_left_direction`](code/XX_2025_package/classes/lap_tracker.py):
 - INITIAL_STATE → LOOKING_FOR_BLUE
 - LOOKING_FOR_BLUE: if BLUE seen → LOOKING_FOR_ORANGE
@@ -110,6 +96,10 @@ Quarter and lap accounting:
 - Every time the color pair completes, [`ContextManager.increment_quarter_lap_count`](code/XX_2025_package/classes/context_manager.py) is called.
 - The context tracks quarter count and laps; when enough quarters have been seen, the lap count increases.
 - [`ContextManager.is_last_quarter`](code/XX_2025_package/classes/context_manager.py) and [`ContextManager.has_completed_laps`](code/XX_2025_package/classes/context_manager.py) are used to slow down or stop after the goal.
+
+Block diagram:
+<td><img width="451" height="351" alt="lap_drawio" src="https://github.com/user-attachments/assets/3ba41fd4-2518-42e0-9947-35b0791705ea" /></td>
+<br><br>
 
 ## End-to-End Usage Snippet
 
