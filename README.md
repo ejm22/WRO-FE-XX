@@ -338,8 +338,8 @@ Priority in practice:
 ## Software Key Components
 
 - **Communication:** Serial communication via USB cable between Arduino and Pi (using custom protocol).\
-  [More details](code/md/communication.md)
+  [Communications Protocol Details](code/md/communication.md)
 - **Raspberry Pi Environment Setup:** Downloading utilities on your Pi, creating a virtual environment (venv), and installing dependencies.\
-  [More details](code/md/raspberry_pi_setup.md)
+  [How to Setup your Raspberry Pi](code/md/raspberry_pi_setup.md)
 
 ---
