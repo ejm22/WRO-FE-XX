@@ -4,12 +4,6 @@ This explains how parking works end-to-end in both challenges:
 - **Challenge 1**: Determine FRONT vs BACK start using back-wall height at image center, drive laps, detect the "last corner" to localize position, execute a precise step-targeted move.
 - **Challenge 2**: Complete 3 laps with obstacle avoidance, approach pink parking markers, execute a complex parallel parking maneuver.
 
-Key files and symbols:
-- Main flow: [code/XX_2025_package/main.py](code/XX_2025_package/main.py) (see [`MOVE_TO_FRONT_ZONE`](code/XX_2025_package/main.py))
-- Vision: [code/XX_2025_package/classes/image_algoriths.py](code/XX_2025_package/classes/image_algoriths.py)
-- Context: [code/XX_2025_package/classes/context_manager.py](code/XX_2025_package/classes/context_manager.py)
-- Lap tracking: [code/XX_2025_package/classes/lap_tracker.py](code/XX_2025_package/classes/lap_tracker.py)
-
 ## Challenge 1 Parking
 
 ### 1) Classify the start zone (FRONT vs BACK)

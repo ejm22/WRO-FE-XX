@@ -4,7 +4,8 @@ Documentation for team Double-X's robot for WRO 2025 - Future Engineers.
 ---
 
 ## The Team
-Team Double-X is made of 2 engineering students, Michael Bruneau and Emile Jacques, and we've been teammates since 2015 !
+Team Double-X is made of 2 engineering students, Michael Bruneau and Emile Jacques, and we've been teammates since 2015 !  
+[Our Facebook Page since 2015](https://www.facebook.com/1WROCanadaDoubleX)
 
 <table>
   <tr>
@@ -36,10 +37,10 @@ Have you ever had methods in your class needing the 'self' input to access the o
 
 ## Performance Videos
 ### Challenge 1
+[Open Challenge Video on Youtube: ](https://youtu.be/OgR29EYXkdw)
 
 ### Challenge 2
-
-### Extra Informative Video
+[Obstacle Challenge Video on Youtube: ](https://youtu.be/s9inOFHvLYA)
 
 ---
 
@@ -231,9 +232,14 @@ Priority in practice:
 - The direction (LEFT/RIGHT) simply flips the sign of the control so one algorithm works for both sides.
 - Corner detection from the wall controller’s derivative is used elsewhere (for example during parking) to trigger special maneuvers.
 
+───────────────
+
+### Block diagram:
+<td><img width="598" height="601" alt="vision_drawio" src="https://github.com/user-attachments/assets/d5e8e839-0882-47c3-935e-1129bcbaee61" /></td>
+
 ### Extras
 - Lap tracking and direction detection [details here.](code/md/laps_and_direction.md)
-- Parking [details here](code/md/parking.md)
+- Parking [details here.](code/md/parking.md)
 
 ---
 
