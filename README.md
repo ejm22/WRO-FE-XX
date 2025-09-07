@@ -4,7 +4,7 @@ Documentation for team Double-X's robot for WRO 2025 - Future Engineers.
 ---
 
 ## The Team
-Team Double-X is made of 2 engineering students, Michael Bruneau and Emile Jacques, and we've been teammates since 2015 !
+Team Double-X is made of 2 engineering students, Michael Bruneau and Emile Jacques, and we've been teammates since 2015 !  
 [Our Facebook Page since 2015](https://www.facebook.com/1WROCanadaDoubleX)
 
 <table>
