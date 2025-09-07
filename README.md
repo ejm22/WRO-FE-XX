@@ -114,7 +114,14 @@ The DRV8825 has a tiny screw to adjust the maximum current output. This isn't a 
   </tr>
 </table>
 
-## Electrical & Electronic Overview
+- **Assemble the Robot**\
+Mechanically assembling the robot is quite straight-forward. The tricky part comes with the electrical connections. Make sure you follow correctly the following electrical drawings.\
+*Take notes, the drawings are quite small ! Make sure to download the PDF files to be able to zoom.*\
+[Electrical Drawings](elec/Electric_Planning.pdf)
+
+---
+
+## Power & Sense Management
 
 - **Controller:** Raspberry Pi 5 (vision+logic, master) + Arduino Uno R3 (motor driver, slave).  
   [More details](elec/README_elec.md#21-main-components-choice)
@@ -127,14 +134,61 @@ The DRV8825 has a tiny screw to adjust the maximum current output. This isn't a 
 - **Wiring:** Terminal blocks and breadboard help organize and distribute power/signals.  
   [More details](elec/README_elec.md#3-wiring-and-distribution)
 
----
+### Battery Runtime Calculation (1 hour at max load)
+Here is the table of component power requirements : 
 
-## Software & Logic Overview
+| Component                  | Voltage Requirement | Current Requirement |
+|----------------------------|:------------------:|:------------------:|
+| **Raspberry Pi 5**         | 5V                 | up to 3A           |
+| **Arduino Uno R3**         | 5V                 | ~40mA              |
+| **NEMA 17 Stepper Motor**  | 12V (via driver)   | Via Driver (so 0)  |
+| **DRV8825 Stepper Driver** | 12V                | ~700mA             |
+| **Servo Motor (steering)** | 5V                 | ~700mA             |
+| **Pi Camera 3 Wide**       | 5V (via Pi)        | Via Pi (so 0)      |
+| **DC/DC Converter**        | 14.4V in, 5V out   | 80% efficiency     |
+| **4s1p 18650 Li-Ion Pack** | 14.4V              | up to 2.85A        |
 
-- **Communication:** Serial communication via USB cable between Arduino and Pi (using custom protocol).\
-  [More details](code/md/communication.md)
-- **Raspberry Pi Environment Setup:** Downloading utilities on your Pi, creating a virtual environment (venv), and installing dependencies.\
-  [More details](code/md/raspberry_pi_setup.md)
+Given the table, here's a quick calculation for **1 hour** of operation at maximum power:
+
+#### Step 1: 5V Side Consumption
+- Raspberry Pi 5: 3.00A  
+- Arduino Uno R3: 0.04A  
+- Servo Motor: 0.70A  
+- **Total 5V current:** 3.74A  
+
+**Power at 5V:**  
+3.74A × 5V = **18.7W**
+
+#### Step 2: Account for DC/DC Efficiency (80%)
+**Battery power needed for 5V rail:**  
+18.7W / 0.8 = **23.4W**
+
+#### Step 3: Add Stepper Driver (12V side)
+DRV8825: 0.70A × 12V = **8.4W**
+
+#### Step 4: Total Battery Power & Current
+**Total power from battery:**  
+23.4W (5V rail) + 8.4W (stepper) = **31.8W**  
+**Current from battery:**  
+31.8W / 12V = **2.65A**
+
+#### Step 5: Battery Capacity Needed (1 hour)
+2.65A × 1h = **2.65Ah**
+
+#### Conclusion
+At full load, 1 hour of runtime requires **2.65Ah** at 12V.  
+The 4s1p 18650 pack (2.85Ah) is just enough for 1 hour at max draw.
+
+**In practice:** Most components use less than max (the Pi uses less than half), the robot is often idle, the DC/DC's efficiency is actually closer to 86%, and the stepper driver is disabled at 0 speed. In real use, the robot lasts 3–4 times longer, so the 4s1p pack is more than sufficient. We also have 8 cells in total so while 4 of them are used, the other 4 are charging, and it takes less time to charge batteries to full than to empty them.
+
+### Security Measures
+We added many security mesures on our robot to assure a safe robot and minimal reliability issues with parts.
+- **Fuse:** We use a 3A fuse between the battery pack and the rest of the robot's electrical connexions to ensure the pack's safety.
+- **Switches:** A Main Switch and a Driver Switch are installed. We are then able to shutdown the stepper motor in one click, or the entire robot in one different click.
+- **Front Wing (Bumper):** A front wing was added to the front of the robot to make it crashproof. This keeps the important mechanical and electrical parts of the robot from absorbing the shock.
+- **Terminal Blocks:** Terminal blocks were added for safer and easier electrical connexions. No short circuits in sight :)
+- **Battery Pack Orientation:** Some of the cells would sometimes move too much from an impact between the robot and the wall, even with the bumper. By rotating the pack by 90 degrees, the cells won't be able to move.
+- **Voltmeter:** A voltmeter was added on the side of the robot, connected right after the fuse, to show the battery pack's voltage. This is extremely useful since we preferably never want our voltage to go below 10.8V (for cell preservation). 
 
 ---
 
@@ -263,7 +317,11 @@ Priority in practice:
 
 ---
 
-- **Assemble the Robot**\
-Mechanically assembling the robot is quite straight-forward. The tricky part comes with the electrical connections. Make sure you follow correctly the following electrical drawings.\
-*Take notes, the drawings are quite small ! Make sure to download the PDF files to be able to zoom.*\
-[Electrical Drawings](elec/Electric_Planning.pdf)
+## Software Key Components
+
+- **Communication:** Serial communication via USB cable between Arduino and Pi (using custom protocol).\
+  [More details](code/md/communication.md)
+- **Raspberry Pi Environment Setup:** Downloading utilities on your Pi, creating a virtual environment (venv), and installing dependencies.\
+  [More details](code/md/raspberry_pi_setup.md)
+
+---
