@@ -97,6 +97,23 @@ This following document explains the C++ code used by the Arduino to control bot
 
 ---
 
+## Building Instructions
+- **Parts list**\
+Make sure you have all components ready before starting: 3D-printed parts, motors, drivers, electronics, screws, and connectors. A complete detailed table with quantities, sources, and usage is included below for reference.\
+[Click here to open the parts list](XX_Parts_Lists.pdf)
+- **3D Printing Parts**\
+Using any 3D printer, start by 3D printing the necessary parts for the assembly. Every part needed has a STL file which you can use with any printer. If you're adventurous and want to modify a part, open the STEP file in your favorite CAD software. If you're unsure of what part you're printing, make sure to open the PNG file which contains a picture of the part.\
+[Click here to open this folder](mech/CAD_3D_Printed_Pieces)
+- **Adjust the Driver**\
+The DRV8825 has a tiny screw to adjust the maximum current output. This isn't a big problem since the NEMA 17 stepper motor requires barely a few hundred mA, but it's good practice to set a limit. Use the DRV8825 Adjuster we custom-built to set this limit ! You can recreate this adjuster using the following drawing.\
+[DRV8825 Adjuster Drawing](elec/Driver_Calibration_Circuit.pdf)
+<table>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/516265fb-f433-4207-b433-87d9a1175ea5" alt="Michael Bruneau" width="300" height="400" /></td>
+    <td><img src="https://github.com/user-attachments/assets/6ecc068c-e378-4e1c-9c0c-3960c86872ee" alt="Emile Jacques" width="300" height="400" /></td>
+  </tr>
+</table>
+
 ## Electrical & Electronic Overview
 
 - **Controller:** Raspberry Pi 5 (vision+logic, master) + Arduino Uno R3 (motor driver, slave).  
@@ -245,20 +262,6 @@ Priority in practice:
 - Parking [details here.](code/md/parking.md)
 
 ---
-
-## Building Instructions
-- **3D Printing Parts**\
-Using any 3D printer, start by 3D printing the necessary parts for the assembly. Every part needed has a STL file which you can use with any printer. If you're adventurous and want to modify a part, open the STEP file in your favorite CAD software. If you're unsure of what part you're printing, make sure to open the PNG file which contains a picture of the part.\
-[Click here to open this folder](mech/CAD_3D_Printed_Pieces)
-- **Adjust the Driver**\
-The DRV8825 has a tiny screw to adjust the maximum current output. This isn't a big problem since the NEMA 17 stepper motor requires barely a few hundred mA, but it's good practice to set a limit. Use the DRV8825 Adjuster we custom-built to set this limit ! You can recreate this adjuster using the following drawing.\
-[DRV8825 Adjuster Drawing](elec/Driver_Calibration_Circuit.pdf)
-<table>
-  <tr>
-    <td><img src="https://github.com/user-attachments/assets/516265fb-f433-4207-b433-87d9a1175ea5" alt="Michael Bruneau" width="300" height="400" /></td>
-    <td><img src="https://github.com/user-attachments/assets/6ecc068c-e378-4e1c-9c0c-3960c86872ee" alt="Emile Jacques" width="300" height="400" /></td>
-  </tr>
-</table>
 
 - **Assemble the Robot**\
 Mechanically assembling the robot is quite straight-forward. The tricky part comes with the electrical connections. Make sure you follow correctly the following electrical drawings.\
