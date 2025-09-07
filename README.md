@@ -46,15 +46,15 @@ Have you ever had methods in your class needing the 'self' input to access the o
 
 ## Mobility Management
 
-- **Dimensions:** width 135mm, length 285mm for tight turns and component fit.  
-  [More details](mech/README_mech.md#14-dimensions-choice)
+- **Dimensions:** width 135mm, length 285mm for tight turns and component fit, height 248mm.  
+  [Why we chose those dimensions](mech/README_mech.md#14-dimensions-choice)
 - **Drive Motor:** NEMA 17 stepper (precise, no encoder needed).
 We calculated the needed torque for our application, and considering a rolling resistance and an 85% gearbox efficiency, the NEMA-17's torque is greater than the needed torque. Here's how we calculated it : 
 <img width="500" height="800" alt="image" src="https://github.com/user-attachments/assets/38c1d7ad-2134-4b28-865d-b25008afc42a" />
 
-  [More details](elec/README_elec.md#13-motor-choice)
+  [More Information on Drive Motor Choice](elec/README_elec.md#13-motor-choice)
 - **Steering Motor:** Standard servo motor for simple, precise steering.  
-  [More details](elec/README_elec.md#14-direction-control--servo-motor)
+  [More Information on Steering Motor Choice](elec/README_elec.md#14-direction-control--servo-motor)
 - **3D-Printed Structure:** Three-layer design (base, middle, top) for easy assembly and access.  
 <img src="https://github.com/user-attachments/assets/85e35aba-d1d7-4a9b-9ccd-64304d10f4f9" width="700" height="400">
 
@@ -66,19 +66,19 @@ We calculated the needed torque for our application, and considering a rolling r
 
 <img src="https://github.com/user-attachments/assets/2bacd053-ec0a-4207-bb49-d4b5b8f2829f" width="700" height="400">
 
-  [More details](mech/README_mech.md#3-final-3d-printed-structure)
+  [More Pictures & Info Here](mech/README_mech.md#3-final-3d-printed-structure)
 - **Custom Mounts:** Holders for servo, stepper, switches, camera, and stepper coupler.  
-  [More details](mech/README_mech.md#4-mounting-and-coupling)
+  [Pictures Here](mech/README_mech.md#4-mounting-and-coupling)
 - **Steering:** Initially parallel beams, now Ackermann geometry, 3D-printed after Lego prototyping. 
 <img width="700" height="700" alt="image" src="https://github.com/user-attachments/assets/e486c290-8327-4dbd-909b-308bcbb0f6b9" />
 
 <img width="700" height="400" alt="image" src="https://github.com/user-attachments/assets/e70a31a5-b710-4278-98e4-82efa7d4b4ed" />
 
-  [More details](mech/README_mech.md#12-steering-system)
+  [Steering CADs](mech/README_mech.md#12-steering-system)
 - **Wheels:** Spike Prime wheels (56mm diameter, 14mm thick) for compactness and grip.  
-  [More details](mech/README_mech.md#11-wheel-choice)
-- **Differential:** Compact Lego-built differential for rear wheels.  
-  [More details](mech/README_mech.md#13-differential-rear-wheels)
+  [Why We Chose Spike Prime Wheels](mech/README_mech.md#11-wheel-choice)
+- **Differential:** Compact differential for rear wheels, made of Lego pieces individually bought on BrickLink.  
+  [Why We Chose This Differential](mech/README_mech.md#13-differential-rear-wheels)
 
 - **Iterations:** As you can see in the following image, this was an iterative project with many versions of each part. 
 <img width="1329" height="746" alt="image" src="https://github.com/user-attachments/assets/23bc6291-90cc-4661-bfed-2bcdd2166c82" />
@@ -124,15 +124,14 @@ Mechanically assembling the robot is quite straight-forward. The tricky part com
 ## Power & Sense Management
 
 - **Controller:** Raspberry Pi 5 (vision+logic, master) + Arduino Uno R3 (motor driver, slave).  
-  [More details](elec/README_elec.md#21-main-components-choice)
-- **Power:** 4s1p 18650 Li-ion (14.4V) pack, DC/DC converter to 5V, terminal blocks for safe distribution.  
-  [More details](elec/README_elec.md#21-main-components-choice)
+  [Why We Chose the Pi 5](elec/README_elec.md#21-main-components-choice)
 - **Stepper Driver:** DRV8825 on breadboard (micro-stepping).  
-  [More details](elec/README_elec.md#21-main-components-choice)
+  [Why We Chose the DRV8825](elec/README_elec.md#21-main-components-choice)
 - **Camera:** Pi Camera 3 Wide for large FOV—helps with vision and parking.  
-  [More details](elec/README_elec.md#21-main-components-choice)
+  [Why We Chose the Pi Camera 3 Wide](elec/README_elec.md#21-main-components-choice)
 - **Wiring:** Terminal blocks and breadboard help organize and distribute power/signals.  
   [More details](elec/README_elec.md#3-wiring-and-distribution)
+- **Power:** 4s1p 18650 Li-ion (14.4V) pack, DC/DC converter to 5V, terminal blocks for safe distribution.  
 
 ### Battery Runtime Calculation (1 hour at max load)
 Here is the table of component power requirements : 
@@ -308,8 +307,27 @@ Priority in practice:
 
 ───────────────
 
-### Block diagram:
-<td><img width="598" height="601" alt="vision_drawio" src="https://github.com/user-attachments/assets/d5e8e839-0882-47c3-935e-1129bcbaee61" /></td>
+### Block diagrams:
+<table>
+  <tr>
+    <td align="center">
+      <strong>Open Challenge Block Diagram</strong><br>
+      <img src="https://github.com/user-attachments/assets/e95b79d5-b4a5-4368-99a4-92471d40a730" width="727" height="856">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>Obstacle Challenge Block Diagram</strong><br>
+      <img src="https://github.com/user-attachments/assets/ed6850e3-6d91-4450-8487-a04476d74ad9" width="796" height="1002">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>Obstacle Challenge Action Decisions</strong><br>
+      <img src="https://github.com/user-attachments/assets/d5e8e839-0882-47c3-935e-1129bcbaee61" width="598" height="601">
+    </td>
+  </tr>
+</table>
 
 ### Extras
 - Lap tracking and direction detection [details here.](code/md/laps_and_direction.md)
