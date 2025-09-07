@@ -39,6 +39,7 @@ Have you ever had methods in your class needing the 'self' input to access the o
 [Open Challenge Video on Youtube: ](https://youtu.be/OgR29EYXkdw)
 
 ### Challenge 2
+[Obstacle Challenge Video on Youtube: ](https://youtu.be/s9inOFHvLYA)
 
 ### Extra Informative Video
 
