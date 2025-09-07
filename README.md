@@ -232,9 +232,14 @@ Priority in practice:
 - The direction (LEFT/RIGHT) simply flips the sign of the control so one algorithm works for both sides.
 - Corner detection from the wall controller’s derivative is used elsewhere (for example during parking) to trigger special maneuvers.
 
+───────────────
+
+### Block diagram:
+<td><img width="598" height="601" alt="vision_drawio" src="https://github.com/user-attachments/assets/d5e8e839-0882-47c3-935e-1129bcbaee61" /></td>
+
 ### Extras
 - Lap tracking and direction detection [details here.](code/md/laps_and_direction.md)
-- Parking [details here](code/md/parking.md)
+- Parking [details here.](code/md/parking.md)
 
 ---
 
