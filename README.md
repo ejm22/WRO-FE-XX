@@ -20,16 +20,25 @@ Team Double-X is made of 2 engineering students, Michael Bruneau and Emile Jacqu
 Have you ever had methods in your class needing the 'self' input to access the object ? If so, we are absolutely sure you've at least misstyped it once. Which is what we did throughout the entire project. With the amount of times Emile typed 'Slef', we had to give this name to our robot haha.
 
 ### Pictures
+
 <table>
   <tr>
     <td align="center"><strong>GIF</strong><br><img src="https://github.com/user-attachments/assets/337494ee-50da-42a9-8c70-eba4d5f09ea6" width="300"></td>
+  </tr>
+</table>
+
+---
+
+<table>
+  <tr>
+    <td align="center"><strong>Top</strong><br><img src="https://github.com/user-attachments/assets/e5ef4c23-29e0-4840-b5ed-1ebd6015a973" width="300"></td>
     <td align="center"><strong>Front</strong><br><img src="https://github.com/user-attachments/assets/12b1a72a-31c1-4014-ae77-beca01701ed5" width="300"></td>
-    <td align="center"><strong>Back</strong><br><img src="https://github.com/user-attachments/assets/2b4324b6-ba22-49f1-9352-289231809b6f" width="300"></td>
+    <td align="center"><strong>Left</strong><br><img src="https://github.com/user-attachments/assets/01253a83-6a24-447f-accd-00e4e879fc58" width="300"></td>
   </tr>
   <tr>
-    <td align="center"><strong>Left</strong><br><img src="https://github.com/user-attachments/assets/01253a83-6a24-447f-accd-00e4e879fc58" width="300"></td>
+    <td align="center"><strong>Bottom</strong><br><img src="https://github.com/user-attachments/assets/ef59c587-40d3-4308-bcb9-10ff51137080" width="300"></td>
+    <td align="center"><strong>Back</strong><br><img src="https://github.com/user-attachments/assets/2b4324b6-ba22-49f1-9352-289231809b6f" width="300"></td>
     <td align="center"><strong>Right</strong><br><img src="https://github.com/user-attachments/assets/f753ad2e-17ea-4549-8277-479967388803" width="300"></td>
-    <td align="center"><strong>Top</strong><br><img src="https://github.com/user-attachments/assets/e5ef4c23-29e0-4840-b5ed-1ebd6015a973" width="300"></td>
   </tr>
 </table>
 
