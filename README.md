@@ -48,11 +48,14 @@ Have you ever had methods in your class needing the 'self' input to access the o
 
 - **Dimensions:** width 135mm, length 285mm for tight turns and component fit.  
   [More details](mech/README_mech.md#14-dimensions-choice)
-- **Drive Motor:** NEMA 17 stepper (precise, no encoder needed).  
+- **Drive Motor:** NEMA 17 stepper (precise, no encoder needed).
+We calculated the needed torque for our application, and considering a rolling resistance and an 85% gearbox efficiency, the NEMA-17's torque is greater than the needed torque. Here's how we calculated it : 
+<img width="500" height="800" alt="image" src="https://github.com/user-attachments/assets/38c1d7ad-2134-4b28-865d-b25008afc42a" />
+
   [More details](elec/README_elec.md#13-motor-choice)
-- **Steering Motor:** Standard servo motor for simple, precise steering.
+- **Steering Motor:** Standard servo motor for simple, precise steering.  
   [More details](elec/README_elec.md#14-direction-control--servo-motor)
-- **3D-Printed Structure:** Three-layer design (base, middle, top) for easy assembly and access.
+- **3D-Printed Structure:** Three-layer design (base, middle, top) for easy assembly and access.  
 <img src="https://github.com/user-attachments/assets/85e35aba-d1d7-4a9b-9ccd-64304d10f4f9" width="700" height="400">
 
 <img src="https://github.com/user-attachments/assets/a77fad93-acb5-4cf7-8e73-98f99a5fe356" width="700" height="400">
