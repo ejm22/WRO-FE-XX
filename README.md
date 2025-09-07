@@ -36,6 +36,7 @@ Have you ever had methods in your class needing the 'self' input to access the o
 
 ## Performance Videos
 ### Challenge 1
+[Open Challenge Video on Youtube: ](https://youtu.be/OgR29EYXkdw)
 
 ### Challenge 2
 
