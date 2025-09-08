@@ -344,6 +344,24 @@ Priority in practice:
 
 ---
 
+## Possible Improvements
+- **Replacing White Tape with 3D-Printed Part:**
+The white tape on top of the servo is necessary to ensure the bottom-middle part of the image is white.
+- **Holding the Raspberry Pi Better:**
+The Raspberry Pi is currently fixed with black electric tape. Ideally, a simple detachable 3D-printed part could hold it.
+- **Cutting Power Automatically at 10.8V:**
+Whenever the battery pack voltage is below 10.8V, we would open the circuit to ensure that the circuit shuts down.
+- **Replacing the Breadboard with Custom PCB:**
+Instead of using a breadboard with mediocre cable management, we would simply add a custom PCB where we would solder the necessary cables in place.
+- **Adding Lateral Distance Sensors:**
+The current one-camera solution is complex to work with for the parallel parking. We would add distance sensors on both sides to detect the parking parking when we pass by, and to improve the overall wall detections across both challenges.
+- **Creating a Communications Class:**
+Our main.py code is currently quite messy, mostly because all commands sent to the Arduino are done inside the main.py, which isn't ideal. We would create yet another class to lighten the code in the main.py.
+- **Optimizing the Overall Code:**
+Thanks to the comments, the code is quite clear, even for an inexperienced user. The problem is that there currently is too much code. We would need to simplify the algorithms and regroup some functions. We already did it once, but some more optimizing could be done before the next event.
+
+---
+
 ## Software Key Components
 
 - **Communication:** Serial communication via USB cable between Arduino and Pi (using custom protocol).\
