@@ -18,10 +18,10 @@ NBR_COLS = 10
 
 ChallengeParameters = namedtuple('ChallengeParameters', ['kp', 'kd', 'base_threshold', 'offsets'])
 CHALLENGE_CONFIG = {
-    1: ChallengeParameters(kp = 0.18, kd = .25, base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100, -30, 40  ]),
-    2: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ]),
-    3: ChallengeParameters(kp = 1.5 , kd = 1.0  , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-30            ]),
-    4: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100           ])
+    1: ChallengeParameters(kp = 0.18, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100, -30, 40]),
+    2: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-140, -100   ]),
+    3: ChallengeParameters(kp = 1.5 , kd = 1.0  , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-30          ]),
+    4: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100         ])
 }
 
 class ImageAlgorithms:
@@ -127,6 +127,14 @@ class ImageAlgorithms:
                     return offset[2]            # Challenge 1 normal offset
             else:
                 return offset[2]                # Challenge 1 normal offset
+        elif challenge == 2:
+            if lap_count == 0:
+                if quarter_lap_count == 0:
+                    return offset[0]
+                else:
+                    return offset[1]
+            else:
+                return offset[1]
         else:
             return offset[0]                    # Always use the only offset
 

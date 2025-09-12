@@ -135,7 +135,7 @@ if __name__ == "__main__":
         ################################################################
         ############################ Défi 2 ############################
         ################################################################
-
+        # This comment is to test a git push bug we're facing
         if (ContextManager.CHALLENGE == 2):
             arduino.write(b"10000000!")
             speed = 3000
@@ -157,7 +157,7 @@ if __name__ == "__main__":
             print("Wait to complete")
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)
-            command = f"t86,{speed},1000.".encode()
+            command = f"t85,{speed},1000.".encode()
             arduino.write(command)
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)
@@ -183,7 +183,14 @@ if __name__ == "__main__":
                 arduino.flush()
                 
                 camera_manager.add_frame_to_video()
-                
+
+                cv2.imshow("Polygon Image", camera_manager.polygon_image)
+                cv2.imshow("Blue Lines", camera_manager.cnt_blueline)
+                cv2.imshow("Orange Lines", camera_manager.cnt_orangeline)
+                cv2.imshow("Obstacle Image", camera_manager.obstacle_image)
+                cv2.imshow("Pink Obstacle Image", camera_manager.pink_mask)
+            
+
                 time.sleep(0.01)
 
                 if (context_manager.has_completed_laps()):
@@ -205,7 +212,7 @@ if __name__ == "__main__":
         if (ContextManager.CHALLENGE == 2):
             arduino.write(b"10000000!")
             print("Going to parking")
-            speed = 3000
+            speed = 2000
             ## 1 ##
             print("Direction : ", context_manager.get_direction())
             pink_pixel_y = ImageTransformUtils.PIC_HEIGHT - 10
@@ -218,7 +225,7 @@ if __name__ == "__main__":
                 pink_pixel_backwards_x = 100
             
             ## 4 ##
-            # Approach the parking area 
+            # Approach the parking area (test)
             while True:
                 camera_manager.capture_image()
                 camera_manager.transform_image() 
@@ -255,7 +262,7 @@ if __name__ == "__main__":
                 key = cv2.waitKey(1)  # Let OpenCV update the window
                 if key == 27:  # Escape key to quit
                     break
-            command = f"m86,0.".encode()
+            command = f"m85,0.".encode()
             arduino.write(command)
 
             ## 5 ##
@@ -286,11 +293,11 @@ if __name__ == "__main__":
                         arduino_flag = True
                 if (arduino_flag and camera_manager.binary_image[140, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None and context_manager.get_direction() == Direction.RIGHT) or (arduino_flag and np.any(camera_manager.cnt_orangeline[ImageTransformUtils.PIC_HEIGHT - 100: ImageTransformUtils.PIC_HEIGHT - 65, ImageTransformUtils.PIC_WIDTH // 2 - 20: ImageTransformUtils.PIC_WIDTH // 2 + 20]) and context_manager.get_direction() == Direction.LEFT):
                     speed = 0
-                    command = f"m86,0.".encode()
+                    command = f"m85,0.".encode()
                     arduino.write(command)
                     break
-                else:
-                    speed = 1000
+                #else:
+                #    speed = 1000
                 command = f"m{angle_walls},{speed}.".encode()
                 
                 camera_manager.add_frame_to_video()
@@ -306,42 +313,48 @@ if __name__ == "__main__":
                         break
 
             arduino.write(b"-10000000!")
+            # Back up until pink wall is detected
             while True:
                 camera_manager.capture_image()
                 camera_manager.transform_image()
                 cv2.imshow("Cropped", camera_manager.cropped_image)
                 cv2.imshow("Polygon Image", camera_manager.polygon_image)
                 if camera_manager.binary_image[pink_pixel_backwards_y, pink_pixel_backwards_x] == 0:
-                    command = f"m86,0.".encode()
+                    command = f"m85,0.".encode()
                     arduino.write(command)
                     break
-                command = f"m86,-1000.".encode()
+                command = f"m85,-1000.".encode()
                 arduino.write(command)
             time.sleep(0.2)
 
-            speed = 1000
-            command = f"t86,1000,{1750 - context_manager.get_direction().value * 50}.".encode()
+            #speed = 1000
+            # Move forward a bit to prepare to enter the parking spot            
+            command = f"t85,1000,{1700}.".encode()
             arduino.write(command)
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)
             print(context_manager.get_direction())
+            # Enter the parking spot while turning
             if context_manager.get_direction() == Direction.LEFT and last_color == 0:
                 print("Last was red")
-                command = f"t{86 - context_manager.get_direction().value * 38},-1000,1400.".encode()
+                command = f"t{85 - context_manager.get_direction().value * 37},-1000,1400.".encode()
             else:
                 print("Last was green or going left")
-                command = f"t{86 - context_manager.get_direction().value * 38},-1000,1300.".encode()
+                command = f"t{87 - context_manager.get_direction().value * 37},-1000,1300.".encode()
             arduino.write(command)
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)
-            command = f"t86,-1000,650.".encode()
+            # Backup straight inside the parking spot
+            command = f"t85,-1000,650.".encode()
             arduino.write(command)
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)
-            command = f"t{86 + context_manager.get_direction().value * 38},-1000,1275.".encode()
+            # Backup while turning to straighten the robot
+            command = f"t{87 + context_manager.get_direction().value * 37},-1000,1225.".encode()
             arduino.write(command)
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)
+            # Straighten the wheels
             command = f"m85,0.".encode()
             arduino.write(command)
         
@@ -350,13 +363,13 @@ if __name__ == "__main__":
         ################################################################
         if (ContextManager.CHALLENGE == 5):
             while True:
-                command = f"t86,1000,10000.".encode()
+                command = f"t85,1000,10000.".encode()
                 arduino.write(command)
                 while arduino.read().decode('utf-8') != 'F':
                     time.sleep(0.005)
-                command = f"t86,-1000,10000.".encode()
+                command = f"t85,-1000,10000.".encode()
                 arduino.write(command)
                 while arduino.read().decode('utf-8') != 'F':
                     time.sleep(0.005)
         cv2.destroyAllWindows()
-        arduino.write(b'm88,0.')
+        arduino.write(b'm85,0.')

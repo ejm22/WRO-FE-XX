@@ -1,4 +1,3 @@
-README.md
 pyproject.toml
 XX_2025_package/HSV_ajuster.py
 XX_2025_package/battery.py
