@@ -333,11 +333,13 @@ class ImageAlgorithms:
         # Create and draw a line from the center of the object to the left or right side of the image
         # Line needs to be at x degrees (the angle threshold) to be able to pass around the obstacle
         if is_green:
-            self.last_color = 1
+            if self.context_manager.has_completed_laps():
+                self.last_color = 1
             ImageDrawingUtils.draw_line(self.camera_manager.display_image, (x_center, y_center), (RIGHT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
             rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - RIGHT_OBSTACLE_X_THRESHOLD)
         else:
-            self.last_color = 0
+            if self.context_manager.has_completed_laps():
+                self.last_color = 0
             ImageDrawingUtils.draw_line(self.camera_manager.display_image, (x_center, y_center), (LEFT_OBSTACLE_X_THRESHOLD, ImageTransformUtils.PIC_HEIGHT))
             rad_angle = math.atan2(y_center - ImageTransformUtils.PIC_HEIGHT, x_center - LEFT_OBSTACLE_X_THRESHOLD)
         # Calculate the angle in degrees

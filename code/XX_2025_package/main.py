@@ -139,7 +139,7 @@ if __name__ == "__main__":
         if (ContextManager.CHALLENGE == 2):
             arduino.write(b"10000000!")
             speed = 3000
-            last_color = image_algorithms.last_color
+            
             ## 1 ##
             # Find direction with parking
             image_algorithms.get_direction_from_parking(camera_manager)
@@ -204,6 +204,8 @@ if __name__ == "__main__":
 
             ## 5 ##
             # Parallel park in the parking area
+
+            last_color = image_algorithms.last_color
                 
         ################################################################
         ############################ Défi 3 et 4 #######################
@@ -335,12 +337,12 @@ if __name__ == "__main__":
                 time.sleep(0.005)
             print(context_manager.get_direction())
             # Enter the parking spot while turning
-            if context_manager.get_direction() == Direction.LEFT and last_color == 0:
-                print("Last was red")
-                command = f"t{85 - context_manager.get_direction().value * 37},-1000,1400.".encode()
-            else:
-                print("Last was green or going left")
+            if (context_manager.get_direction() == Direction.LEFT and last_color == 1) or (context_manager.get_direction() == Direction.RIGHT and last_color == 0):
+                print("Too close, turn less")
                 command = f"t{87 - context_manager.get_direction().value * 37},-1000,1300.".encode()
+            else:
+                print("Normal")
+                command = f"t{87 - context_manager.get_direction().value * 37},-1000,1400.".encode()
             arduino.write(command)
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)
