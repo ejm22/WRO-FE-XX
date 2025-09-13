@@ -50,9 +50,20 @@ class HSVRangeHighlighter:
 
 if __name__ == "__main__":
 
+    take_picture = bool(int(input("take new pic? 1 for yes, 0 for no: ")))
     camera_manager = CameraManager()
-    camera_manager.start_camera()
-    camera_manager.capture_image() 
+    if (take_picture):
+        camera_manager.start_camera()
+        camera_manager.capture_image() 
+    else:
+        bgr_image = cv2.imread("tests/images/img.png")
+        if bgr_image is not None:
+            camera_manager.raw_image = bgr_image
+        else:
+            print("Failed to load image.")
+            exit(1)
+    
+    
     camera_manager.transform_image()
 
     hsv = cv2.cvtColor(camera_manager.raw_image, cv2.COLOR_BGR2HSV)
