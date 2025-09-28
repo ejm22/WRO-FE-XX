@@ -3,8 +3,8 @@ from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
 import numpy as np
 from XX_2025_package.classes.context_manager import ContextManager
 
-MIN_WIDTH = 5
-MIN_HEIGHT = 5
+MIN_WIDTH = 13
+MIN_HEIGHT = 13
 
 class ImageDrawingUtils:
 

@@ -286,7 +286,7 @@ class ImageAlgorithms:
         """
         # Get the crash detection point
         crash_detect_x = ImageTransformUtils.PIC_WIDTH // 2
-        crash_detect_y = ImageTransformUtils.PIC_HEIGHT - 160
+        crash_detect_y = ImageTransformUtils.PIC_HEIGHT - 150
         # Draw the point at which we check if outer wall is too close
         ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (crash_detect_x, crash_detect_y), 3, (255, 0, 0))
         # Return True if the outer wall is detected

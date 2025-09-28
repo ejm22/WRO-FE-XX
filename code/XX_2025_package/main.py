@@ -11,7 +11,7 @@ from XX_2025_package.utils.enums import Direction
 from XX_2025_package.utils.enums import StartPosition
 from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
 
-MOVE_TO_FRONT_ZONE = 3200
+MOVE_TO_FRONT_ZONE = 2700
 stop_run = False
 allow_stop_run = False
 
@@ -111,11 +111,11 @@ if __name__ == "__main__":
                             extra_move = 0
                         # Adjust move based on final corner position
                         if final_corner_position == 'C':
-                            command = f"{6400 + extra_move}!".encode()
+                            command = f"{6900}!".encode()
                             arduino.write(command)
                             speed = 1500
                         else:
-                            command = f"{3900 + extra_move}!".encode()
+                            command = f"{4400}!".encode()
                             arduino.write(command)
                             speed = 1500
                 if arduino.in_waiting > 0:
@@ -331,7 +331,7 @@ if __name__ == "__main__":
 
             #speed = 1000
             # Move forward a bit to prepare to enter the parking spot            
-            command = f"t85,1000,{1700}.".encode()
+            command = f"t85,1000,{1850}.".encode()
             arduino.write(command)
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)
@@ -347,12 +347,12 @@ if __name__ == "__main__":
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)
             # Backup straight inside the parking spot
-            command = f"t85,-1000,650.".encode()
+            command = f"t85,-1000,675.".encode()
             arduino.write(command)
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)
             # Backup while turning to straighten the robot
-            command = f"t{87 + context_manager.get_direction().value * 37},-1000,1225.".encode()
+            command = f"t{87 + context_manager.get_direction().value * 37},-1000,1275.".encode()
             arduino.write(command)
             while arduino.read().decode('utf-8') != 'F':
                 time.sleep(0.005)
