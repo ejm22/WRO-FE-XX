@@ -6,7 +6,7 @@ from XX_2025_package.utils.enums import Color
 BLUR_FILTER_SIZE = 9            # size of the bilateral filter
 BLUR_SIGMA_COLOR = 75           # how much colors can differ to be considered similar
 BLUR_SIGMA_SPACE = 75           # how far pixels can be to influence each other
-THRESHOLD = 100                 # threshold value for binary image
+THRESHOLD = 110                 # threshold value for binary image
 WHITE_VALUE = 255               # to set white color in binary image
 WHITE_COLOR = (255, 255, 255)   # BGR white color for OpenCV
 MATRIX_SIZE = 5                 # size of the kernel for morphological operations

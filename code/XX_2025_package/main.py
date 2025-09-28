@@ -12,7 +12,7 @@ from utils.enums import StartPosition
 from utils.image_drawing_utils import ImageDrawingUtils
 from classes.arduino_comms import ArduinoComms
 
-MOVE_TO_FRONT_ZONE = 3200
+MOVE_TO_FRONT_ZONE = 2700
 stop_run = False
 
 # 0.1559 mm per 1 step
