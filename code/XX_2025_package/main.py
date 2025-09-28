@@ -125,7 +125,7 @@ if __name__ == "__main__":
         # This comment is to test a git push bug we're facing
         if (ContextManager.CHALLENGE == 2):
             arduino.send('!', 10000000)
-            speed = 3000
+            speed = 3500
             
             ## 1 ##
             # Find direction with parking

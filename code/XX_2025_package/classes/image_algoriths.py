@@ -204,8 +204,11 @@ class ImageAlgorithms:
             threshold, kp, kd = self.calculate_wall_threshold_kp_kd(3)
         else:
             threshold, kp, kd = self.calculate_wall_threshold_kp_kd()
+        # If speed is 3000, do not reduce the kp to 0.1
+        # If speed is 4000, reduce the kp to 0.1
         if self.inner_wall_warning:
             kp = 0.1
+            kd = 0
         threshold_y = min(threshold, ImageTransformUtils.PIC_HEIGHT)
         if direction == Direction.LEFT:
             threshold_x = threshold - threshold_y
