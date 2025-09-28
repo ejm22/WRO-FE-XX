@@ -103,10 +103,10 @@ if __name__ == "__main__":
                             extra_move = 0
                         # Adjust move based on final corner position
                         if final_corner_position == 'C':
-                            arduino.send('!', 6400 + extra_move)
+                            arduino.send('!', 6900)
                             speed = 1500
                         else:
-                            arduino.send('!', 3900 + extra_move)
+                            arduino.send('!', 4400)
                             speed = 1500
                 if context_manager.has_completed_laps() and arduino.read() == 'F':
                     break
@@ -298,7 +298,7 @@ if __name__ == "__main__":
 
             #speed = 1000
             # Move forward a bit to prepare to enter the parking spot
-            arduino.send('t', 85, 1000, 1700)
+            arduino.send('t', 85, 1000, 1850)
             
             print(context_manager.get_direction())
             # Enter the parking spot while turning
@@ -310,9 +310,9 @@ if __name__ == "__main__":
                 arduino.send('t', 87 - context_manager.get_direction().value * 37, -1000, 1400)
             
             # Backup straight inside the parking spot
-            arduino.send('t', 85, -1000, 650)
+            arduino.send('t', 85, -1000, 675)
             # Backup while turning to straighten the robot
-            arduino.send('t', 87 + context_manager.get_direction().value * 37, -1000, 1225)
+            arduino.send('t', 87 + context_manager.get_direction().value * 37, -1000, 1275)
             # Straighten the wheels
             arduino.send('m', 85, 0)
         
