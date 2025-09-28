@@ -131,6 +131,11 @@ if __name__ == "__main__":
             # Find direction with parking
             image_algorithms.get_direction_from_parking(camera_manager)
             print("Direction : ", context_manager.get_direction())
+            print("Type of direction:", type(context_manager.get_direction()))
+            print("Type of Direction.LEFT:", type(Direction.LEFT))
+            print("Equal?", context_manager.get_direction() == Direction.LEFT)
+            print(id(type(context_manager.get_direction())))
+            print(id(type(Direction.LEFT)))
             ## 2 ##
             # Analyze starting area (optional)
             # Leave parking spot
@@ -268,7 +273,7 @@ if __name__ == "__main__":
                     arduino_flag = True
                 if (arduino_flag and camera_manager.binary_image[140, ImageTransformUtils.PIC_WIDTH // 2] == 0 and top_angle is not None and context_manager.get_direction() == Direction.RIGHT) or (arduino_flag and np.any(camera_manager.cnt_orangeline[ImageTransformUtils.PIC_HEIGHT - 100: ImageTransformUtils.PIC_HEIGHT - 65, ImageTransformUtils.PIC_WIDTH // 2 - 20: ImageTransformUtils.PIC_WIDTH // 2 + 20]) and context_manager.get_direction() == Direction.LEFT):
                     speed = 0
-                    arduino.send('m', 85, 0)
+                    arduino.send('m', 85, speed)
                     break
                 #else:
                 #    speed = 1000
@@ -283,7 +288,7 @@ if __name__ == "__main__":
                     else:
                         break
 
-            arduino.send('!', 10000000)
+            arduino.send('!', -10000000)
             # Back up until pink wall is detected
             while True:
                 camera_manager.capture_image()
@@ -298,6 +303,7 @@ if __name__ == "__main__":
 
             #speed = 1000
             # Move forward a bit to prepare to enter the parking spot
+            arduino.send('!', 10000000)
             arduino.send('t', 85, 1000, 1850)
             
             print(context_manager.get_direction())

@@ -1,14 +1,14 @@
 from picamera2 import Picamera2
 import time
-from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
-from XX_2025_package.utils.image_transform_utils import ImageColorUtils
+from utils.image_transform_utils import ImageTransformUtils
+from utils.image_transform_utils import ImageColorUtils
 import cv2
 import numpy as np
-from XX_2025_package.utils.enums import Color
-from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
+from utils.enums import Color
+from utils.image_drawing_utils import ImageDrawingUtils
 import math
 import os
-from XX_2025_package.utils.video.video_counter import VideoCounter
+from utils.video.video_counter import VideoCounter
 
 class CameraManager:
 

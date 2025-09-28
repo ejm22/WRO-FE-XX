@@ -10,10 +10,10 @@ class ArduinoComms:
 			command = f"{angle}!".encode()
 			self.arduino.write(command)
 		elif type == 'm':
-			command = f"{angle},{speed}".encode()
+			command = f"m{angle},{speed}.".encode()
 			self.arduino.write(command)
 		elif type == 't':
-			command = f"{angle},{speed},{distance}".encode()
+			command = f"t{angle},{speed},{distance}.".encode()
 			self.arduino.write(command)
 			while (self.read() != 'F'):
 				time.sleep(0.005)

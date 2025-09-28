@@ -1,10 +1,10 @@
-from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
-from XX_2025_package.utils.image_color_utils import ImageColorUtils
+from utils.image_transform_utils import ImageTransformUtils
+from utils.image_color_utils import ImageColorUtils
 import numpy as np
 import math
-from XX_2025_package.utils.enums import Direction
-from XX_2025_package.utils.image_drawing_utils import ImageDrawingUtils
-from XX_2025_package.utils.enums import StartPosition
+from utils.enums import Direction
+from utils.image_drawing_utils import ImageDrawingUtils
+from utils.enums import StartPosition
 from collections import namedtuple
  
 MIDDLE_X = 320

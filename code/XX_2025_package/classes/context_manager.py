@@ -1,5 +1,5 @@
-from XX_2025_package.utils.enums import Direction
-from XX_2025_package.utils.enums import StartPosition
+from utils.enums import Direction
+from utils.enums import StartPosition
 
 class ContextManager:
     LAP_GOAL = 3

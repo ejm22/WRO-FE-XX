@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
-from XX_2025_package.utils.image_color_utils import ImageColorUtils
-from XX_2025_package.utils.enums import Color
+from utils.image_color_utils import ImageColorUtils
+from utils.enums import Color
 
 BLUR_FILTER_SIZE = 9            # size of the bilateral filter
 BLUR_SIGMA_COLOR = 75           # how much colors can differ to be considered similar

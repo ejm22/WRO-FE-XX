@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from XX_2025_package.classes.camera_manager import CameraManager
+from classes.camera_manager import CameraManager
 
 class HSVRangeHighlighter:
     """

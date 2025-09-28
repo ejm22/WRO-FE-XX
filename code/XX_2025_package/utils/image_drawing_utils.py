@@ -1,7 +1,7 @@
 import cv2
-from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
+from utils.image_transform_utils import ImageTransformUtils
 import numpy as np
-from XX_2025_package.classes.context_manager import ContextManager
+from classes.context_manager import ContextManager
 
 MIN_WIDTH = 13
 MIN_HEIGHT = 13

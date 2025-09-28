@@ -1,9 +1,9 @@
 from enum import Enum
 import numpy as np
-from XX_2025_package.utils.enums import Direction
-from XX_2025_package.utils.image_color_utils import ImageColorUtils
-from XX_2025_package.utils.image_transform_utils import ImageTransformUtils
-from XX_2025_package.utils.enums import Color
+from utils.enums import Direction
+from utils.image_color_utils import ImageColorUtils
+from utils.image_transform_utils import ImageTransformUtils
+from utils.enums import Color
 import time
 
 class LapState(Enum):
