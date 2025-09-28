@@ -17,6 +17,7 @@ OBJECT_LINE_ANGLE_THRESHOLD = 45
 NBR_COLS = 10
 
 ChallengeParameters = namedtuple('ChallengeParameters', ['kp', 'kd', 'base_threshold', 'offsets'])
+# Challenge configs for wall follower
 CHALLENGE_CONFIG = {
     1: ChallengeParameters(kp = 0.18, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100, -30, 40]),
     2: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-140, -100   ]),
@@ -36,6 +37,7 @@ class ImageAlgorithms:
         self.old_angle = 0
         self.old_is_green = 0
         self.last_color = None
+        self.inner_wall_warning = False
 
     def get_direction_from_lines(self):
         """
@@ -202,6 +204,8 @@ class ImageAlgorithms:
             threshold, kp, kd = self.calculate_wall_threshold_kp_kd(3)
         else:
             threshold, kp, kd = self.calculate_wall_threshold_kp_kd()
+        if self.inner_wall_warning:
+            kp = 0.1
         threshold_y = min(threshold, ImageTransformUtils.PIC_HEIGHT)
         if direction == Direction.LEFT:
             threshold_x = threshold - threshold_y
@@ -275,6 +279,7 @@ class ImageAlgorithms:
         for y, x in detection_points:
             ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (x, y), 3, (255, 0, 0))
             if self.camera_manager.polygon_image[y, x] == 0 and object_height < ImageTransformUtils.PIC_HEIGHT - 170:
+                self.inner_wall_warning = True
                 return True
         return False
     
@@ -299,6 +304,8 @@ class ImageAlgorithms:
             target_img: colored image in which we draw
             return: line's angle, whether the object is green or not, the obstacle's x_center, the obstacle's y_center
         """
+        # Deactivate inner wall warning
+        self.inner_wall_warning = False
         # Check if the outer wall in front is too close
         if self.check_outer_wall_crash():
             if self.context_manager.get_direction() == Direction.RIGHT:
