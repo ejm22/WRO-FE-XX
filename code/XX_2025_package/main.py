@@ -30,6 +30,10 @@ if __name__ == "__main__":
         camera_manager.start_camera()
         arduino.send('!', 10000000)
 
+        # Run the image analysis once to initialize variables
+        camera_manager.capture_image()
+        camera_manager.transform_image()
+
         ## 1 ##
         # Wait for start button to be pressed
         while True:
@@ -53,7 +57,7 @@ if __name__ == "__main__":
 
         if stop_run:
             break
-        time.sleep(1)
+        #time.sleep(1)
         camera_manager.capture_image()
         camera_manager.transform_image()
 
@@ -131,11 +135,7 @@ if __name__ == "__main__":
             # Find direction with parking
             image_algorithms.get_direction_from_parking(camera_manager)
             print("Direction : ", context_manager.get_direction())
-            print("Type of direction:", type(context_manager.get_direction()))
-            print("Type of Direction.LEFT:", type(Direction.LEFT))
-            print("Equal?", context_manager.get_direction() == Direction.LEFT)
-            print(id(type(context_manager.get_direction())))
-            print(id(type(Direction.LEFT)))
+            
             ## 2 ##
             # Analyze starting area (optional)
             # Leave parking spot
@@ -145,16 +145,32 @@ if __name__ == "__main__":
                 print("Move right")
                 arduino.send('t', 50, speed, 1200)
             
-            arduino.send('t', 85, speed, 1000)
+            #arduino.send('t', 85, speed, 1000)
+            arduino.send('!', 10000000)
+            arduino.send('m', 85, speed)
+            time.sleep(1.0)
         
             ## 3 ##
             # Complete 3 laps
-            arduino.send('!', 10000000)
             while True:
                 camera_manager.capture_image()
                 camera_manager.transform_image()
                 lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
-                angle, is_green, _, _ = image_algorithms.find_obstacle_angle_and_draw_lines()
+                angle, is_green, _, y_center = image_algorithms.find_obstacle_angle_and_draw_lines()
+                
+                accel_decel = True
+                #########################################
+                # Accelerate/decelerate if object is far enough
+                if accel_decel:
+                    if y_center is not None:
+                        if y_center < 130:
+                            speed = 4200 # 4200 for max speed
+                        else:
+                            speed = 3500
+                    else:
+                        speed = 3500
+                #########################################
+
                 if camera_manager.display_image is not None:
                     ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {context_manager.get_lap_count()}", (10, 30), (0, 0, 255))
                     cv2.imshow("Display_image", camera_manager.display_image)
@@ -211,6 +227,14 @@ if __name__ == "__main__":
             
             ## 4 ##
             # Approach the parking area (test)
+
+            # Set the last obstacle seen after 3rd lap default value
+            # Objective is to detect if a red pillar is seen last when going left and green when going right
+            if context_manager.get_direction() == Direction.LEFT:
+                last_was_green = True
+            else:
+                last_was_green = False
+
             while True:
                 camera_manager.capture_image()
                 camera_manager.transform_image() 
@@ -219,6 +243,14 @@ if __name__ == "__main__":
                 cv2.imshow("Obstacle Image", camera_manager.obstacle_image)
                 cv2.imshow("Pink obstacle image", camera_manager.pink_mask)
                 is_pink = 0
+
+                #########################################################
+                # Determine the last obstacle color seen after 3rd lap
+                if obstacle_y is not None:
+                    if obstacle_y > 175:  # Only consider obstacle if it's close
+                        last_was_green = is_green
+                        print("Last was green after 3rd lap:", last_was_green)
+                #########################################################   
                 if angle_pink is not None and pink_y is not None:
                     if obstacle_y is not None:
                         if (pink_y + 5) > obstacle_y:
@@ -289,6 +321,11 @@ if __name__ == "__main__":
                         break
 
             arduino.send('!', -10000000)
+            speed = 2500 #2500 for faster parking
+
+            # Back up a certain distance
+            arduino.send('m', 85, -speed)
+            time.sleep(2.4)
             # Back up until pink wall is detected
             while True:
                 camera_manager.capture_image()
@@ -304,21 +341,23 @@ if __name__ == "__main__":
             #speed = 1000
             # Move forward a bit to prepare to enter the parking spot
             arduino.send('!', 10000000)
-            arduino.send('t', 85, 1000, 1850)
-            
+            # arduino.send('t', 85, 1000, 1850)
+
             print(context_manager.get_direction())
             # Enter the parking spot while turning
-            if (context_manager.get_direction() == Direction.LEFT and last_color == 1) or (context_manager.get_direction() == Direction.RIGHT and last_color == 0):
-                print("Too close, turn less")
-                arduino.send('t', 87 - context_manager.get_direction().value * 37, -1000, 1300)
+            if (context_manager.get_direction() == Direction.LEFT and last_was_green) or (context_manager.get_direction() == Direction.RIGHT and not last_was_green):
+                print("Too close, move forward less, turn less")
+                arduino.send('t', 85, speed, 1750)
+                arduino.send('t', 86 - context_manager.get_direction().value * 37, -speed, 1250)
             else:
                 print("Normal")
-                arduino.send('t', 87 - context_manager.get_direction().value * 37, -1000, 1400)
+                arduino.send('t', 85, speed, 1850)
+                arduino.send('t', 86 - context_manager.get_direction().value * 37, -speed, 1400)
             
             # Backup straight inside the parking spot
-            arduino.send('t', 85, -1000, 675)
+            arduino.send('t', 85, -speed, 675)
             # Backup while turning to straighten the robot
-            arduino.send('t', 87 + context_manager.get_direction().value * 37, -1000, 1275)
+            arduino.send('t', 86 + context_manager.get_direction().value * 37, -speed, 1250)
             # Straighten the wheels
             arduino.send('m', 85, 0)
         

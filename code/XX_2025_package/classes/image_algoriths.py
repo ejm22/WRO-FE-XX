@@ -316,10 +316,20 @@ class ImageAlgorithms:
             else:
                 return -1000, None, None, None
         # Get the biggest rectangle from find_rect() - in the future, we could use the 4th output to use the second biggest obstacle
-        _, _, rect, _ = ImageDrawingUtils.find_rect(self.camera_manager.obstacle_image, self.camera_manager.polygon_image)
+        _, _, rect, rect2 = ImageDrawingUtils.find_rect(self.camera_manager.obstacle_image, self.camera_manager.polygon_image)
         # Check if a rectangle was found
         if rect is None:
             return None, None, None, None
+        
+        
+        #########################################
+        # Verify if a second rectangle is closer than the first one
+        if rect2 is not None:
+            y_center2 = rect2[0][1]
+            if y_center2 > rect[0][1]:
+                rect = rect2
+        #########################################
+
         # Get the center of the rectangle
         x_center = rect[0][0]
         y_center = rect[0][1]
@@ -332,9 +342,9 @@ class ImageAlgorithms:
                 # Object is quite close, use previous adjustment
                 return self.old_angle, self.old_is_green, x_center, y_center
         # Check if the object is too high
-        if y_center < ImageTransformUtils.PIC_HEIGHT - 240:# was 60
+        #if y_center < ImageTransformUtils.PIC_HEIGHT - 340:# was 240
             # Object is too high, ignore it
-            return None, None, None, None
+        #    return None, None, None, None
         # Check if the inner wall is too close
         if self.check_inner_wall_crash(y_center):
             return None, None, None, None
@@ -388,7 +398,7 @@ class ImageAlgorithms:
             x_center2 = rect2[0][0]
             y_center2 = rect2[0][1]
             if (x_center2 > x_center and direction == Direction.RIGHT) or (x_center2 < x_center and direction == Direction.LEFT):
-                print("Following the second wall")
+                # print("Following the second wall")
                 x_center = x_center2
                 y_center = y_center2
         # Check if the object is too low
