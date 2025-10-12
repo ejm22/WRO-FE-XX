@@ -277,7 +277,11 @@ if __name__ == "__main__":
                 if key == 27:  # Escape key to quit
                     break
             arduino.send('m', 85, 0)
+            
 
+
+            ## UPDATED FROM HERE ##
+            
             ## 5 ##
             # Parallel park in the parking area
             print("Challenge 3")

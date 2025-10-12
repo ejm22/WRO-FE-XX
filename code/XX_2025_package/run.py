@@ -57,8 +57,8 @@ if __name__ == "__main__":
         # region State 0 : Initializations
         if state == RunStates.INITIALIZATIONS:
             context_manager = ContextManager()
-            lap_tracker = LapTracker()
-            image_algorithms = ImageAlgorithms()
+            lap_tracker = LapTracker(context_manager)
+            image_algorithms = ImageAlgorithms(context_manager, camera_manager)
             arduino = ArduinoComms()
             camera_manager.start_camera()
             camera_manager.capture_image()
@@ -75,11 +75,9 @@ if __name__ == "__main__":
                 if msg == '1':
                     context_manager.set_challenge(1)
                     state = RunStates.CHALLENGE_1_FIND_DIRECTION
-                    break
                 elif msg == '2':
                     context_manager.set_challenge(2)
                     state = RunStates.CHALLENGE_2_FIND_DIRECTION
-                    break
                 elif msg == '0':
                     state = RunStates.STOP
                     break
@@ -104,15 +102,15 @@ if __name__ == "__main__":
             start_position = image_algorithms.get_starting_position()
             context_manager.set_start_position(start_position)
             print("Start position: ", start_position)
+            speed = SPEED_CHALLENGE_1_FAST
             state = RunStates.CHALLENGE_1_LAPS
         # endregion State 11 : Challenge 1 - Find Direction
 
         # region State 12 : Challenge 1 - Laps
         if state == RunStates.CHALLENGE_1_LAPS:
-            speed = SPEED_CHALLENGE_1_FAST
             angle, is_corner = image_algorithms.calculate_servo_angle_from_walls()
             # Verify distance to travel to stop in the correct position
-            if (context_manager.is_last_quarter() or context_manager.has_completed_laps()):
+            if (context_manager.is_last_quarter()):
                 speed = SPEED_CHALLENGE_1_MID
                 start_time = time.time()
                 state = RunStates.CHALLENGE_1_PARKING
@@ -131,8 +129,8 @@ if __name__ == "__main__":
                 else:
                     arduino.send('!', 4400)
                 speed = SPEED_CHALLENGE_1_SLOW
-        if context_manager.has_completed_laps() and arduino.read() == 'F':
-            state = RunStates.STOP
+            if context_manager.has_completed_laps() and arduino.read() == 'F':
+                state = RunStates.STOP
         # endregion State 13 : Challenge 1 - Parking
 
         # region State 21 : Challenge 2 - Find Direction
@@ -150,7 +148,7 @@ if __name__ == "__main__":
             arduino.send('t', ANGLE_STRAIGHT - 35 * challenge_direction.value, speed, 1200)
             arduino.send('!', 10000000)
             arduino.send('m', ANGLE_STRAIGHT, speed)
-            time.sleep(1.0)
+            time.sleep(0.9)
             state = RunStates.CHALLENGE_2_LAPS
         # endregion State 21 : Challenge 2 - Find Direction
 
@@ -227,7 +225,6 @@ if __name__ == "__main__":
                 speed = SPEED_STOP
                 angle = ANGLE_STRAIGHT
                 arduino.send('!', -10000000)
-                start_time = 0
                 start_time = time.time()
                 state = RunStates.CHALLENGE_2_BACKWARDS
         # endregion State 24 : Challenge 2 - Forward
@@ -239,15 +236,14 @@ if __name__ == "__main__":
             if time.time() - start_time >= 2.4:
                 speed = -SPEED_CHALLENGE_2_PARKING
             if camera_manager.binary_image[pink_pixel_y_backwards, pink_pixel_x_backwards] == 0:
-                speed = SPEED_STOP
                 angle = ANGLE_STRAIGHT
-                arduino.send('m', angle, speed)
                 arduino.send('!', 10000000)
                 state = RunStates.CHALLENGE_2_PARKING
         # endregion State 25 : Challenge 2 - Backwards
 
         # region State 26 : Challenge 2 - Parking
         if state == RunStates.CHALLENGE_2_PARKING:
+            speed = SPEED_CHALLENGE_2_ACCELERATED_PARKING
             # Move forward, then enter the parking spot while turning
             if (parking_direction == Direction.LEFT and last_was_green) or (parking_direction == Direction.RIGHT and not last_was_green):
                 # Too close, move forward less, turn less
@@ -268,7 +264,10 @@ if __name__ == "__main__":
 
         # region State 9 : Stop
         if state == RunStates.STOP:
-            break
+            speed = SPEED_STOP
+            angle = ANGLE_STRAIGHT
+            cv2.destroyAllWindows()
+            state = RunStates.INITIALIZATIONS
         # endregion State 9 : Stop
 
         # region To-do end of every loop
@@ -277,10 +276,11 @@ if __name__ == "__main__":
             ImageDrawingUtils.add_text_to_image(camera_manager.display_image, f"Lap: {context_manager.get_lap_count()}", (10, 30), (0, 0, 255))
             camera_manager.add_frame_to_video()
             cv2.imshow("Display", camera_manager.display_image)
+        #print("Lol")
         time.sleep(0.001)
         key = cv2.waitKey(1) # Let OpenCV update the window
         if key == 27: # Exit on ESC
-            if (speed != 0):
+            if (speed != 0) and context_manager.get_challenge() == 1:
                 speed = SPEED_STOP
             else:
                 break
@@ -288,4 +288,3 @@ if __name__ == "__main__":
     
     arduino.send('m', ANGLE_STRAIGHT, SPEED_STOP)
     cv2.destroyAllWindows()
-    

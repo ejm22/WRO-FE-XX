@@ -25,6 +25,11 @@ CHALLENGE_CONFIG = {
     4: ChallengeParameters(kp = 0.35, kd = 0.25 , base_threshold = ImageTransformUtils.PIC_HEIGHT, offsets = [-100         ])
 }
 
+class CrashStates:
+    NO_CRASH = 0
+    INNER_WALL_CRASH = 1
+    OUTER_WALL_CRASH = 2
+
 class ImageAlgorithms:
     START_WALL_HEIGHT_THRESHOLD = 34
     BACK_ZONE_WALL_HEIGHT = 30
@@ -38,6 +43,8 @@ class ImageAlgorithms:
         self.old_is_green = 0
         self.last_color = None
         self.inner_wall_warning = False
+        self.first_obstacle_flag = False
+        self.state = CrashStates.NO_CRASH
 
     def get_direction_from_lines(self):
         """
@@ -106,8 +113,7 @@ class ImageAlgorithms:
                 x_vals.append(end_index)
         return x_vals
     
-    @staticmethod
-    def get_offset_from_lap(challenge, lap_count, quarter_lap_count):
+    def get_offset_from_lap(self, challenge, lap_count, quarter_lap_count):
         """
         Get the offset value based on the challenge, lap count, and quarter lap count
         I/O:
@@ -132,7 +138,10 @@ class ImageAlgorithms:
         elif challenge == 2:
             if lap_count == 0:
                 if quarter_lap_count == 0:
-                    return offset[0]
+                    if self.first_obstacle_flag:
+                        return offset[1]        # Challenge 2 first quarter offset after first obstacle
+                    else:
+                        return offset[0]
                 else:
                     return offset[1]
             else:
@@ -199,6 +208,11 @@ class ImageAlgorithms:
         direction = self.context_manager.get_direction()
         # Get position of nearest wall from find_wall_to_follow()
         avg_x, avg_y = self.find_wall_to_follow(forward_parking)
+        if forward_parking:
+            if direction == Direction.LEFT: 
+                direction = Direction.RIGHT
+            else: 
+                direction = Direction.LEFT
         # Get threshold, kp and kd values based on the challenge
         if forward_parking:
             threshold, kp, kd = self.calculate_wall_threshold_kp_kd(3)
@@ -255,16 +269,12 @@ class ImageAlgorithms:
         else:
             return 'F'  # Far
 
-    def check_inner_wall_crash(self, object_height):
+    def check_inner_wall_crash(self):
         """
-        Determines if the robot is too close to the inner wall while detecting an obstacle in a further section
+        Determines if the robot is too close to the inner wall
         I/O:
-            object_height: height of the detected object's center
             return: True if the robot is too close to the inner wall, False otherwise
         """
-        # Make sure there's an object, otherwise return True (to follow walls)
-        if object_height is None:
-            return True
         # Set 3 detection points
         if self.context_manager.get_direction() == Direction.RIGHT:
             detection_points = [
@@ -281,7 +291,7 @@ class ImageAlgorithms:
         # Check if any detection point is on the wall, if so, return True
         for y, x in detection_points:
             ImageDrawingUtils.draw_circle(self.camera_manager.display_image, (x, y), 3, (255, 0, 0))
-            if self.camera_manager.polygon_image[y, x] == 0 and object_height < ImageTransformUtils.PIC_HEIGHT - 170:
+            if self.camera_manager.polygon_image[y, x] == 0:
                 self.inner_wall_warning = True
                 return True
         return False
@@ -310,17 +320,37 @@ class ImageAlgorithms:
         # Deactivate inner wall warning
         self.inner_wall_warning = False
         # Check if the outer wall in front is too close
-        if self.check_outer_wall_crash():
-            if self.context_manager.get_direction() == Direction.RIGHT:
-                return 1000, None, None, None
+        outer_wall_crash = self.check_outer_wall_crash()
+        inner_wall_crash = self.check_inner_wall_crash()
+        if self.state == CrashStates.NO_CRASH:
+            if inner_wall_crash:
+                self.state = CrashStates.INNER_WALL_CRASH
+                return None, None, None, None
+            elif outer_wall_crash:
+                self.state = CrashStates.OUTER_WALL_CRASH
+                if self.context_manager.get_direction() == Direction.RIGHT:
+                    return 1000, None, None, None
+                else:
+                    return -1000, None, None, None
+        elif self.state == CrashStates.INNER_WALL_CRASH:
+            if not inner_wall_crash:
+                self.state = CrashStates.NO_CRASH
             else:
-                return -1000, None, None, None
+                return None, None, None, None
+        elif self.state == CrashStates.OUTER_WALL_CRASH:
+            if not outer_wall_crash:
+                self.state = CrashStates.NO_CRASH
+            else:
+                if self.context_manager.get_direction() == Direction.RIGHT:
+                    return 1000, None, None, None
+                else:
+                    return -1000, None, None, None
+
         # Get the biggest rectangle from find_rect() - in the future, we could use the 4th output to use the second biggest obstacle
         _, _, rect, rect2 = ImageDrawingUtils.find_rect(self.camera_manager.obstacle_image, self.camera_manager.polygon_image)
         # Check if a rectangle was found
         if rect is None:
             return None, None, None, None
-        
         
         #########################################
         # Verify if a second rectangle is closer than the first one
@@ -345,13 +375,12 @@ class ImageAlgorithms:
         #if y_center < ImageTransformUtils.PIC_HEIGHT - 340:# was 240
             # Object is too high, ignore it
         #    return None, None, None, None
-        # Check if the inner wall is too close
-        if self.check_inner_wall_crash(y_center):
-            return None, None, None, None
+        
         # Check if the obstacle is green or red
         is_green = ImageColorUtils.is_rect_green(self.camera_manager.hsv_image, rect)
         # Create and draw a line from the center of the object to the left or right side of the image
         # Line needs to be at x degrees (the angle threshold) to be able to pass around the obstacle
+        self.first_obstacle_flag = True
         if is_green:
             if self.context_manager.has_completed_laps():
                 self.last_color = 1
