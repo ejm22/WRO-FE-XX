@@ -188,7 +188,7 @@ class ImageAlgorithms:
         if avg_y >= 259.0 : avg_y = ImageTransformUtils.PIC_HEIGHT
         return avg_x, avg_y
 
-    def calculate_servo_angle_from_walls(self, challenge_3 = False):
+    def calculate_servo_angle_from_walls(self, forward_parking = False):
         """
         Calculate the servo's angle
         I/O:
@@ -198,9 +198,9 @@ class ImageAlgorithms:
         is_corner = False
         direction = self.context_manager.get_direction()
         # Get position of nearest wall from find_wall_to_follow()
-        avg_x, avg_y = self.find_wall_to_follow()
+        avg_x, avg_y = self.find_wall_to_follow(forward_parking)
         # Get threshold, kp and kd values based on the challenge
-        if challenge_3:
+        if forward_parking:
             threshold, kp, kd = self.calculate_wall_threshold_kp_kd(3)
         else:
             threshold, kp, kd = self.calculate_wall_threshold_kp_kd()
