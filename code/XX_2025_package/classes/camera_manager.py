@@ -93,7 +93,6 @@ class CameraManager:
     
         self.video_output.write(new_img)
 
-
     def transform_image(self):
         if self.raw_image is not None:
             self.cropped_image = ImageTransformUtils.crop_image(self.raw_image, 0, ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.CAMERA_PIC_HEIGHT - ImageTransformUtils.PIC_HEIGHT, ImageTransformUtils.CAMERA_PIC_HEIGHT)
