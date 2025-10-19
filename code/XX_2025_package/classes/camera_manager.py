@@ -1,4 +1,7 @@
-from picamera2 import Picamera2
+try:    
+    from picamera2 import Picamera2
+except Exception:
+    from utils.fake_picamera2 import Picamera2
 import time
 from utils.image_transform_utils import ImageTransformUtils
 from utils.image_transform_utils import ImageColorUtils

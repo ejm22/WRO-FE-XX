@@ -10,3 +10,6 @@
 /venv/
 **/videos
 /code/XX_2025_package/videos/
+/code/XX_2025_package/tests/images/
+/code/XX_2025_package/tests/videos/
+__pycache__
