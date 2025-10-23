@@ -3,6 +3,7 @@ import cv2
 from classes.camera_manager import CameraManager
 from classes.context_manager import ContextManager, RunStates
 from classes.info_overlay_processor import InfoOverlayProcessor
+import time
 
 class VideoThread(Thread):
     def __init__(self, camera_manager: CameraManager, context_manager: ContextManager, info_overlay_processor: InfoOverlayProcessor):
@@ -18,6 +19,8 @@ class VideoThread(Thread):
         while self.running:
             if self.context_manager.get_state() == RunStates.CHALLENGE_2_PARKING:
                 with self.lock:
+                    print('taking images from thread')
+                    time.sleep(0.1)
                     self.camera_manager.capture_image()
                     self.camera_manager.transform_image()
                     
@@ -27,12 +30,6 @@ class VideoThread(Thread):
                     
                 self.info_overlay_processor.add_info_overlay()
                 self.camera_manager.add_frame_to_video(display_copy)
-                
-                cv2.imshow("Display", display_copy)
-                
-                if cv2.waitKey(1) == 27:  # ESC key
-                    self.running = False
-                    break
 
     def stop(self):
         self.running = False
