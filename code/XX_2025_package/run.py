@@ -15,6 +15,7 @@ from utils.image_transform_utils import ImageTransformUtils
 from utils.enums import Direction
 from utils.image_drawing_utils import ImageDrawingUtils
 from utils.enums import RunStates
+from utils.debug_timer import DebugTimer
 # endregion Imports
 
 # region Constants
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     try:
         # Main loop
         while True:
-        
+            
             # region State 0 : Initializations
             if state == RunStates.INITIALIZATIONS:
                 context_manager = ContextManager()
@@ -49,6 +50,7 @@ if __name__ == "__main__":
                 lap_tracker = LapTracker(context_manager)
                 image_algorithms = ImageAlgorithms(context_manager, camera_manager)
                 arduino = ArduinoComms()
+                debug_timer = DebugTimer()
                 camera_manager.start_camera()
                 camera_manager.capture_image()
                 camera_manager.transform_image()
@@ -59,7 +61,7 @@ if __name__ == "__main__":
                 video_thread = VideoThread(camera_manager, context_manager, info_overlay_processor) 
                 video_thread.start()
             # endregion State 0 : Initializations
-
+            debug_timer.start("Main loop")
             # region State 1 : Wait for start
             if state == RunStates.WAIT_FOR_START:
                 msg = arduino.read()
@@ -146,7 +148,7 @@ if __name__ == "__main__":
                 time.sleep(0.9)
                 state = RunStates.CHALLENGE_2_LAPS
             # endregion State 21 : Challenge 2 - Find Direction
-
+            
             # region State 22 : Challenge 2 - Laps
             if state == RunStates.CHALLENGE_2_LAPS:
                 angle_obstacles, is_green, _, y_center = image_algorithms.find_obstacle_angle_and_draw_lines()
@@ -177,7 +179,7 @@ if __name__ == "__main__":
                         last_was_green = False
                 # endregion Transition to approach state
             # endregion State 22 : Challenge 2 - Laps
-
+            
             # region State 23 : Challenge 2 - Approach
             if state == RunStates.CHALLENGE_2_APPROACH:
                 angle_obstacles, is_green, obstacle_x, obstacle_y = image_algorithms.find_obstacle_angle_and_draw_lines()
@@ -208,7 +210,7 @@ if __name__ == "__main__":
                         ok_to_detect_flag = False
                         state = RunStates.CHALLENGE_2_FORWARD
             # endregion State 23 : Challenge 2 - Approach
-
+            
             # region State 24 : Challenge 2 - Forward
             if state == RunStates.CHALLENGE_2_FORWARD:
                 angle, _ = image_algorithms.calculate_servo_angle_from_walls(True)
@@ -223,7 +225,7 @@ if __name__ == "__main__":
                     start_time = time.time()
                     state = RunStates.CHALLENGE_2_BACKWARDS
             # endregion State 24 : Challenge 2 - Forward
-
+            
             # region State 25 : Challenge 2 - Backwards
             if state == RunStates.CHALLENGE_2_BACKWARDS:
                 speed = -SPEED_CHALLENGE_2_ACCELERATED_PARKING
@@ -235,7 +237,7 @@ if __name__ == "__main__":
                     arduino.send('!', 10000000)
                     state = RunStates.CHALLENGE_2_PARKING
             # endregion State 25 : Challenge 2 - Backwards
-
+            
             # region State 26 : Challenge 2 - Parking
             if state == RunStates.CHALLENGE_2_PARKING:
                 speed = SPEED_CHALLENGE_2_ACCELERATED_PARKING
@@ -265,7 +267,7 @@ if __name__ == "__main__":
                 print('Out of parking loop')
 
             # endregion State 26 : Challenge 2 - Parking
-
+            debug_timer.stop()
         
             # region State 9 : Stop
             if state == RunStates.STOP:
