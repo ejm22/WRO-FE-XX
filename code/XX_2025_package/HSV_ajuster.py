@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from classes.camera_manager import CameraManager
+import os
 
 class HSVRangeHighlighter:
     def __init__(self, window_name="HSV Range Highlighter", max_width=800, max_height=600):
@@ -122,6 +123,7 @@ if __name__ == "__main__":
             print(f"Failed to load image, check path")
 
     elif choice == "3":
+        print(os.getcwd())
         highlighter.adjust_hsv_video("tests/videos/video.mp4")
 
     else:
