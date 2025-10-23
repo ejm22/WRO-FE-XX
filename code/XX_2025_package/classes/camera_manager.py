@@ -2,7 +2,6 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from picamera2 import Picamera2
 try:    
     from picamera2 import Picamera2
 except Exception:
@@ -95,18 +94,19 @@ class CameraManager:
             print(f"Delay between frames: {time.time() - self.previous_time:.3f} seconds")
         self.previous_time = time.time()
         
-    def add_frame_to_video(self):
-        if self.display_image is None:
+    def add_frame_to_video(self, frame=None):
+        if self.display_image is None and frame is None:
             return
-        if self.display_image.shape[1] != ImageTransformUtils.PIC_WIDTH or self.display_image.shape[0] != ImageTransformUtils.PIC_HEIGHT:
+        if frame is None:
+            frame = self.display_image
+        if frame.shape[1] != ImageTransformUtils.PIC_WIDTH or frame.shape[0] != ImageTransformUtils.PIC_HEIGHT:
             print(f"Frame size does not match video output size. Expected ({ImageTransformUtils.PIC_WIDTH}, {ImageTransformUtils.PIC_HEIGHT}), got {self.display_image.shape[1]}x{self.display_image.shape[0]}.")
             return
-        new_img = self.display_image
          # Ensure the image has 3 channels
-        if len(self.display_image.shape) == 2: # grayscale or binary image
-            new_img = cv2.cvtColor(self.display_image, cv2.COLOR_GRAY2RGB)
+        if len(frame.shape) == 2: # grayscale or binary image
+            frame = cv2.cvtColor(self.display_image, cv2.COLOR_GRAY2RGB)
     
-        self.video_output.write(new_img)
+        self.video_output.write(frame)
 
     def transform_image(self):
         if self.raw_image is not None:

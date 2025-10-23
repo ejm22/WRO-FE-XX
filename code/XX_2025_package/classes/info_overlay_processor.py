@@ -10,26 +10,28 @@ class InfoOverlayProcessor:
     def get_display_image(self):
         return self.camera_manager.display_image
     
-    def add_info_overlay(self):
-        self.add_lap_info()
-        self.add_state_info()
-        self.add_timer_info()
+    def add_info_overlay(self, frame=None):
+        if frame is None:
+            frame = self.camera_manager.display_image
+        self.add_lap_info(frame)
+        self.add_state_info(frame)
+        self.add_timer_info(frame)
     
-    def add_lap_info(self):
-        if self.camera_manager.display_image is not None:
+    def add_lap_info(self, frame):
+        if frame is not None:
             lap_count = self.context_manager.get_lap_count()
             quarter_lap_count = self.context_manager.get_quarter_lap_count()
-            ImageDrawingUtils.add_text_to_image(self.camera_manager.display_image, f"Lap: {lap_count} {quarter_lap_count}/4", (10, 30), (0, 0, 255))
+            ImageDrawingUtils.add_text_to_image(frame, f"Lap: {lap_count} {quarter_lap_count}/4", (10, 30), (0, 0, 255))
             
-    def add_state_info(self):
-        if self.camera_manager.display_image is not None:
+    def add_state_info(self, frame):
+        if frame is not None:
             self.context_manager.get_state()
-            ImageDrawingUtils.add_text_to_image(self.camera_manager.display_image, f"State: {self.context_manager.get_state().name}", (10, 60), (0, 255, 0))
+            ImageDrawingUtils.add_text_to_image(frame, f"State: {self.context_manager.get_state().name}", (10, 60), (0, 255, 0))
             
-    def add_timer_info(self):
-        if self.camera_manager.display_image is not None:
+    def add_timer_info(self, frame):
+        if frame is not None:
             elapsed = self.context_manager.get_elapsed_time()
             minutes = int(elapsed // 60)
             seconds = int(elapsed % 60)
             timer_text = f"{minutes:02d}:{seconds:02d}"
-            ImageDrawingUtils.add_text_to_image(self.camera_manager.display_image, timer_text, (10, 90), (255, 0, 0))
+            ImageDrawingUtils.add_text_to_image(frame, timer_text, (10, 90), (255, 0, 0))

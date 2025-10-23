@@ -1,4 +1,4 @@
-from threading import Thread
+from threading import Thread, Lock
 import cv2
 from classes.camera_manager import CameraManager
 from classes.context_manager import ContextManager, RunStates
@@ -12,19 +12,23 @@ class VideoThread(Thread):
         self.info_overlay_processor = info_overlay_processor
         self.running = True
         self.daemon = True
+        self.lock = Lock()
 
     def run(self):
         while self.running:
             if self.context_manager.get_state() == RunStates.CHALLENGE_2_PARKING:
-                self.camera_manager.capture_image()
-                self.camera_manager.transform_image()
-                
-            # Process frame and add overlays
+                with self.lock:
+                    self.camera_manager.capture_image()
+                    self.camera_manager.transform_image()
+                    
             if self.camera_manager.display_image is not None:
+                with self.lock:
+                    display_copy = self.camera_manager.display_image.copy()
+                    
                 self.info_overlay_processor.add_info_overlay()
-                self.camera_manager.add_frame_to_video()
-                # Display
-                cv2.imshow("Display", self.camera_manager.display_image)
+                self.camera_manager.add_frame_to_video(display_copy)
+                
+                cv2.imshow("Display", display_copy)
                 
                 if cv2.waitKey(1) == 27:  # ESC key
                     self.running = False

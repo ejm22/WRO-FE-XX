@@ -260,6 +260,9 @@ if __name__ == "__main__":
                 arduino.send('m', ANGLE_STRAIGHT, SPEED_STOP)
                 state = RunStates.STOP
                 time.sleep(.2)
+                with video_thread.lock:
+                    camera_manager.capture_image()
+                    camera_manager.transform_image()
                 parking_quality = image_algorithms.verify_parking_quality()
 
             # endregion State 26 : Challenge 2 - Parking
@@ -277,12 +280,7 @@ if __name__ == "__main__":
             if state is not RunStates.INITIALIZATIONS and state is not RunStates.WAIT_FOR_START:
                 arduino.send('m', angle, speed)
                 context_manager.set_state(state)
-                # MOVED TO VIDEO THREAD
-                # info_overlay_processor.add_info_overlay()
-                # camera_manager.add_frame_to_video()
-                # cv2.imshow("Display", camera_manager.display_image)
                 
-            
             time.sleep(0.001)
             key = cv2.waitKey(1) # Let OpenCV update the window
             if key == 27: # Exit on ESC
