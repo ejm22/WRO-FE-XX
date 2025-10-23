@@ -266,6 +266,7 @@ if __name__ == "__main__":
                     camera_manager.capture_image()
                     camera_manager.transform_image()
                 parking_quality = image_algorithms.verify_parking_quality()
+                print('Out of parking loop')
 
             # endregion State 26 : Challenge 2 - Parking
             debug_timer.stop()
