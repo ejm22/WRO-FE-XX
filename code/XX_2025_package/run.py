@@ -242,6 +242,7 @@ if __name__ == "__main__":
             
             # region State 26 : Challenge 2 - Parking
             if state == RunStates.CHALLENGE_2_PARKING:
+                context_manager.set_state(RunStates.CHALLENGE_2_PARKING)
                 speed = SPEED_CHALLENGE_2_ACCELERATED_PARKING
                 # Move forward, then enter the parking spot while turning
                 if (parking_direction == Direction.LEFT and last_was_green) or (parking_direction == Direction.RIGHT and not last_was_green):
@@ -283,6 +284,7 @@ if __name__ == "__main__":
             if state is not RunStates.INITIALIZATIONS and state is not RunStates.WAIT_FOR_START:
                 arduino.send('m', angle, speed)
                 context_manager.set_state(state)
+                video_thread.queue.put("ADD_IMG")
                 
             time.sleep(0.001)
             key = cv2.waitKey(1) # Let OpenCV update the window

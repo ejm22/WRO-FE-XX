@@ -105,7 +105,7 @@ class CameraManager:
          # Ensure the image has 3 channels
         if len(frame.shape) == 2: # grayscale or binary image
             frame = cv2.cvtColor(self.display_image, cv2.COLOR_GRAY2RGB)
-        print(f"Adding frame to video")
+        #print(f"Adding frame to video")
         self.video_output.write(frame)
 
     def transform_image(self):
