@@ -247,11 +247,13 @@ if __name__ == "__main__":
             # Move forward, then enter the parking spot while turning
             if (parking_direction == Direction.LEFT and last_was_green) or (parking_direction == Direction.RIGHT and not last_was_green):
                 # Too close, move forward less, turn less
-                arduino.send('t', ANGLE_STRAIGHT, speed, 1750)
+                print("Too close to the wall, adjusting parking maneuver")
+                arduino.send('t', ANGLE_STRAIGHT, speed, 1650) # was 1750
                 arduino.send('t', (ANGLE_STRAIGHT + 1) - 37 * parking_direction.value, -speed, 1250)
             else:
                 # Normal
-                arduino.send('t', ANGLE_STRAIGHT, speed, 1850)
+                print("Normal parking maneuver")
+                arduino.send('t', ANGLE_STRAIGHT, speed, 1800) # was 1850
                 arduino.send('t', (ANGLE_STRAIGHT + 1) - 37 * parking_direction.value, -speed, 1400)
             # Backup straight inside the parking spot
             arduino.send('t', ANGLE_STRAIGHT, -speed, 675)
@@ -260,8 +262,12 @@ if __name__ == "__main__":
             # Straighten the wheels and stop
             arduino.send('m', ANGLE_STRAIGHT, SPEED_STOP)
             state = RunStates.STOP
+            time.sleep(.2)
+            parking_quality = image_algorithms.verify_parking_quality()
+
         # endregion State 26 : Challenge 2 - Parking
 
+        
         # region State 9 : Stop
         if state == RunStates.STOP:
             speed = SPEED_STOP

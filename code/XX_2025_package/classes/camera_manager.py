@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from picamera2 import Picamera2
 import time
 from utils.image_transform_utils import ImageTransformUtils
@@ -9,6 +13,8 @@ from utils.image_drawing_utils import ImageDrawingUtils
 import math
 import os
 from utils.video.video_counter import VideoCounter
+from classes.image_algoriths import ImageAlgorithms
+from classes.context_manager import ContextManager
 
 class CameraManager:
 
@@ -179,14 +185,19 @@ class CameraManager:
 
 if __name__ == "__main__":
     camera_manager = CameraManager()
+    context_manager = ContextManager()
+    image_algorithms = ImageAlgorithms(context_manager, camera_manager)
     camera_manager.start_camera()
     while True:
         camera_manager.capture_image()
         camera_manager.transform_image()
-        for i in range (41, -41, -6):
-            camera_manager.draw_arc(camera_manager.cropped_image, i)
-        #    time.sleep(.5)
+
+        parking_quality = image_algorithms.verify_parking_quality()
+
         cv2.imshow("test", camera_manager.obstacle_image)
+        cv2.imshow("cropped_image", camera_manager.cropped_image)
+        cv2.imshow("pink", camera_manager.pink_mask)
+        cv2.imshow("display", camera_manager.display_image)
 
         time.sleep(0.01)
         key = cv2.waitKey(1)  # Let OpenCV update the window

@@ -543,3 +543,38 @@ class ImageAlgorithms:
         cols = range(start, end)
         
         return np.mean(self.find_black_from_bottom(self.camera_manager.polygon_image, cols))
+    
+    def verify_parking_quality(self):
+        """
+        Detect the angle and the position of the pink parking wall to verify if well parked
+
+        This method finds the facing pink wall in the parking lot, calculate the position of its center and its angle.
+        
+        Returns:
+            tuple: (angle, x_center, y_center)
+                - angle (float): The calculated avoidance angle in degrees, 
+                - x_center (int): The x-coordinate of the wall's center.
+                - y_center (int): The y-coordinate of the wall's center.
+        """
+        direction = self.context_manager.get_direction()
+        _, _, rect, _ = ImageDrawingUtils.find_rect(self.camera_manager.pink_mask, self.camera_manager.polygon_image)
+        # Check if a rectangle was found
+        if rect is None:
+            return None, None, None
+        # Get the center of the rectangle
+        x_center = rect[0][0]
+
+        angle = rect[2]
+        if angle is not None:
+            x = x_center - 320     # distance between center of pink wall and center of image
+            if angle > 80:  # calculate angle around zero
+                angle = angle -90
+            # Use the equation y = 13*angle +18 to calculate error
+            error = (15 * angle +25)   - x  
+            error = round(error,1)
+            angle = round(angle,1)
+            x = int(x)
+            print("x, angle, error: ", x, angle, error)
+            return error
+        else: 
+            return None
