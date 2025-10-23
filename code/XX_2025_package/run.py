@@ -276,6 +276,12 @@ if __name__ == "__main__":
             if state == RunStates.STOP:
                 speed = SPEED_STOP
                 angle = ANGLE_STRAIGHT
+                
+                if 'video_thread' in locals() and video_thread is not None:
+                    video_thread.stop()
+                    video_thread.join(timeout=2.0)
+                
+                camera_manager.release_video()
                 cv2.destroyAllWindows()
                 state = RunStates.INITIALIZATIONS
             # endregion State 9 : Stop
@@ -301,8 +307,14 @@ if __name__ == "__main__":
             # endregion To-do end of every loop
             
     finally:
+        print("Cleaning up...")
         if 'video_thread' in locals():
             video_thread.stop()
             video_thread.join()
+        
+        # CRITICAL: Always release video writer to finalize the video file
+        camera_manager.release_video()
+        
         arduino.send('m', ANGLE_STRAIGHT, SPEED_STOP)
         cv2.destroyAllWindows()
+        print("Cleanup complete")

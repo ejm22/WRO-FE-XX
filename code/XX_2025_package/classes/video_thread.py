@@ -34,7 +34,10 @@ class VideoThread(Thread):
                     
                     overlay_display = display_copy.copy()
                     self.info_overlay_processor.add_info_overlay(overlay_display)
-                    self.camera_manager.add_frame_to_video(overlay_display)
+                    
+                    if self.camera_manager.video_output is not None:
+                        self.camera_manager.add_frame_to_video(overlay_display)
+                    
                     self.last_frame = display_copy
                     
                     time.sleep(0.05)

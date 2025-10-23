@@ -106,7 +106,16 @@ class CameraManager:
         if len(frame.shape) == 2: # grayscale or binary image
             frame = cv2.cvtColor(self.display_image, cv2.COLOR_GRAY2RGB)
         #print(f"Adding frame to video")
-        self.video_output.write(frame)
+        if self.video_output is not None and self.video_output.isOpened():
+            self.video_output.write(frame)
+    
+    def release_video(self):
+        """Release the video writer to finalize the video file"""
+        if self.video_output is not None:
+            print("Releasing video writer...")
+            self.video_output.release()
+            self.video_output = None
+            print("Video recording finalized and saved")
 
     def transform_image(self):
         if self.raw_image is not None:
