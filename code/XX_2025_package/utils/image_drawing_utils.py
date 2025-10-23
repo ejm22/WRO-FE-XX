@@ -20,7 +20,7 @@ class ImageDrawingUtils:
             The image with the text added.
         """
         if image is not None:
-            cv2.putText(image, text, position, cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+            cv2.putText(image, text, position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
         return image
     
     @staticmethod

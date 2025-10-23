@@ -1,5 +1,7 @@
 from utils.enums import Direction
 from utils.enums import StartPosition
+from utils.enums import RunStates
+import time
 
 class ContextManager:
     LAP_GOAL = 3
@@ -11,6 +13,9 @@ class ContextManager:
         self._quarter_lap_count = 0
         self._start_position = None
         self._parking_distance = 0
+        self._state = RunStates.INITIALIZATIONS
+        self.start_time = None
+        self.elapsed_time = 0
         
     def set_direction(self, direction: Direction):
         self._direction = direction
@@ -60,3 +65,18 @@ class ContextManager:
     
     def is_last_quarter(self):
         return self._lap_count == self.LAP_GOAL - 1 and self._quarter_lap_count == 3
+    
+    def get_state(self):
+        return self._state
+    
+    def set_state(self, state: RunStates):
+        self._state = state
+        
+    def start_timer(self):
+        self.start_time = time.time()
+
+    def get_elapsed_time(self):
+        if self.start_time is None:
+            return 0
+        self.elapsed_time = time.time() - self.start_time
+        return self.elapsed_time

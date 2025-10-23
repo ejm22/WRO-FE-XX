@@ -3,6 +3,10 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from picamera2 import Picamera2
+try:    
+    from picamera2 import Picamera2
+except Exception:
+    from utils.fake_picamera2 import Picamera2
 import time
 from utils.image_transform_utils import ImageTransformUtils
 from utils.image_transform_utils import ImageColorUtils
@@ -98,7 +102,6 @@ class CameraManager:
             new_img = cv2.cvtColor(self.display_image, cv2.COLOR_GRAY2RGB)
     
         self.video_output.write(new_img)
-
 
     def transform_image(self):
         if self.raw_image is not None:

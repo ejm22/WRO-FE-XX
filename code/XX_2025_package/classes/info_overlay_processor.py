@@ -1,0 +1,35 @@
+from classes.context_manager import ContextManager
+from classes.camera_manager import CameraManager
+from utils.image_drawing_utils import ImageDrawingUtils
+
+class InfoOverlayProcessor:
+    def __init__(self, context_manager: ContextManager, camera_manager: CameraManager):
+        self.context_manager = context_manager
+        self.camera_manager = camera_manager
+        
+    def get_display_image(self):
+        return self.camera_manager.display_image
+    
+    def add_info_overlay(self):
+        self.add_lap_info()
+        self.add_state_info()
+        self.add_timer_info()
+    
+    def add_lap_info(self):
+        if self.camera_manager.display_image is not None:
+            lap_count = self.context_manager.get_lap_count()
+            quarter_lap_count = self.context_manager.get_quarter_lap_count()
+            ImageDrawingUtils.add_text_to_image(self.camera_manager.display_image, f"Lap: {lap_count} {quarter_lap_count}/4", (10, 30), (0, 0, 255))
+            
+    def add_state_info(self):
+        if self.camera_manager.display_image is not None:
+            self.context_manager.get_state()
+            ImageDrawingUtils.add_text_to_image(self.camera_manager.display_image, f"State: {self.context_manager.get_state().name}", (10, 60), (0, 255, 0))
+            
+    def add_timer_info(self):
+        if self.camera_manager.display_image is not None:
+            elapsed = self.context_manager.get_elapsed_time()
+            minutes = int(elapsed // 60)
+            seconds = int(elapsed % 60)
+            timer_text = f"{minutes:02d}:{seconds:02d}"
+            ImageDrawingUtils.add_text_to_image(self.camera_manager.display_image, timer_text, (10, 90), (255, 0, 0))
