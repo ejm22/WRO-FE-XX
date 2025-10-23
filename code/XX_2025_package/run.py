@@ -60,6 +60,8 @@ if __name__ == "__main__":
                 
                 video_thread = VideoThread(camera_manager, context_manager, info_overlay_processor) 
                 video_thread.start()
+                #print('Thread state: ', video_thread.is_alive())
+
             # endregion State 0 : Initializations
             debug_timer.start("Main loop")
             # region State 1 : Wait for start
