@@ -284,6 +284,11 @@ if __name__ == "__main__":
             if state is not RunStates.INITIALIZATIONS and state is not RunStates.WAIT_FOR_START:
                 arduino.send('m', angle, speed)
                 context_manager.set_state(state)
+                
+                display_copy = camera_manager.display_image.copy()
+                info_overlay_processor.add_info_overlay(display_copy)
+                cv2.imshow("Display", display_copy)
+                
                 video_thread.queue.put("ADD_IMG")
                 
             time.sleep(0.001)
