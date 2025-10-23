@@ -45,7 +45,7 @@ if __name__ == "__main__":
             # region State 0 : Initializations
             if state == RunStates.INITIALIZATIONS:
                 context_manager = ContextManager()
-                info_overlay_processor = InfoOverlayProcessor(context_manager, camera_manager)
+                # info_overlay_processor = InfoOverlayProcessor(context_manager, camera_manager)
                 lap_tracker = LapTracker(context_manager)
                 image_algorithms = ImageAlgorithms(context_manager, camera_manager)
                 arduino = ArduinoComms()
@@ -56,8 +56,8 @@ if __name__ == "__main__":
                 check_corner_flag = False
                 start_time = 0
                 
-                video_thread = VideoThread(camera_manager, context_manager, info_overlay_processor) 
-                video_thread.start()
+                # video_thread = VideoThread(camera_manager, context_manager, info_overlay_processor) 
+                # video_thread.start()
             # endregion State 0 : Initializations
 
             # region State 1 : Wait for start

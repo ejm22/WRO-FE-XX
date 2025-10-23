@@ -23,6 +23,8 @@ from classes.context_manager import ContextManager
 class CameraManager:
 
     def __init__(self):
+        self.previous_time = 0
+
         self.picam2 = Picamera2()
         self.raw_image = None
         self.cropped_image = None
@@ -89,6 +91,9 @@ class CameraManager:
         if self.raw_image is not None:
             del self.raw_image
         self.raw_image = self.picam2.capture_array()
+        if self.previous_time != 0:
+            print(f"Delay between frames: {time.time() - self.previous_time:.3f} seconds")
+        self.previous_time = time.time()
         
     def add_frame_to_video(self):
         if self.display_image is None:
