@@ -123,7 +123,6 @@ if __name__ == "__main__":
             print(f"Failed to load image, check path")
 
     elif choice == "3":
-        print(os.getcwd())
         highlighter.adjust_hsv_video("tests/videos/video.mp4")
 
     else:

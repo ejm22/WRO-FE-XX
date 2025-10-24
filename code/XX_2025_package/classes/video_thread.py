@@ -27,14 +27,12 @@ class VideoThread(Thread):
                 
                 if current_state == RunStates.CHALLENGE_2_PARKING:
                     with self.lock:
-                        print('VideoThread: Capturing during parking')
                         self.camera_manager.capture_image()
                         self.camera_manager.transform_image()
                         display_copy = self.camera_manager.display_image.copy()
                     
                     overlay_display = display_copy.copy()
                     self.info_overlay_processor.add_info_overlay(overlay_display)
-                    
                     if self.camera_manager.video_output is not None:
                         self.camera_manager.add_frame_to_video(overlay_display)
                     

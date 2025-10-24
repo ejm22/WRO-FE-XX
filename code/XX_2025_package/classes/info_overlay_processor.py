@@ -21,8 +21,8 @@ class InfoOverlayProcessor:
         if frame is not None:
             lap_count = self.context_manager.get_lap_count()
             quarter_lap_count = self.context_manager.get_quarter_lap_count()
-            ImageDrawingUtils.add_text_to_image(frame, f"Lap: {lap_count} {quarter_lap_count}/4", (10, 30), (0, 0, 255))
-            
+            ImageDrawingUtils.add_text_to_image(frame, f"Lap: {lap_count} {f'{quarter_lap_count}/4' if quarter_lap_count != 0 else ''}", (10, 30), (0, 0, 255))
+
     def add_state_info(self, frame):
         if frame is not None:
             self.context_manager.get_state()

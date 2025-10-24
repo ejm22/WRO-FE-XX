@@ -12,4 +12,7 @@
 /code/XX_2025_package/videos/
 /code/XX_2025_package/tests/images/
 /code/XX_2025_package/tests/videos/
+/code/XX_2025_package/utils/video/__pycache__/
 __pycache__
+**/__pycache__
+code/XX_2025_package/utils/video/__pycache__/video_counter.cpython-311.pyc

@@ -60,10 +60,8 @@ if __name__ == "__main__":
                 
                 video_thread = VideoThread(camera_manager, context_manager, info_overlay_processor) 
                 video_thread.start()
-                #print('Thread state: ', video_thread.is_alive())
 
             # endregion State 0 : Initializations
-            debug_timer.start("Main loop")
             # region State 1 : Wait for start
             if state == RunStates.WAIT_FOR_START:
                 msg = arduino.read()
@@ -263,14 +261,10 @@ if __name__ == "__main__":
                 arduino.send('m', ANGLE_STRAIGHT, SPEED_STOP)
                 state = RunStates.STOP
                 time.sleep(.2)
-                with video_thread.lock:
-                    camera_manager.capture_image()
-                    camera_manager.transform_image()
                 parking_quality = image_algorithms.verify_parking_quality()
-                print('Out of parking loop')
+                print('Out of parking state')
 
             # endregion State 26 : Challenge 2 - Parking
-            debug_timer.stop()
         
             # region State 9 : Stop
             if state == RunStates.STOP:

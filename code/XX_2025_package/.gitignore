@@ -2,5 +2,3 @@ __pycache__/*
 *.py[cod]
 *.pyo
 *.pyc
-/utils/__pycache__/*
-/__pycache__
