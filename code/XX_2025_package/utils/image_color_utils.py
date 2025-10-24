@@ -6,7 +6,7 @@ COLOR_RANGES = {
     Color.BLUE: (np.array([100, 60, 50]), np.array([130, 255, 255])),
     Color.ORANGE: (np.array([6, 60, 50]), np.array([30, 255, 255])),
     Color.ALL_COLORS: (np.array([0, 100, 50]), np.array([179, 255, 255])),
-    Color.GREEN: (np.array([60, 100, 50]), np.array([85, 255, 255])),
+    Color.GREEN: (np.array([60, 70, 50]), np.array([85, 255, 255])),
     Color.RED: (np.array([175, 70, 50]), np.array([182, 210, 255])),
     Color.PINK: (np.array([155, 135, 50]), np.array([174, 255, 255])),
     Color.WHITE: (np.array([0, 0, 100]), np.array([179, 30, 255])),
