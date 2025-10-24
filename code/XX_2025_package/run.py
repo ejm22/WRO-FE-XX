@@ -64,6 +64,7 @@ if __name__ == "__main__":
             # endregion State 0 : Initializations
             # region State 1 : Wait for start
             if state == RunStates.WAIT_FOR_START:
+                angle = ANGLE_STRAIGHT
                 msg = arduino.read()
                 if msg:
                     if msg == '1':
@@ -150,7 +151,7 @@ if __name__ == "__main__":
             # endregion State 21 : Challenge 2 - Find Direction
             
             # region State 22 : Challenge 2 - Laps
-            if state == RunStates.CHALLENGE_2_LAPS:
+            elif state == RunStates.CHALLENGE_2_LAPS:
                 angle_obstacles, is_green, _, y_center = image_algorithms.find_obstacle_angle_and_draw_lines()
                 servo_angle_obstacles = image_algorithms.calculate_servo_angle_from_obstacle(angle_obstacles, is_green)
                 servo_angle_walls, _ = image_algorithms.calculate_servo_angle_from_walls()

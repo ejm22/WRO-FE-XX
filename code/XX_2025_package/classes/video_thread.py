@@ -25,7 +25,7 @@ class VideoThread(Thread):
             while self.running:
                 current_state = self.context_manager.get_state()
                 
-                if current_state == RunStates.CHALLENGE_2_PARKING:
+                if current_state == RunStates.CHALLENGE_2_PARKING or current_state == RunStates.CHALLENGE_2_FIND_DIRECTION:
                     with self.lock:
                         self.camera_manager.capture_image()
                         self.camera_manager.transform_image()

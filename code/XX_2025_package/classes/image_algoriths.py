@@ -345,7 +345,7 @@ class ImageAlgorithms:
                     return 1000, None, None, None
                 else:
                     return -1000, None, None, None
-
+        
         # Get the biggest rectangle from find_rect() - in the future, we could use the 4th output to use the second biggest obstacle
         _, _, rect, rect2 = ImageDrawingUtils.find_rect(self.camera_manager.obstacle_image, self.camera_manager.polygon_image)
         # Check if a rectangle was found
@@ -468,6 +468,7 @@ class ImageAlgorithms:
             servo_angle = STRAIGHT_ANGLE - ((object_angle + OBJECT_LINE_ANGLE_THRESHOLD) * kp) # green obstacle
         else:
             servo_angle = STRAIGHT_ANGLE - ((object_angle - OBJECT_LINE_ANGLE_THRESHOLD) * kp) # red obstacle
+        print("Raw : ", servo_angle)
         if servo_angle < MIN_ANGLE:
             servo_angle = MIN_ANGLE
         elif servo_angle > MAX_ANGLE:
