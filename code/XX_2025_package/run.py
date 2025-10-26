@@ -15,6 +15,7 @@ from utils.image_transform_utils import ImageTransformUtils
 from utils.enums import Direction
 from utils.image_drawing_utils import ImageDrawingUtils
 from utils.enums import RunStates
+from utils.enums import SpeedStates
 from utils.debug_timer import DebugTimer
 # endregion Imports
 
@@ -37,12 +38,12 @@ OBJECT_CLOSE_ENOUGH = 175
 if __name__ == "__main__":
     state = RunStates.INITIALIZATIONS
     speed = 0
+    speed_state = SpeedStates.STOP
     camera_manager = CameraManager()
     
     try:
         # Main loop
         while True:
-            
             # region State 0 : Initializations
             if state == RunStates.INITIALIZATIONS:
                 context_manager = ContextManager()
@@ -85,9 +86,10 @@ if __name__ == "__main__":
             if state is not RunStates.INITIALIZATIONS and state is not RunStates.WAIT_FOR_START:
                 camera_manager.capture_image()
                 camera_manager.transform_image()
-                camera_manager.display_image = camera_manager.cropped_image.copy()
+                #camera_manager.display_image = camera_manager.cropped_image.copy()
                 lap_tracker.process_image(camera_manager.cnt_blueline, camera_manager.cnt_orangeline)
                 context_manager.set_state(state)
+                context_manager.set_speed_state(speed_state)
             # endregion To-do end of every loop
 
             # region State 11 : Challenge 1 - Find Direction
@@ -102,6 +104,7 @@ if __name__ == "__main__":
                 print("Start position: ", start_position)
                 speed = SPEED_CHALLENGE_1_FAST
                 state = RunStates.CHALLENGE_1_LAPS
+                speed_state = SpeedStates.TURBO
             # endregion State 11 : Challenge 1 - Find Direction
 
             # region State 12 : Challenge 1 - Laps
@@ -110,6 +113,7 @@ if __name__ == "__main__":
                 # Verify distance to travel to stop in the correct position
                 if (context_manager.is_last_quarter()):
                     speed = SPEED_CHALLENGE_1_MID
+                    speed_state = SpeedStates.MEDIUM
                     start_time = time.time()
                     state = RunStates.CHALLENGE_1_PARKING
             # endregion State 12 : Challenge 1 - Laps
@@ -127,12 +131,15 @@ if __name__ == "__main__":
                     else:
                         arduino.send('!', 4400)
                     speed = SPEED_CHALLENGE_1_SLOW
+                    speed_state = SpeedStates.SLOW
                 if context_manager.has_completed_laps() and arduino.read() == 'F':
                     state = RunStates.STOP
+                    speed_state = SpeedStates.STOP
             # endregion State 13 : Challenge 1 - Parking
 
             # region State 21 : Challenge 2 - Find Direction
             if state == RunStates.CHALLENGE_2_FIND_DIRECTION:
+                print("Find direction")
                 speed = SPEED_CHALLENGE_2_WALLS
                 # Find direction
                 image_algorithms.get_direction_from_parking(camera_manager)
@@ -146,8 +153,12 @@ if __name__ == "__main__":
                 arduino.send('t', ANGLE_STRAIGHT - 35 * challenge_direction.value, speed, 1200)
                 arduino.send('!', 10000000)
                 arduino.send('m', ANGLE_STRAIGHT, speed)
-                time.sleep(0.9)
+                time.sleep(0.7)
                 state = RunStates.CHALLENGE_2_LAPS
+                context_manager.set_state(state)                
+                time.sleep(0.2)
+
+
             # endregion State 21 : Challenge 2 - Find Direction
             
             # region State 22 : Challenge 2 - Laps
@@ -159,14 +170,19 @@ if __name__ == "__main__":
                 # Accelerate / decelerate if object is far enough
                 if y_center is not None:
                     if y_center < OBJECT_FAR_ENOUGH:
-                        speed = SPEED_CHALLENGE_2_OBSTACLES
+                        # speed = SPEED_CHALLENGE_2_OBSTACLES
+                        speed = min(speed + 100, SPEED_CHALLENGE_2_OBSTACLES)
+                        speed_state = SpeedStates.FAST
                     else:
                         speed = SPEED_CHALLENGE_2_WALLS
+                        speed_state = SpeedStates.MEDIUM
                 else:
                     speed = SPEED_CHALLENGE_2_WALLS
+                    speed_state = SpeedStates.MEDIUM
                 # region Transition to approach state
                 if (context_manager.has_completed_laps()):
                     speed = SPEED_CHALLENGE_2_APPROACH
+                    speed_state = SpeedStates.SLOW
                     state = RunStates.CHALLENGE_2_APPROACH
                     pink_pixel_y = ImageTransformUtils.PIC_HEIGHT - 10
                     pink_pixel_y_backwards = pink_pixel_y
@@ -207,6 +223,7 @@ if __name__ == "__main__":
                     if (challenge_direction == Direction.RIGHT and pink_x < 150 and pink_y > ImageTransformUtils.PIC_HEIGHT - 100) or (challenge_direction == Direction.LEFT and pink_x > ImageTransformUtils.PIC_WIDTH - 150 and pink_y > ImageTransformUtils.PIC_HEIGHT - 100):
                         # Transition to approach state
                         speed = SPEED_CHALLENGE_2_PARKING
+                        speed_state = SpeedStates.VERY_SLOW
                         arduino.send('!', 2000)
                         ok_to_detect_flag = False
                         state = RunStates.CHALLENGE_2_FORWARD
@@ -230,6 +247,7 @@ if __name__ == "__main__":
             # region State 25 : Challenge 2 - Backwards
             if state == RunStates.CHALLENGE_2_BACKWARDS:
                 speed = -SPEED_CHALLENGE_2_ACCELERATED_PARKING
+                speed_state = SpeedStates.REVERSE
                 angle = ANGLE_STRAIGHT
                 if time.time() - start_time >= 2.4:
                     speed = -SPEED_CHALLENGE_2_PARKING
@@ -243,11 +261,16 @@ if __name__ == "__main__":
             if state == RunStates.CHALLENGE_2_PARKING:
                 context_manager.set_state(RunStates.CHALLENGE_2_PARKING)
                 speed = SPEED_CHALLENGE_2_ACCELERATED_PARKING
+                speed_state = SpeedStates.SLOW
                 # Move forward, then enter the parking spot while turning
                 if (parking_direction == Direction.LEFT and last_was_green) or (parking_direction == Direction.RIGHT and not last_was_green):
                     # Too close, move forward less, turn less
                     print("Too close to the wall, adjusting parking maneuver")
+                    speed_state = SpeedStates.SLOW
+                    context_manager.set_speed_state(speed_state)
                     arduino.send('t', ANGLE_STRAIGHT, speed, 1650) # was 1750
+                    speed_state = SpeedStates.REVERSE
+                    context_manager.set_speed_state(speed_state)
                     arduino.send('t', (ANGLE_STRAIGHT + 1) - 37 * parking_direction.value, -speed, 1250)
                 else:
                     # Normal
@@ -284,14 +307,14 @@ if __name__ == "__main__":
             # region To-do end of every loop
             if state is not RunStates.INITIALIZATIONS and state is not RunStates.WAIT_FOR_START:
                 arduino.send('m', angle, speed)
+                # print("Speed, Angle : ", speed, angle)
                 context_manager.set_state(state)
-                
                 display_copy = camera_manager.display_image.copy()
                 info_overlay_processor.add_info_overlay(display_copy)
-                cv2.imshow("Display", display_copy)
+                #cv2.imshow("Display", display_copy)                
                 
                 video_thread.queue.put("ADD_IMG")
-                
+
             time.sleep(0.001)
             key = cv2.waitKey(1) # Let OpenCV update the window
             if key == 27: # Exit on ESC

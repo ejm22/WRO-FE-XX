@@ -79,7 +79,7 @@ class CameraManager:
         output_path = os.path.join(output_folder, f"video{VideoCounter.get_video_counter()}.mp4")
         
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        self.video_output = cv2.VideoWriter(output_path, fourcc, 15.0, (ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.PIC_HEIGHT))
+        self.video_output = cv2.VideoWriter(output_path, fourcc,24.0, (ImageTransformUtils.PIC_WIDTH, ImageTransformUtils.PIC_HEIGHT))
         VideoCounter.increment_video_counter()
         
     def start_camera(self):
@@ -91,7 +91,8 @@ class CameraManager:
             del self.raw_image
         self.raw_image = self.picam2.capture_array()
         if self.previous_time != 0:
-            print(f"Delay between frames: {time.time() - self.previous_time:.3f} seconds")
+            pass
+            #print(f"Delay between frames: {time.time() - self.previous_time:.3f} seconds")
         self.previous_time = time.time()
         
     def add_frame_to_video(self, frame=None):

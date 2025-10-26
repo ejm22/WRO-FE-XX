@@ -241,7 +241,7 @@ class ImageAlgorithms:
         # Get current - previous diff
         p_compare = p_adjust - self.old_p_adjust
         if p_compare < (-1 * (ImageTransformUtils.PIC_HEIGHT // 2.5)):
-            print("p_compare is : ", p_compare)
+            #print("p_compare is : ", p_compare)
             is_corner = True
         # Get differential adjustment
         d_adjust = (p_compare) * kd
@@ -468,7 +468,7 @@ class ImageAlgorithms:
             servo_angle = STRAIGHT_ANGLE - ((object_angle + OBJECT_LINE_ANGLE_THRESHOLD) * kp) # green obstacle
         else:
             servo_angle = STRAIGHT_ANGLE - ((object_angle - OBJECT_LINE_ANGLE_THRESHOLD) * kp) # red obstacle
-        print("Raw : ", servo_angle)
+        #print("Raw : ", servo_angle)
         if servo_angle < MIN_ANGLE:
             servo_angle = MIN_ANGLE
         elif servo_angle > MAX_ANGLE:

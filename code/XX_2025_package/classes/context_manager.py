@@ -1,10 +1,11 @@
 from utils.enums import Direction
 from utils.enums import StartPosition
 from utils.enums import RunStates
+from utils.enums import SpeedStates
 import time
 
 class ContextManager:
-    LAP_GOAL = 1
+    LAP_GOAL = 3
     CHALLENGE = None
 
     def __init__(self):
@@ -16,6 +17,7 @@ class ContextManager:
         self._state = RunStates.INITIALIZATIONS
         self.start_time = None
         self.elapsed_time = 0
+        self._speed_state = SpeedStates.STOP
         
     def set_direction(self, direction: Direction):
         self._direction = direction
@@ -80,3 +82,9 @@ class ContextManager:
             return 0
         self.elapsed_time = time.time() - self.start_time
         return self.elapsed_time
+    
+    def set_speed_state(self, speed_state: SpeedStates):
+        self._speed_state = speed_state
+
+    def get_speed_state(self):
+        return self._speed_state

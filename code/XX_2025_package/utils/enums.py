@@ -31,3 +31,11 @@ class RunStates(Enum):
     CHALLENGE_2_PARKING = 26
     STOP = 9
     
+class SpeedStates(Enum):
+    STOP = 0
+    VERY_SLOW = 1
+    SLOW = 2
+    MEDIUM = 3
+    FAST = 4
+    TURBO = 5
+    REVERSE = 10
