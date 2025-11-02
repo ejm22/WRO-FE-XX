@@ -3,6 +3,9 @@ Documentation for team Double-X's robot for WRO 2025 - Future Engineers.
 
 ---
 
+## Summary Video
+This 6 minutes video summarizes our project and documentation. We recommend you watch it to easily and efficiently understand our project !
+
 ## The Team
 Team Double-X is made of 2 engineering students, Michael Bruneau and Emile Jacques, and we've been teammates since 2015 !  
 [Our Facebook Page since 2015](https://www.facebook.com/1WROCanadaDoubleX)
@@ -11,6 +14,10 @@ Team Double-X is made of 2 engineering students, Michael Bruneau and Emile Jacqu
   <tr>
     <td><img src="https://github.com/user-attachments/assets/5b6d32f1-d88b-4efd-afe2-26fe086037a9" alt="Michael Bruneau" width="400" height="300" /></td>
     <td><img src="https://github.com/user-attachments/assets/7559d462-5953-40f4-a1f0-3e67d9a98dc4" alt="Emile Jacques" width="400" height="300" /></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/885620ea-6f19-4f53-9617-3658dfa69bf2" alt="Michael Bruneau" width="400" height="300" /></td>
+    <td><img src="https://github.com/user-attachments/assets/9d4218fe-5a3f-4633-a5eb-1c1c1b0a9048" alt="Michael Bruneau" width="400" height="300" /></td>
   </tr>
 </table>
 
@@ -345,8 +352,6 @@ Priority in practice:
 ---
 
 ## Possible Improvements
-- **Replacing White Tape with 3D-Printed Part:**
-The white tape on top of the servo is necessary to ensure the bottom-middle part of the image is white.
 - **Holding the Raspberry Pi Better:**
 The Raspberry Pi is currently fixed with black electric tape. Ideally, a simple detachable 3D-printed part could hold it.
 - **Cutting Power Automatically at 10.8V:**
@@ -355,10 +360,6 @@ Whenever the battery pack voltage is below 10.8V, we would open the circuit to e
 Instead of using a breadboard with mediocre cable management, we would simply add a custom PCB where we would solder the necessary cables in place.
 - **Adding Lateral Distance Sensors:**
 The current one-camera solution is complex to work with for the parallel parking. We would add distance sensors on both sides to detect the parking parking when we pass by, and to improve the overall wall detections across both challenges.
-- **Creating a Communications Class:**
-Our main.py code is currently quite messy, mostly because all commands sent to the Arduino are done inside the main.py, which isn't ideal. We would create yet another class to lighten the code in the main.py.
-- **Optimizing the Overall Code:**
-Thanks to the comments, the code is quite clear, even for an inexperienced user. The problem is that there currently is too much code. We would need to simplify the algorithms and regroup some functions. We already did it once, but some more optimizing could be done before the next event.
 
 ---
 
