@@ -139,6 +139,15 @@ Mechanically assembling the robot is quite straight-forward. The tricky part com
 
 ## Power & Sense Management
 
+### Hardware Architecture
+The "brain" of our robot is a Raspberry Pi 5, coded in Python. Connected to it is the Pi Camera 3 wide angle, meaning that all data will be directly given to the Pi. The Pi is also connected to an Arduino Uno R3, coded in C++, which controls the servo motor and the stepper motor's driver. The Arduino receives its commands via serial communication from the Pi. The stepper motor's driver will then power the motor if needed. 
+
+<table>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/867b1a85-5b9e-4816-b490-e14e0cbea6b1" alt="Michael Bruneau" width="700" height="700" /></td>
+  </tr>
+</table>
+
 - **Controller:** Raspberry Pi 5 (vision+logic, master) + Arduino Uno R3 (motor driver, slave).  
   [Why We Chose the Pi 5](elec/README_elec.md#21-main-components-choice)
 - **Stepper Driver:** DRV8825 on breadboard (micro-stepping).  
