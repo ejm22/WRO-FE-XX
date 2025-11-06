@@ -247,6 +247,7 @@ The camera pipeline produces these images used by the algorithms:
       <img src="https://github.com/user-attachments/assets/f61b0e58-9b93-4888-8548-6ec4ca5e9cb8" width="700">
     </td>
   </tr>
+  <p>*The display image contains new information such as the state of the program, a timer and the speed.</p>
   <tr>
     <td align="center">
       <strong>Polygon Image</strong><br>
@@ -290,11 +291,11 @@ Notes:
 
 ### 3) Obstacle handling calculations
 
-When an obstacle is present (green/red/pink block), the robot computes an avoidance “object line,” converts it to an angle, and arbitrates with wall following.
+When an obstacle is present (green/red/pink block), the robot computes an avoidance “object line,” converts it to an angle, and arbitrates with wall following. The robot will accelerate between obstacles.
 
 Process in [`ImageAlgorithms.find_obstacle_angle_and_draw_lines`](code/XX_2025_package/classes/image_algoriths.py):
-- Safety first: [`ImageAlgorithms.check_outer_wall_crash`](code/XX_2025_package/classes/image_algoriths.py). If a frontal collision risk is detected, immediately force a sharp evasive turn.
-- Find the largest obstacle rectangle on the color mask and classify its color using HSV.
+- Safety first: [`ImageAlgorithms.check_outer_wall_crash`](code/XX_2025_package/classes/image_algoriths.py) and [`ImageAlgorithms.check_inner_wall_crash`](code/XX_2025_package/classes/image_algoriths.py). If a frontal collision risk is detected, immediately force a sharp evasive turn.
+- Find the largest / lowest obstacle rectangle on the color mask image and classify its color using HSV.
 - Draw a guidance line from the obstacle center to a safe floor target x:
   - Green → pass on the right; Red → pass on the left (policy).
 - Convert that line’s geometry into an object angle, then map it to a servo angle with a color-specific offset in [`ImageAlgorithms.calculate_servo_angle_from_obstacle`](code/XX_2025_package/classes/image_algoriths.py).
