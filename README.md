@@ -367,6 +367,15 @@ Priority in practice:
 
 ---
 
+## Software Key Components
+
+- **Communication:** Serial communication via USB cable between Arduino and Pi (using custom protocol).\
+  [Communications Protocol Details](code/md/communication.md)
+- **Raspberry Pi Environment Setup:** Downloading utilities on your Pi, creating a virtual environment (venv), and installing dependencies.\
+  [How to Setup your Raspberry Pi](code/md/raspberry_pi_setup.md)
+
+---
+
 ## Possible Improvements
 - **Holding the Raspberry Pi Better:**
 The Raspberry Pi is currently fixed with black electric tape. Ideally, a simple detachable 3D-printed part could hold it.
@@ -378,14 +387,5 @@ Instead of using a breadboard with mediocre cable management, we would simply ad
 The current one-camera solution is complex to work with for the parallel parking. We would add distance sensors on both sides to detect the parking parking when we pass by, and to improve the overall wall detections across both challenges.
 - **Adding Dynamic Ranges for Colors:**
 The HSV ranges we have are set for the entire run. If we had more time, we would love to add dynamic ranges to account for walls / obstacles that appear lighter because of lighting on certain part of the wall, because of windows for example.
-
----
-
-## Software Key Components
-
-- **Communication:** Serial communication via USB cable between Arduino and Pi (using custom protocol).\
-  [Communications Protocol Details](code/md/communication.md)
-- **Raspberry Pi Environment Setup:** Downloading utilities on your Pi, creating a virtual environment (venv), and installing dependencies.\
-  [How to Setup your Raspberry Pi](code/md/raspberry_pi_setup.md)
 
 ---
