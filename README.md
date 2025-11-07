@@ -2,10 +2,11 @@
 Documentation for team Double-X's robot for WRO 2025 - Future Engineers.
 
 ---
-![20251102_234845]()
 
 ## Summary Video
 This 6 minutes video summarizes our project and documentation. We recommend you watch it to easily and efficiently understand our project !
+
+[![Summmary Video](https://github.com/user-attachments/assets/31b87dc7-00fe-4735-9fdf-9ea1fcb70fb9)](https://www.youtube.com/watch?v=--gac5zhfu8 "Summary Video")
 
 ## The Team
 Team Double-X is made of 2 engineering students, Michael Bruneau and Emile Jacques, and we've been teammates since 2015 !  
