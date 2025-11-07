@@ -53,6 +53,12 @@ Have you ever had methods in your class needing the 'self' input to access the o
   </tr>
 </table>
 
+#### Recent Modifications
+A few hardware modifications were brought since these pictures were taken. 
+- **Stepper Motor & Driver Wiring:** The wiring was simplified to remove one terminal block and multiple solid wires.
+- **White Tape Replaced:** The white tape that used to be on top of the servo motor was replaced by a thin 3D-printed white plate.
+- **Canadian Flags:** A few Canadian flags were added to personalized our robot, since we are proud to represent Canada once again !
+
 ---
 
 ## Performance Videos
