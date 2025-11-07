@@ -55,10 +55,14 @@ Have you ever had methods in your class needing the 'self' input to access the o
 
 ## Performance Videos
 ### Challenge 1
-[Open Challenge Video on Youtube: ](https://youtu.be/OgR29EYXkdw)
+[Open Challenge Video for International Final on Youtube: ](https://youtu.be/R2tzVfoBZ_4)
+
+[Open Challenge Video for National Final on Youtube: ](https://youtu.be/OgR29EYXkdw)
 
 ### Challenge 2
-[Obstacle Challenge Video on Youtube: ](https://youtu.be/s9inOFHvLYA)
+[Obstacle Challenge Video for International Final on Youtube: ](https://youtu.be/RGUWX6tSE9Y)
+
+[Obstacle Challenge Video for National Final on Youtube: ](https://youtu.be/s9inOFHvLYA)
 
 ---
 
