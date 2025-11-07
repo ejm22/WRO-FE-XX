@@ -63,6 +63,7 @@ if __name__ == "__main__":
                 video_thread.start()
 
             # endregion State 0 : Initializations
+            
             # region State 1 : Wait for start
             if state == RunStates.WAIT_FOR_START:
                 angle = ANGLE_STRAIGHT
