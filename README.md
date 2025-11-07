@@ -1,6 +1,8 @@
 # WRO-FE-XX
 Documentation for team Double-X's robot for WRO 2025 - Future Engineers.
 
+If you're searching for the National Final version of the code, you can find the file main.py (National Final version) in the same file as run.py (International Final version). Both codes work if you'd like to try Version 1.
+
 ---
 
 ## Summary Video
