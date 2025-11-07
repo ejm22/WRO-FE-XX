@@ -370,6 +370,8 @@ Whenever the battery pack voltage is below 10.8V, we would open the circuit to e
 Instead of using a breadboard with mediocre cable management, we would simply add a custom PCB where we would solder the necessary cables in place.
 - **Adding Lateral Distance Sensors:**
 The current one-camera solution is complex to work with for the parallel parking. We would add distance sensors on both sides to detect the parking parking when we pass by, and to improve the overall wall detections across both challenges.
+- **Adding Dynamic Ranges for Colors:**
+The HSV ranges we have are set for the entire run. If we had more time, we would love to add dynamic ranges to account for walls / obstacles that appear lighter because of lighting on certain part of the wall, because of windows for example.
 
 ---
 
